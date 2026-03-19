@@ -1,0 +1,210 @@
+/* css/accommodations.css - Page-specific styles */
+
+/* Filter Section */
+.filter-section {
+    background: var(--white);
+    padding: var(--spacing-xl);
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow-md);
+    margin-bottom: var(--spacing-xl);
+}
+
+.filter-section h2 {
+    margin-bottom: var(--spacing-lg);
+    color: var(--dark);
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--spacing-md);
+}
+
+/* Price Range Display */
+.price-range-display {
+    display: flex;
+    justify-content: space-between;
+    margin-top: var(--spacing-xs);
+    color: var(--gray-dark);
+    font-weight: 500;
+}
+
+/* Accommodation Grid */
+.accommodation-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: var(--spacing-xl);
+    margin-top: var(--spacing-xl);
+}
+
+/* Room Cards */
+.room-card {
+    background: var(--white);
+    border-radius: var(--border-radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+    transition: all var(--transition-base);
+}
+
+.room-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-xl);
+}
+
+.room-image {
+    height: 250px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.room-badge {
+    position: absolute;
+    top: var(--spacing-md);
+    right: var(--spacing-md);
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: var(--white);
+    padding: var(--spacing-sm) var(--spacing-md);
+    border-radius: var(--border-radius-md);
+    font-weight: bold;
+    box-shadow: var(--shadow-md);
+}
+
+.room-content {
+    padding: var(--spacing-lg);
+}
+
+.room-title {
+    font-size: 1.5rem;
+    margin-bottom: var(--spacing-xs);
+    color: var(--dark);
+}
+
+.room-type {
+    color: var(--primary-color);
+    font-weight: 500;
+    margin-bottom: var(--spacing-md);
+    text-transform: uppercase;
+    font-size: 0.9rem;
+}
+
+.room-description {
+    color: var(--gray);
+    margin-bottom: var(--spacing-md);
+    line-height: 1.5;
+}
+
+/* Amenities */
+.amenities-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-sm);
+    margin: var(--spacing-md) 0;
+}
+
+.amenity-tag {
+    background: var(--gray-lighter);
+    padding: var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--border-radius-full);
+    font-size: 0.85rem;
+    color: var(--gray-dark);
+    border: 1px solid var(--gray-light);
+}
+
+/* Room Details */
+.room-details {
+    display: flex;
+    gap: var(--spacing-md);
+    margin: var(--spacing-md) 0;
+    color: var(--gray-dark);
+    font-size: 0.95rem;
+}
+
+.room-details span {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-xs);
+}
+
+/* No Results */
+.no-results {
+    text-align: center;
+    padding: var(--spacing-2xl);
+    background: var(--white);
+    border-radius: var(--border-radius-lg);
+    grid-column: 1 / -1;
+}
+
+.no-results i {
+    font-size: 3rem;
+    color: var(--gray-light);
+    margin-bottom: var(--spacing-md);
+    display: block;
+}
+
+/* Booking Details in Modal */
+.booking-details {
+    background-color: var(--gray-lighter);
+    padding: var(--spacing-lg);
+    border-radius: var(--border-radius-md);
+    margin: var(--spacing-lg) 0;
+}
+
+.booking-details p {
+    margin: var(--spacing-sm) 0;
+    color: var(--dark);
+}
+
+.booking-details strong {
+    color: var(--primary-color);
+}
+
+/* Modal Buttons */
+.modal-buttons {
+    display: flex;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+}
+
+.modal-buttons button {
+    flex: 1;
+}
+
+/* Availability Status */
+.availability-badge {
+    display: inline-block;
+    padding: var(--spacing-xs) var(--spacing-sm);
+    border-radius: var(--border-radius-sm);
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.available {
+    background-color: #c6f6d5;
+    color: #22543d;
+}
+
+.limited {
+    background-color: #feebc8;
+    color: #7b341e;
+}
+
+.sold-out {
+    background-color: #fed7d7;
+    color: #742a2a;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .filter-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .accommodation-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .room-details {
+        flex-wrap: wrap;
+    }
+}
