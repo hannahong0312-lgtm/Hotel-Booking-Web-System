@@ -1,210 +1,383 @@
-/* css/accommodations.css - Page-specific styles */
+/* accommodations.css - Accommodation page specific styles */
 
 /* Filter Section */
 .filter-section {
     background: var(--white);
-    padding: var(--spacing-xl);
-    border-radius: var(--border-radius-lg);
-    box-shadow: var(--shadow-md);
-    margin-bottom: var(--spacing-xl);
+    margin: -2rem auto var(--space-lg);
+    padding: var(--space-lg);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    position: relative;
+    z-index: 10;
 }
 
 .filter-section h2 {
-    margin-bottom: var(--spacing-lg);
-    color: var(--dark);
+    color: var(--primary);
+    margin-bottom: var(--space-lg);
+    font-size: 1.5rem;
+    text-align: center;
 }
 
 .filter-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: var(--spacing-md);
+    gap: var(--space-md);
+    align-items: end;
 }
 
-/* Price Range Display */
-.price-range-display {
+.filter-item {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-xs);
+}
+
+.filter-item label {
+    font-weight: 600;
+    color: var(--gray);
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.filter-item input,
+.filter-item select {
+    width: 100%;
+    padding: 0.75rem;
+    border: 2px solid var(--gray-lighter);
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: var(--white);
+}
+
+.filter-item input:focus,
+.filter-item select:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.price-range-value {
     display: flex;
     justify-content: space-between;
-    margin-top: var(--spacing-xs);
-    color: var(--gray-dark);
-    font-weight: 500;
+    margin-top: var(--space-xs);
+    color: var(--gray);
+    font-size: 0.85rem;
 }
 
-/* Accommodation Grid */
-.accommodation-grid {
+.btn-search {
+    width: 100%;
+    margin-top: auto;
+}
+
+/* Section Header */
+.section-header {
+    text-align: center;
+    margin: var(--space-xl) 0 var(--space-lg);
+}
+
+.section-header h2 {
+    font-size: 2.5rem;
+    color: var(--primary);
+    margin-bottom: var(--space-sm);
+}
+
+.section-header p {
+    color: var(--gray);
+    font-size: 1.1rem;
+}
+
+/* Room Grid */
+.room-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-    gap: var(--spacing-xl);
-    margin-top: var(--spacing-xl);
+    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+    gap: var(--space-xl);
+    margin-bottom: var(--space-xl);
 }
 
-/* Room Cards */
+/* Room Card */
 .room-card {
     background: var(--white);
-    border-radius: var(--border-radius-lg);
+    border-radius: var(--radius-lg);
     overflow: hidden;
     box-shadow: var(--shadow-md);
-    transition: all var(--transition-base);
+    transition: all 0.3s ease;
+    position: relative;
 }
 
 .room-card:hover {
-    transform: translateY(-5px);
-    box-shadow: var(--shadow-xl);
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-lg);
 }
 
 .room-image {
-    height: 250px;
+    height: 280px;
     background-size: cover;
     background-position: center;
     position: relative;
 }
 
-.room-badge {
+.price-badge {
     position: absolute;
-    top: var(--spacing-md);
-    right: var(--spacing-md);
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    top: var(--space-sm);
+    right: var(--space-sm);
+    background: var(--accent);
     color: var(--white);
-    padding: var(--spacing-sm) var(--spacing-md);
-    border-radius: var(--border-radius-md);
+    padding: 0.5rem 1rem;
+    border-radius: var(--radius-md);
     font-weight: bold;
-    box-shadow: var(--shadow-md);
+    font-size: 1.1rem;
+}
+
+.price-badge span {
+    font-size: 0.8rem;
+    font-weight: normal;
+}
+
+.popular-badge {
+    position: absolute;
+    top: var(--space-sm);
+    left: var(--space-sm);
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: var(--white);
+    padding: 0.4rem 0.8rem;
+    border-radius: var(--radius-md);
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.availability-badge {
+    position: absolute;
+    bottom: var(--space-sm);
+    left: var(--space-sm);
+    padding: 0.4rem 0.8rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.8rem;
+    font-weight: 600;
+    backdrop-filter: blur(5px);
+}
+
+.availability-badge.available {
+    background: rgba(39, 174, 96, 0.9);
+    color: white;
+}
+
+.availability-badge.limited {
+    background: rgba(243, 156, 18, 0.9);
+    color: white;
+}
+
+.availability-badge.soldout {
+    background: rgba(231, 76, 60, 0.9);
+    color: white;
 }
 
 .room-content {
-    padding: var(--spacing-lg);
+    padding: var(--space-lg);
 }
 
 .room-title {
     font-size: 1.5rem;
-    margin-bottom: var(--spacing-xs);
-    color: var(--dark);
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: var(--space-xs);
 }
 
 .room-type {
-    color: var(--primary-color);
-    font-weight: 500;
-    margin-bottom: var(--spacing-md);
+    display: inline-block;
+    background: var(--gray-lighter);
+    padding: 0.25rem 0.75rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.7rem;
     text-transform: uppercase;
-    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--gray);
+    margin-bottom: var(--space-sm);
+    letter-spacing: 0.5px;
 }
 
 .room-description {
     color: var(--gray);
-    margin-bottom: var(--spacing-md);
-    line-height: 1.5;
+    line-height: 1.6;
+    margin-bottom: var(--space-md);
+    font-size: 0.95rem;
 }
 
-/* Amenities */
-.amenities-list {
+.room-features {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--spacing-sm);
-    margin: var(--spacing-md) 0;
+    gap: var(--space-md);
+    margin-bottom: var(--space-md);
+    padding: var(--space-sm) 0;
+    border-top: 1px solid var(--gray-lighter);
+    border-bottom: 1px solid var(--gray-lighter);
+}
+
+.feature {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--gray);
+}
+
+.feature i {
+    color: var(--accent);
+    width: 16px;
+}
+
+.amenities {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-bottom: var(--space-md);
 }
 
 .amenity-tag {
     background: var(--gray-lighter);
-    padding: var(--spacing-xs) var(--spacing-md);
-    border-radius: var(--border-radius-full);
-    font-size: 0.85rem;
+    padding: 0.3rem 0.8rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
     color: var(--gray-dark);
-    border: 1px solid var(--gray-light);
-}
-
-/* Room Details */
-.room-details {
-    display: flex;
-    gap: var(--spacing-md);
-    margin: var(--spacing-md) 0;
-    color: var(--gray-dark);
-    font-size: 0.95rem;
-}
-
-.room-details span {
-    display: flex;
+    display: inline-flex;
     align-items: center;
-    gap: var(--spacing-xs);
+    gap: 0.3rem;
 }
 
-/* No Results */
-.no-results {
+.amenity-tag i {
+    color: var(--success);
+    font-size: 0.7rem;
+}
+
+.room-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: var(--space-md);
+    padding-top: var(--space-md);
+    border-top: 1px solid var(--gray-lighter);
+}
+
+.room-price {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+.room-price span {
+    font-size: 0.9rem;
+    font-weight: normal;
+    color: var(--gray);
+}
+
+.btn-book {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-book:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Stats Section */
+.stats-section {
+    background: var(--primary);
+    padding: var(--space-xl) 0;
+    margin: var(--space-xl) 0;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: var(--space-lg);
     text-align: center;
-    padding: var(--spacing-2xl);
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: var(--space-xs);
+}
+
+.stat-label {
+    color: var(--white);
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* No Results Message */
+.no-results-message {
+    text-align: center;
+    padding: var(--space-xl);
     background: var(--white);
-    border-radius: var(--border-radius-lg);
+    border-radius: var(--radius-lg);
     grid-column: 1 / -1;
 }
 
-.no-results i {
+.no-results-message i {
     font-size: 3rem;
     color: var(--gray-light);
-    margin-bottom: var(--spacing-md);
-    display: block;
+    margin-bottom: var(--space-md);
 }
 
-/* Booking Details in Modal */
-.booking-details {
-    background-color: var(--gray-lighter);
-    padding: var(--spacing-lg);
-    border-radius: var(--border-radius-md);
-    margin: var(--spacing-lg) 0;
+.no-results-message h3 {
+    color: var(--primary);
+    margin-bottom: var(--space-sm);
 }
 
-.booking-details p {
-    margin: var(--spacing-sm) 0;
-    color: var(--dark);
-}
-
-.booking-details strong {
-    color: var(--primary-color);
-}
-
-/* Modal Buttons */
-.modal-buttons {
-    display: flex;
-    gap: var(--spacing-md);
-    margin-top: var(--spacing-lg);
-}
-
-.modal-buttons button {
-    flex: 1;
-}
-
-/* Availability Status */
-.availability-badge {
-    display: inline-block;
-    padding: var(--spacing-xs) var(--spacing-sm);
-    border-radius: var(--border-radius-sm);
-    font-size: 0.85rem;
-    font-weight: 500;
-}
-
-.available {
-    background-color: #c6f6d5;
-    color: #22543d;
-}
-
-.limited {
-    background-color: #feebc8;
-    color: #7b341e;
-}
-
-.sold-out {
-    background-color: #fed7d7;
-    color: #742a2a;
+.no-results-message p {
+    color: var(--gray);
 }
 
 /* Responsive */
 @media (max-width: 768px) {
+    .filter-section {
+        margin-top: 0;
+        padding: var(--space-md);
+    }
+    
     .filter-grid {
         grid-template-columns: 1fr;
     }
     
-    .accommodation-grid {
+    .room-grid {
         grid-template-columns: 1fr;
     }
     
-    .room-details {
-        flex-wrap: wrap;
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--space-md);
+    }
+    
+    .room-footer {
+        flex-direction: column;
+        gap: var(--space-sm);
+        text-align: center;
+    }
+    
+    .section-header h2 {
+        font-size: 1.8rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .room-features {
+        gap: var(--space-sm);
+    }
+    
+    .feature {
+        font-size: 0.75rem;
     }
 }

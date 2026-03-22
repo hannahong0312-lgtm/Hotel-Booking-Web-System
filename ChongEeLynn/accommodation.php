@@ -1,9 +1,8 @@
 <?php
-// accommodations.php - Main Accommodation Page
+// accommodation.php - Main Accommodation Page
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// Sample room data (you can replace with database later)
 $rooms = [
     [
         'id' => 1,
@@ -109,7 +108,7 @@ $room_types = array_unique(array_column($rooms, 'type'));
     
     <!-- External CSS Files -->
     <link rel="stylesheet" href="Shared/main.css">
-    <link rel="stylesheet" href="accommodations.css">
+    <link rel="stylesheet" href="accommodation.css">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -128,7 +127,7 @@ $room_types = array_unique(array_column($rooms, 'type'));
         <div class="container">
             <ul>
                 <li><a href="index.php">Home</a></li>
-                <li><a href="accommodations.php" class="active">Accommodations</a></li>
+                <li><a href="accommodation.php" class="active">Accommodations</a></li>
                 <li><a href="bookings.php">My Bookings</a></li>
                 <li><a href="contact.php">Contact</a></li>
             </ul>
