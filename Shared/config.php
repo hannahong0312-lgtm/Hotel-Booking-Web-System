@@ -1,6 +1,10 @@
 <?php
 // includes/config.php
-session_start();
+
+// Start session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 // Database configuration
 define('DB_HOST', 'localhost');
@@ -40,8 +44,12 @@ function cleanInput($data) {
 
 // Function to check if user is logged in
 function isLoggedIn() {
-    return isset($_SESSION['user_id']);
+    return isset($_SESSION['user_id']) && !empty($_SESSION['user_id']);
 }
+
+// Set global variables for header
+$is_logged_in = isLoggedIn();
+$user_role = isset($_SESSION['user_role']) ? $_SESSION['user_role'] : null;
 
 // Function to redirect
 function redirect($url) {
