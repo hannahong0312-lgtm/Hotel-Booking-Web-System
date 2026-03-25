@@ -40,8 +40,8 @@ require_once 'config.php';
                 </div>
                 <nav class="nav">
                     <ul>
-                        <li><a href="index.php" class="active">Home</a></li>
-                        <li><a href="room_list.php">Rooms & Suites</a></li>
+                        <li><a href="../ChangJingEn/index.php" class="active">Home</a></li>
+                        <li><a href="../ChongEeLynn/accommodation.php">Rooms & Suites</a></li>
                         <li><a href="dining.php">Eat & Drink</a></li>
                         <li><a href="meetings.php">Meetings & Events</a></li>
                         <li><a href="offers.php">Offers</a></li>
