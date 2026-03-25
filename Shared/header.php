@@ -7,10 +7,6 @@ if (session_status() === PHP_SESSION_NONE) {
 // Include configuration file
 require_once 'config.php';
 
-// Define base URL (adjust based on your setup)
-$base_url = '/Hotel_Booking_System/'; // or whatever your project path is
-
-$pageTitle = isset($pageTitle) ? $pageTitle : '';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -18,7 +14,7 @@ $pageTitle = isset($pageTitle) ? $pageTitle : '';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <meta name="description" content="Grand Hotel - Luxury accommodations for every traveler">
-    <title><?php echo $pageTitle ? $pageTitle . ' - ' : ''; ?>Grand Hotel</title>
+    <title>Grand Hotel</title>
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
