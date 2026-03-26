@@ -42,9 +42,12 @@ require_once 'config.php';
                     <ul>
                         <li><a href="../ChangJingEn/index.php" class="active">Home</a></li>
                         <li><a href="../ChongEeLynn/accommodation.php">Rooms & Suites</a></li>
-                        <li><a href="dining.php">Eat & Drink</a></li>
-                        <li><a href="meetings.php">Meetings & Events</a></li>
-                        <li><a href="offers.php">Offers</a></li>
+                        <li><a href="../Hannah/dining.php">Dining</a></li>
+                        <li><a href="../ChangJingEn/events.php">Weddings & Events</a></li>
+                        <li><a href="../ChangJingEn/facilities.php">Facilities</a></li>
+                        <li><a href="../ChongEeLynn/experiences.php">Experiences</a></li>
+                        <li><a href="../ChongEeLynn/offers.php">Offers</a></li>
+                        <li><a href="../Hannah/aboutus.php">About Us</a></li>
                     </ul>
                 </nav>
                 <div class="header-actions">

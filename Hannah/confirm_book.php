@@ -100,7 +100,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
     }
     
     .card-header {
-        background: #1E3A5F;
+        background: #E55A3B;
         color: white;
         padding: 20px 25px;
     }
@@ -132,7 +132,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
     
     .room-icon {
         font-size: 3rem;
-        color: #1E3A5F;
+        color: #E55A3B;
     }
     
     .room-details h3 {
@@ -165,7 +165,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
     
     .summary-label i {
         margin-right: 8px;
-        color: #1E3A5F;
+        color: #E55A3B;
         width: 20px;
     }
     
@@ -178,7 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
     .total-section {
         margin-top: 20px;
         padding-top: 15px;
-        border-top: 2px solid #667eea;
+        border-top: 2px solid #E55A3B;
     }
     
     .total-item {
@@ -189,7 +189,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
     }
     
     .grand-total {
-        background: #1E3A5F;
+        background: #E55A3B;
         color: white;
         padding: 15px;
         border-radius: 10px;
@@ -211,7 +211,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
     
     .form-group label i {
         margin-right: 8px;
-        color: #1E3A5F;
+        color: #E55A3B;
     }
     
     .form-control {
@@ -226,7 +226,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
     /* Payment methods */
     .payment-methods {
         margin-bottom: 25px;
-        color: #1E3A5F;
+        color: #E55A3B;
     }
     
     .payment-option {
@@ -240,7 +240,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
     .payment-option label {
         display: inline-block;
         cursor: pointer;
-        color: #1E3A5F;;
+        color: #333;
+        padding: 2px 5px;
     }
     
     .payment-option i {
@@ -263,7 +264,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
     }
     
     .btn-primary {
-        background: #1E3A5F;
+        background: #E55A3B;
         color: white;
     }
     
@@ -308,11 +309,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
         padding: 15px;
         border-radius: 8px;
         margin-top: 20px;
-        border-left: 3px solid #1E3A5F;
+        border-left: 3px solid #E55A3B;
     }
     
     .cancellation-policy i {
-        color: #1E3A5F;
+        color: #E55A3B;
         margin-right: 8px;
     }
     
@@ -468,8 +469,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
                             </div>
                             
                             <div class="payment-methods">
-                                <label><i class="fas fa-credit-card"></i> Payment Method</label>
-                                <div class="payment-option">
+                                <label><i class="fas fa-credit-card"></i>Payment Method</label>                                <div class="payment-option">
                                     <input type="radio" id="credit_card" name="payment_method" value="credit_card" checked>
                                     <label for="credit_card"><i class="fab fa-cc-visa" ></i> Credit Card</label>
                                 </div>
