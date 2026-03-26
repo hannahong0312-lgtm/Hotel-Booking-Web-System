@@ -179,11 +179,13 @@ $room_types = array_unique(array_column($rooms, 'type'));
         
         <div class="room-grid" id="roomGrid">
             <?php foreach($rooms as $room): ?>
+                <!-- ADDED: onclick to make the card clickable -->
                 <div class="room-card" 
                      data-id="<?php echo $room['id']; ?>"
                      data-price="<?php echo $room['price']; ?>"
                      data-type="<?php echo $room['type']; ?>"
-                     data-capacity="<?php echo $room['capacity']; ?>">
+                     data-capacity="<?php echo $room['capacity']; ?>"
+                     onclick="window.location.href='roomdetails.php?id=<?php echo $room['id']; ?>'">
                     
                     <div class="room-image" style="background-image: url('<?php echo $room['image']; ?>')">
                         <div class="price-badge">$<?php echo number_format($room['price'], 0); ?><span>/night</span></div>
@@ -244,11 +246,12 @@ $room_types = array_unique(array_column($rooms, 'type'));
                                 <span>/night</span>
                             </div>
                             <?php if($room['available'] > 0): ?>
-                                <button class="btn btn-primary btn-book" onclick="openBookingModal(<?php echo $room['id']; ?>)">
+                                <!-- ADDED: event.stopPropagation() to prevent card click when clicking button -->
+                                <button class="btn btn-primary btn-book" onclick="event.stopPropagation(); openBookingModal(<?php echo $room['id']; ?>)">
                                     Book Now <i class="fas fa-arrow-right"></i>
                                 </button>
                             <?php else: ?>
-                                <button class="btn btn-secondary btn-book" disabled>
+                                <button class="btn btn-secondary btn-book" disabled onclick="event.stopPropagation();">
                                     Unavailable
                                 </button>
                             <?php endif; ?>
@@ -283,6 +286,30 @@ $room_types = array_unique(array_column($rooms, 'type'));
         </div>
     </div>
 </section>
+
+<!-- Booking Modal (make sure this exists in your HTML) -->
+<div id="bookingModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <h2><i class="fas fa-calendar-check"></i> Booking Summary</h2>
+        <div id="bookingSummary"></div>
+        <div class="modal-buttons">
+            <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="confirmBooking()">Confirm Booking</button>
+        </div>
+    </div>
+</div>
+
+<!-- Success Modal -->
+<div id="successModal" class="modal" style="display: none;">
+    <div class="modal-content success">
+        <span class="close" onclick="closeSuccessModal()">&times;</span>
+        <i class="fas fa-check-circle success-icon"></i>
+        <h2>Booking Confirmed!</h2>
+        <p>Thank you for your booking. We'll send you a confirmation email shortly.</p>
+        <button class="btn btn-primary" onclick="closeSuccessModal()">Continue</button>
+    </div>
+</div>
 
 <script>
     // Store rooms data for JavaScript
@@ -357,6 +384,7 @@ $room_types = array_unique(array_column($rooms, 'type'));
     
     // Open booking modal
     function openBookingModal(roomId) {
+        event.stopPropagation(); // Prevent card click from triggering
         const room = roomsData.find(r => r.id === roomId);
         const checkIn = document.getElementById('checkIn').value;
         const checkOut = document.getElementById('checkOut').value;
