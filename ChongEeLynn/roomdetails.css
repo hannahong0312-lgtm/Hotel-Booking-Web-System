@@ -1,68 +1,92 @@
-/* roomdetails.css - Individual Room Details Page Styles */
+/* ============================================
+   ROOM DETAILS PAGE - DARK BLUE THEME
+   ============================================ */
 
-/* Breadcrumb */
+/* Dark Blue Theme Variables */
+:root {
+    --dark-bg: #0A192F;
+    --dark-card: #112B3F;
+    --dark-border: #1E3A5F;
+    --dark-text: #E6F1FF;
+    --dark-text-light: #8892B0;
+    --coral: #FF6B4A;
+}
+
+/* Page Background */
+body {
+    background: var(--dark-bg);
+    color: var(--dark-text);
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* ========== BREADCRUMB ========== */
 .breadcrumb {
-    padding: var(--space-md) 0;
-    margin-bottom: var(--space-md);
-    border-bottom: 1px solid var(--gray-lighter);
+    padding: 20px 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--dark-border);
     display: flex;
     align-items: center;
-    gap: var(--space-sm);
+    gap: 10px;
     flex-wrap: wrap;
 }
 
 .breadcrumb a {
-    color: var(--accent);
+    color: var(--coral);
     text-decoration: none;
     transition: color 0.3s ease;
 }
 
 .breadcrumb a:hover {
-    color: var(--accent-dark);
+    color: #E55A3B;
 }
 
 .breadcrumb .current {
-    color: var(--gray);
+    color: var(--dark-text-light);
 }
 
 .breadcrumb i {
     font-size: 0.8rem;
-    color: var(--gray-light);
+    color: var(--dark-text-light);
 }
 
-/* Room Header */
+/* ========== ROOM HEADER ========== */
 .room-header {
-    margin-bottom: var(--space-xl);
+    margin-bottom: 40px;
 }
 
 .room-header h1 {
     font-size: 2.5rem;
-    color: var(--primary);
-    margin-bottom: var(--space-sm);
+    color: var(--dark-text);
+    margin-bottom: 15px;
 }
 
 .room-meta {
     display: flex;
     align-items: center;
-    gap: var(--space-md);
+    gap: 20px;
     flex-wrap: wrap;
 }
 
 .room-type-badge {
-    background: var(--gray-lighter);
-    padding: 0.3rem 1rem;
-    border-radius: var(--radius-md);
+    background: rgba(255, 107, 74, 0.2);
+    padding: 5px 15px;
+    border-radius: 20px;
     font-size: 0.85rem;
     font-weight: 600;
     text-transform: uppercase;
-    color: var(--gray-dark);
+    color: var(--coral);
 }
 
 .popular-badge {
     background: linear-gradient(135deg, #f39c12, #e67e22);
-    color: var(--white);
-    padding: 0.3rem 1rem;
-    border-radius: var(--radius-md);
+    color: white;
+    padding: 5px 15px;
+    border-radius: 20px;
     font-size: 0.85rem;
     font-weight: 600;
 }
@@ -70,27 +94,27 @@
 .rating {
     display: flex;
     align-items: center;
-    gap: 0.3rem;
+    gap: 5px;
     color: #f39c12;
 }
 
 .rating span {
-    color: var(--gray);
+    color: var(--dark-text-light);
     font-size: 0.9rem;
 }
 
-/* Gallery */
+/* ========== GALLERY ========== */
 .gallery {
-    margin-bottom: var(--space-xl);
+    margin-bottom: 40px;
 }
 
 .main-image {
     width: 100%;
     height: 500px;
     overflow: hidden;
-    border-radius: var(--radius-lg);
-    margin-bottom: var(--space-sm);
-    background: var(--gray-lighter);
+    border-radius: 24px;
+    margin-bottom: 15px;
+    background: var(--dark-card);
 }
 
 .main-image img {
@@ -107,13 +131,13 @@
 .thumbnail-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: var(--space-sm);
+    gap: 15px;
 }
 
 .thumbnail {
     height: 100px;
     overflow: hidden;
-    border-radius: var(--radius-md);
+    border-radius: 16px;
     cursor: pointer;
     opacity: 0.7;
     transition: all 0.3s ease;
@@ -126,7 +150,7 @@
 }
 
 .thumbnail.active {
-    border-color: var(--accent);
+    border-color: var(--coral);
     opacity: 1;
 }
 
@@ -136,64 +160,65 @@
     object-fit: cover;
 }
 
-/* Details Grid */
+/* ========== DETAILS GRID ========== */
 .details-grid {
     display: grid;
     grid-template-columns: 1fr 400px;
-    gap: var(--space-xl);
+    gap: 40px;
+    margin-bottom: 50px;
 }
 
-/* Info Section */
+/* ========== INFO SECTION ========== */
 .info-section {
     display: flex;
     flex-direction: column;
-    gap: var(--space-lg);
+    gap: 30px;
 }
 
 .info-card {
-    background: var(--white);
-    border-radius: var(--radius-lg);
-    padding: var(--space-lg);
-    box-shadow: var(--shadow-sm);
+    background: var(--dark-card);
+    border-radius: 24px;
+    padding: 25px;
+    border: 1px solid var(--dark-border);
 }
 
 .info-card h2 {
     font-size: 1.5rem;
-    color: var(--primary);
-    margin-bottom: var(--space-md);
+    color: var(--dark-text);
+    margin-bottom: 20px;
     display: flex;
     align-items: center;
-    gap: var(--space-sm);
+    gap: 10px;
 }
 
 .info-card h2 i {
-    color: var(--accent);
+    color: var(--coral);
 }
 
 .description {
-    color: var(--gray-dark);
+    color: var(--dark-text-light);
     line-height: 1.8;
-    margin-bottom: var(--space-lg);
+    margin-bottom: 25px;
 }
 
 /* Specs */
 .specs {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-md);
-    padding-top: var(--space-md);
-    border-top: 1px solid var(--gray-lighter);
+    gap: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--dark-border);
 }
 
 .spec-item {
     display: flex;
     align-items: center;
-    gap: var(--space-sm);
+    gap: 15px;
 }
 
 .spec-item i {
     font-size: 1.5rem;
-    color: var(--accent);
+    color: var(--coral);
     width: 32px;
 }
 
@@ -203,13 +228,13 @@
 }
 
 .spec-item strong {
-    color: var(--primary);
+    color: var(--dark-text);
     font-size: 0.85rem;
     text-transform: uppercase;
 }
 
 .spec-item span {
-    color: var(--gray-dark);
+    color: var(--dark-text-light);
     font-size: 0.9rem;
 }
 
@@ -217,23 +242,23 @@
 .amenities-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: var(--space-sm);
+    gap: 12px;
 }
 
 .amenity-item {
     display: flex;
     align-items: center;
-    gap: var(--space-sm);
-    padding: var(--space-xs) 0;
+    gap: 10px;
+    padding: 5px 0;
 }
 
 .amenity-item i {
-    color: var(--success);
+    color: #27ae60;
     font-size: 1rem;
 }
 
 .amenity-item span {
-    color: var(--gray-dark);
+    color: var(--dark-text-light);
     font-size: 0.95rem;
 }
 
@@ -244,85 +269,86 @@
 }
 
 .policies li {
-    padding: var(--space-xs) 0;
-    color: var(--gray-dark);
+    padding: 8px 0;
+    color: var(--dark-text-light);
     display: flex;
     align-items: center;
-    gap: var(--space-sm);
+    gap: 10px;
 }
 
 .policies li i {
-    color: var(--accent);
+    color: var(--coral);
     width: 24px;
 }
 
-/* Booking Section */
+/* ========== BOOKING SECTION ========== */
 .booking-section {
     position: sticky;
-    top: var(--space-lg);
+    top: 30px;
 }
 
 .booking-card {
-    background: var(--white);
-    border-radius: var(--radius-lg);
-    padding: var(--space-lg);
-    box-shadow: var(--shadow-lg);
-    margin-bottom: var(--space-lg);
+    background: var(--dark-card);
+    border-radius: 24px;
+    padding: 25px;
+    border: 1px solid var(--dark-border);
+    position: sticky;
+    top: 20px;
 }
 
 .price-display {
     text-align: center;
-    margin-bottom: var(--space-md);
-    padding-bottom: var(--space-md);
-    border-bottom: 1px solid var(--gray-lighter);
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--dark-border);
 }
 
 .price-display .price {
     font-size: 2.5rem;
     font-weight: 700;
-    color: var(--accent);
+    color: var(--coral);
 }
 
 .price-display .per-night {
-    color: var(--gray);
+    color: var(--dark-text-light);
     font-size: 0.9rem;
 }
 
 .availability-status {
     text-align: center;
-    margin-bottom: var(--space-lg);
+    margin-bottom: 25px;
 }
 
 .status {
     display: inline-block;
-    padding: 0.5rem 1rem;
-    border-radius: var(--radius-md);
+    padding: 8px 15px;
+    border-radius: 40px;
     font-weight: 600;
 }
 
 .status.available {
-    background: rgba(39, 174, 96, 0.1);
+    background: rgba(39, 174, 96, 0.2);
     color: #27ae60;
 }
 
 .status.limited {
-    background: rgba(243, 156, 18, 0.1);
+    background: rgba(243, 156, 18, 0.2);
     color: #f39c12;
 }
 
 .status.soldout {
-    background: rgba(231, 76, 60, 0.1);
+    background: rgba(231, 76, 60, 0.2);
     color: #e74c3c;
 }
 
 .form-group {
-    margin-bottom: var(--space-md);
+    margin-bottom: 20px;
 }
 
 .form-group label {
     display: block;
-    margin-bottom: var(--space-xs);
-    color: var(--gray);
+    margin-bottom: 8px;
+    color: var(--dark-text-light);
     font-weight: 600;
     font-size: 0.85rem;
     text-transform: uppercase;
@@ -331,141 +357,205 @@
 .form-group input,
 .form-group select {
     width: 100%;
-    padding: 0.75rem;
-    border: 2px solid var(--gray-lighter);
-    border-radius: var(--radius-md);
+    padding: 10px;
+    background: var(--dark-bg);
+    border: 1px solid var(--dark-border);
+    border-radius: 12px;
     font-size: 1rem;
+    color: var(--dark-text);
     transition: all 0.3s ease;
 }
 
 .form-group input:focus,
 .form-group select:focus {
     outline: none;
-    border-color: var(--accent);
+    border-color: var(--coral);
+}
+
+.form-group input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
 }
 
 .booking-summary {
-    background: var(--gray-lighter);
-    padding: var(--space-md);
-    border-radius: var(--radius-md);
-    margin: var(--space-lg) 0;
+    background: var(--dark-bg);
+    padding: 15px;
+    border-radius: 16px;
+    margin: 20px 0;
 }
 
 .summary-line {
     display: flex;
     justify-content: space-between;
-    padding: var(--space-xs) 0;
-    color: var(--gray-dark);
+    padding: 5px 0;
+    color: var(--dark-text-light);
 }
 
 .summary-line.total {
-    margin-top: var(--space-sm);
-    padding-top: var(--space-sm);
-    border-top: 2px solid var(--gray-light);
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--dark-border);
     font-size: 1.1rem;
     font-weight: 700;
-    color: var(--primary);
+    color: var(--dark-text);
 }
 
 .btn-book-now {
     width: 100%;
-    padding: 1rem;
+    padding: 12px;
     font-size: 1.1rem;
     font-weight: 600;
+    background: var(--coral);
+    color: white;
+    border: none;
+    border-radius: 40px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-book-now:hover {
+    background: #E55A3B;
+    transform: translateY(-2px);
+}
+
+.btn-book-now:disabled {
+    background: var(--dark-border);
+    cursor: not-allowed;
+    transform: none;
 }
 
 .secure-booking {
     text-align: center;
-    margin-top: var(--space-md);
-    color: var(--gray);
+    margin-top: 15px;
+    color: var(--dark-text-light);
     font-size: 0.85rem;
 }
 
 .secure-booking i {
-    color: var(--success);
+    color: #27ae60;
 }
 
-/* Similar Rooms */
+/* ========== SIMILAR ROOMS SECTION ========== */
 .similar-rooms {
-    background: var(--white);
-    border-radius: var(--radius-lg);
-    padding: var(--space-lg);
-    box-shadow: var(--shadow-sm);
+    margin-top: 50px;
+    padding-top: 30px;
+    border-top: 1px solid var(--dark-border);
 }
 
 .similar-rooms h3 {
-    font-size: 1.2rem;
-    color: var(--primary);
-    margin-bottom: var(--space-md);
+    font-size: 1.5rem;
+    color: var(--dark-text);
+    margin-bottom: 25px;
     display: flex;
     align-items: center;
-    gap: var(--space-sm);
+    gap: 10px;
+}
+
+.similar-rooms h3 i {
+    color: var(--coral);
 }
 
 .similar-grid {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-md);
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 25px;
 }
 
 .similar-card {
     display: flex;
-    gap: var(--space-sm);
+    gap: 15px;
     text-decoration: none;
-    padding: var(--space-sm);
-    border-radius: var(--radius-md);
+    padding: 15px;
+    background: var(--dark-card);
+    border-radius: 20px;
     transition: all 0.3s ease;
-    border: 1px solid var(--gray-lighter);
+    border: 1px solid var(--dark-border);
 }
 
 .similar-card:hover {
     transform: translateX(5px);
-    border-color: var(--accent);
-    box-shadow: var(--shadow-sm);
+    border-color: var(--coral);
 }
 
 .similar-card img {
-    width: 80px;
-    height: 80px;
+    width: 100px;
+    height: 100px;
     object-fit: cover;
-    border-radius: var(--radius-md);
+    border-radius: 16px;
+}
+
+.similar-info {
+    flex: 1;
 }
 
 .similar-info h4 {
-    color: var(--primary);
-    font-size: 0.95rem;
-    margin-bottom: 0.25rem;
+    color: var(--dark-text);
+    font-size: 1rem;
+    margin-bottom: 5px;
 }
 
 .similar-info p {
-    color: var(--accent);
-    font-size: 0.85rem;
+    color: var(--coral);
+    font-size: 0.9rem;
     font-weight: 600;
 }
 
-/* Modals */
+/* ========== BUTTONS ========== */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 40px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: var(--coral);
+    color: white;
+}
+
+.btn-primary:hover {
+    background: #E55A3B;
+}
+
+.btn-secondary {
+    background: transparent;
+    border: 1px solid var(--dark-border);
+    color: var(--dark-text);
+}
+
+.btn-secondary:hover {
+    background: var(--dark-border);
+}
+
+/* ========== MODALS ========== */
 .modal {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.8);
     display: flex;
     align-items: center;
     justify-content: center;
     z-index: 1000;
-    animation: fadeIn 0.3s ease;
+    backdrop-filter: blur(5px);
 }
 
 .modal-content {
-    background: var(--white);
-    border-radius: var(--radius-lg);
+    background: var(--dark-card);
+    border-radius: 24px;
     max-width: 500px;
     width: 90%;
-    padding: var(--space-xl);
+    padding: 30px;
     position: relative;
-    animation: slideUp 0.3s ease;
+    border: 1px solid var(--dark-border);
 }
 
 .modal-content.success {
@@ -473,75 +563,77 @@
 }
 
 .modal-content h2 {
-    color: var(--primary);
-    margin-bottom: var(--space-lg);
+    color: var(--dark-text);
+    margin-bottom: 20px;
 }
 
 .modal-content h2 i {
-    color: var(--success);
+    color: #27ae60;
 }
 
 .close {
     position: absolute;
-    top: var(--space-md);
-    right: var(--space-md);
+    top: 15px;
+    right: 20px;
     font-size: 1.5rem;
     cursor: pointer;
-    color: var(--gray);
+    color: var(--dark-text-light);
     transition: color 0.3s ease;
 }
 
 .close:hover {
-    color: var(--danger);
+    color: var(--coral);
 }
 
 .modal-buttons {
     display: flex;
-    gap: var(--space-md);
-    margin-top: var(--space-lg);
+    gap: 15px;
+    margin-top: 25px;
     justify-content: flex-end;
 }
 
 .success-icon {
     font-size: 4rem;
-    color: var(--success);
-    margin-bottom: var(--space-md);
+    color: #27ae60;
+    margin-bottom: 20px;
 }
 
-/* Animations */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-    }
-    to {
-        opacity: 1;
-    }
+.total-price {
+    font-size: 1.2rem;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--dark-border);
+    color: var(--coral);
 }
 
-@keyframes slideUp {
-    from {
-        transform: translateY(50px);
-        opacity: 0;
-    }
-    to {
-        transform: translateY(0);
-        opacity: 1;
-    }
-}
+/* ========== RESPONSIVE DESIGN ========== */
 
-/* Responsive */
+/* Tablet (768px - 1024px) */
 @media (max-width: 1024px) {
     .details-grid {
         grid-template-columns: 1fr;
+        gap: 30px;
     }
     
     .booking-section {
         position: static;
-        margin-top: var(--space-lg);
+    }
+    
+    .booking-card {
+        position: static;
+    }
+    
+    .similar-grid {
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     }
 }
 
+/* Mobile (480px - 768px) */
 @media (max-width: 768px) {
+    .container {
+        padding: 0 15px;
+    }
+    
     .room-header h1 {
         font-size: 1.8rem;
     }
@@ -552,6 +644,7 @@
     
     .thumbnail-grid {
         grid-template-columns: repeat(4, 1fr);
+        gap: 10px;
     }
     
     .thumbnail {
@@ -560,33 +653,238 @@
     
     .specs {
         grid-template-columns: 1fr;
+        gap: 15px;
     }
     
     .amenities-grid {
         grid-template-columns: 1fr;
+        gap: 8px;
     }
     
     .info-card {
-        padding: var(--space-md);
+        padding: 20px;
     }
     
     .booking-card {
-        padding: var(--space-md);
+        padding: 20px;
+    }
+    
+    .room-meta {
+        gap: 10px;
+    }
+    
+    .similar-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+    
+    .similar-card {
+        padding: 12px;
+    }
+    
+    .similar-card img {
+        width: 80px;
+        height: 80px;
     }
 }
 
+/* Small Mobile (below 480px) */
 @media (max-width: 480px) {
-    .room-meta {
-        flex-direction: column;
-        align-items: flex-start;
+    .room-header h1 {
+        font-size: 1.5rem;
     }
     
-    .modal-content {
-        padding: var(--space-lg);
-        width: 95%;
+    .main-image {
+        height: 250px;
+    }
+    
+    .thumbnail-grid {
+        gap: 8px;
+    }
+    
+    .thumbnail {
+        height: 60px;
+    }
+    
+    .info-card h2 {
+        font-size: 1.2rem;
+    }
+    
+    .price-display .price {
+        font-size: 2rem;
     }
     
     .modal-buttons {
         flex-direction: column;
     }
+    
+    .modal-buttons .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .modal-content {
+        padding: 20px;
+        width: 95%;
+    }
+    
+    .similar-card {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .similar-card img {
+        width: 100%;
+        height: 150px;
+    }
+    
+    .similar-info h4 {
+        font-size: 1rem;
+    }
 }
+
+/* Large Desktop (above 1200px) */
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1200px;
+    }
+    
+    .similar-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Fix for the "You might also like" section */
+.similar-rooms {
+    clear: both;
+    width: 100%;
+}
+
+/* Make sure similar rooms section spans full width */
+.details-grid + .similar-rooms {
+    margin-top: 50px;
+}
+
+/* Similar Rooms - Inside Left Column */
+.similar-rooms {
+    margin-top: 0;
+    padding: 0;
+    border-top: none;
+}
+
+.similar-rooms h3 {
+    font-size: 1.5rem;
+    color: var(--dark-text);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.similar-rooms h3 i {
+    color: var(--coral);
+}
+
+.similar-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 15px;
+}
+
+.similar-card {
+    display: flex;
+    gap: 15px;
+    text-decoration: none;
+    padding: 15px;
+    background: var(--dark-card);
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    border: 1px solid var(--dark-border);
+}
+
+.similar-card:hover {
+    transform: translateX(5px);
+    border-color: var(--coral);
+}
+
+.similar-card img {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 16px;
+}
+
+.similar-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.similar-info h4 {
+    color: var(--dark-text);
+    font-size: 1rem;
+    margin-bottom: 5px;
+}
+
+.similar-info p {
+    color: var(--coral);
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 5px;
+}
+
+.similar-info small {
+    color: var(--dark-text-light);
+    font-size: 0.8rem;
+}
+
+/* Responsive for similar rooms */
+@media (max-width: 768px) {
+    .similar-grid {
+        gap: 12px;
+    }
+    
+    .similar-card {
+        padding: 12px;
+    }
+    
+    .similar-card img {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .similar-info h4 {
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .similar-card {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .similar-card img {
+        width: 100%;
+        height: 150px;
+    }
+    
+    .similar-info {
+        align-items: center;
+    }
+}
+
+/* Add this to ensure the similar rooms section appears correctly */
+@media (max-width: 768px) {
+    .similar-rooms {
+        margin-top: 30px;
+    }
+    
+    .similar-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
