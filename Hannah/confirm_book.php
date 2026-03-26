@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
     .booking-container {
         max-width: 1200px;
         margin: 0 auto;
-        padding: 100px 10px;
+        padding: 125px 20px;
     }
     
     /* Booking header */
@@ -393,7 +393,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
                                 </div>
                                 <div class="room-details">
                                     <h3><?php echo htmlspecialchars($room_name); ?></h3>
-                                    <p><i class="fas fa-tag"></i> $<?php echo number_format($room_price, 0); ?> per night</p>
+                                    <p><i class="fas fa-tag"></i> RM<?php echo number_format($room_price, 0); ?> per night</p>
                                     <p><i class="fas fa-users"></i> Up to <?php echo htmlspecialchars($guests); ?> guests</p>
                                 </div>
                             </div>

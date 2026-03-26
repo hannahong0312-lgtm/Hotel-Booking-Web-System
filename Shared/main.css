@@ -40,7 +40,7 @@
             left: 0;
             width: 100%;
             z-index: 1000;
-            background: var(--black);
+            background: transparent;
             padding: 1.5rem 0;
             transition: var(--transition);
             backdrop-filter: blur(0);
