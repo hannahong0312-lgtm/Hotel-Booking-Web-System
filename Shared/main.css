@@ -20,8 +20,9 @@
         body {
             font-family: 'Inter', sans-serif;
             color: var(--black);
-            background: var(--white);
+            background: var(--gray-bg);
             line-height: 1.5;
+            padding-top: 0;
         }
         .container {
             max-width: 1280px;
@@ -34,14 +35,15 @@
         }
         /* ----- HEADER (transparent to white on scroll) ----- */
         .header {
-            position: absolute;
+            position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            z-index: 100;
-            background: transparent;
+            z-index: 1000;
+            background: var(--black);
             padding: 1.5rem 0;
             transition: var(--transition);
+            backdrop-filter: blur(0);
         }
         .header.scrolled {
             position: fixed;
