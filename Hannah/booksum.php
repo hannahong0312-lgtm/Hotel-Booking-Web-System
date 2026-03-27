@@ -55,9 +55,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
 <style>
     /* Main container styling */
     .booking-container {
-        max-width: 1200px;
+        max-width: 1000px;
         margin: 0 auto;
-        padding: 125px 20px;
+        padding: 110px 20px 60px;
     }
     
     /* Booking header */
@@ -68,6 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
     
     .booking-header h1 {
         font-size: 2.5rem;
+        font-family: 'Playfair Display', serif;
         color: #333;
         margin-bottom: 10px;
     }
@@ -79,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
     
     .booking-header p {
         color: #666;
-        font-size: 1.1rem;
+        font-size: 1rem;
     }
     
     /* Booking grid layout */
@@ -100,9 +101,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
     }
     
     .card-header {
-        background: #E55A3B;
-        color: white;
+        background: var(--black);
+        color: var(--white);
         padding: 20px 25px;
+        border-bottom: 3px solid var(--accent);
     }
     
     .card-header h2 {
@@ -178,7 +180,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
     .total-section {
         margin-top: 20px;
         padding-top: 15px;
-        border-top: 2px solid #E55A3B;
+        border-top: 2px solid #FF6B4A;
     }
     
     .total-item {
@@ -189,24 +191,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
     }
     
     .grand-total {
-        background: #E55A3B;
+        background: #FF6B4A;
         color: white;
         padding: 15px;
-        border-radius: 10px;
-        margin-top: 15px;
-        font-size: 1.2rem;
+        border-radius: 12px;
+        margin-top: 10px;
+        font-size: 1.1rem;
+        font-weight: 600;
     }
-    
+        
     /* Form styling */
     .form-group {
-        margin-bottom: 20px;
+        margin-bottom: 30px;
     }
     
     .form-group label {
         display: block;
-        margin-bottom: 8px;
+        margin-bottom: 10px;
         color: #333;
         font-weight: 500;
+        font-size: 0.9rem;
+        text-transform: uppercase;
     }
     
     .form-group label i {
@@ -226,11 +231,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
     /* Payment methods */
     .payment-methods {
         margin-bottom: 25px;
-        color: #333;
+        color: var(--black);
+        
     }
     
     .payment-option {
-        margin-bottom: 15px;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        padding: 12px 15px;
+        border: 1px solid var(--gray-border);
+        border-radius: 12px;
+        cursor: pointer;
+        transition: var(--transition);
+    
     }
     
     .payment-option input[type="radio"] {
@@ -240,8 +254,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
     .payment-option label {
         display: inline-block;
         cursor: pointer;
-        color: #E55A3B;
-        padding: 2px 5px;
+        color: var(--black);
+        padding: 2px 3px;
     }
     
     .payment-option i {
@@ -254,7 +268,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
         display: inline-block;
         padding: 12px 30px;
         border: none;
-        border-radius: 8px;
+        border-radius: 40px;
         font-size: 1rem;
         font-weight: 600;
         cursor: pointer;
@@ -264,7 +278,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
     }
     
     .btn-primary {
-        background: #E55A3B;
+        background: #FF6B4A;
         color: white;
     }
     
@@ -309,11 +323,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
         padding: 15px;
         border-radius: 8px;
         margin-top: 20px;
-        border-left: 3px solid #E55A3B;
+        border-left: 3px solid #FF6B4A;
     }
     
     .cancellation-policy i {
-        color: #E55A3B;
+        color: #FF6B4A;
         margin-right: 8px;
     }
     
@@ -374,7 +388,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
 <main>
     <div class="booking-container">
         <div class="booking-header">
-            <h1><i class="fas fa-check-circle"></i> Confirm Your Booking</h1>
+            <h1>Confirm Your Booking</h1>
             <p>Please review your booking details and complete the payment</p>
         </div>
         
@@ -384,7 +398,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
                 <div>
                     <div class="booking-details-card">
                         <div class="card-header">
-                            <h2><i class="fas fa-file-alt"></i> Booking Summary</h2>
+                            <h3><i class="fas fa-file-alt"></i> Booking Summary</h3>
                         </div>
                         <div class="card-content">
                             <div class="room-info">
@@ -422,19 +436,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
                             <div class="total-section">
                                 <div class="total-item">
                                     <span>Subtotal (<?php echo $nights; ?> nights × $<?php echo number_format($room_price, 0); ?>)</span>
-                                    <span>$<?php echo number_format($total_price, 2); ?></span>
+                                    <span>RM <?php echo number_format($total_price, 2); ?></span>
                                 </div>
                                 <div class="total-item">
                                     <span>Tax (12%)</span>
-                                    <span>$<?php echo number_format($tax, 2); ?></span>
+                                    <span>RM <?php echo number_format($tax, 2); ?></span>
                                 </div>
                                 <div class="total-item">
                                     <span>Service Fee (5%)</span>
-                                    <span>$<?php echo number_format($service_fee, 2); ?></span>
+                                    <span>RM <?php echo number_format($service_fee, 2); ?></span>
                                 </div>
                                 <div class="grand-total">
                                     <span><strong>Total Amount</strong></span>
-                                    <span><strong>$<?php echo number_format($grand_total, 2); ?></strong></span>
+                                    <span><strong>RM<?php echo number_format($grand_total, 2); ?></strong></span>
                                 </div>
                             </div>
                         </div>
@@ -450,11 +464,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
                 <div>
                     <div class="payment-card">
                         <div class="card-header">
-                            <h2><i class="fas fa-credit-card"></i> Payment Details</h2>
+                            <h3><i class="fas fa-credit-card"></i> Payment Details</h3>
                         </div>
                         <div class="card-content">
                             <div class="form-group">
-                                <label for="fullname"><i class="fas fa-user"></i> Full Name</label>
+                                <label for="fullname"><i class="fas fa-user"></i> Guest Name</label>
                                 <input type="text" class="form-control" id="fullname" name="fullname" required value="John Doe">
                             </div>
                             
@@ -465,21 +479,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
                             
                             <div class="form-group">
                                 <label for="phone"><i class="fas fa-phone"></i> Phone Number</label>
-                                <input type="tel" class="form-control" id="phone" name="phone" required value="+1 234 567 8900">
+                                <input type="tel" class="form-control" id="phone" name="phone" required value="+60123456789">
                             </div>
                             
                             <div class="payment-methods">
-                                <label><i class="fas fa-credit-card"></i> Select Payment Method</label>                                <div class="payment-option">
+                                <label><i class="fas fa-credit-card"></i> Select Payment Method</label>   
+                                <div class="payment-option">
                                     <input type="radio" id="credit_card" name="payment_method" value="credit_card" checked>
                                     <label for="credit_card"><i class="fab fa-cc-visa" ></i> Credit Card</label>
                                 </div>
                                 <div class="payment-option">
                                     <input type="radio" id="TouchnGo" name="payment_method" value="TouchnGo">
-                                    <label for="TouchnGo"><i class="fas fa-wifi"></i> TouchnGo</label>
+                                    <label for="TouchnGo"><i class="fas fa-wifi"></i> Touch 'n Go eWallet</label>
                                 </div>
                                 <div class="payment-option">
                                     <input type="radio" id="bank_transfer" name="payment_method" value="bank_transfer">
-                                    <label for="bank_transfer"><i class="fas fa-university"></i> Bank Transfer</label>
+                                    <label for="bank_transfer"><i class="fas fa-university"></i> Online Banking</label>
                                 </div>
                             </div>
                             
@@ -501,7 +516,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
                             
                             <div class="form-group">
                                 <label for="special_requests"><i class="fas fa-comment"></i> Special Requests (Optional)</label>
-                                <textarea class="form-control" id="special_requests" name="special_requests" rows="3" placeholder="Any special requests or preferences?"></textarea>
+                                <input class="form-control" id="special_requests" name="special_requests" rows="3" 
+                                          placeholder="Please advise your request, arrival time, flight details, food preferences, airline membership number..."></input>
                             </div>
                             
                             <div class="button-group">
@@ -509,7 +525,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
                                     <i class="fas fa-arrow-left"></i> Back
                                 </button>
                                 <button type="submit" name="confirm_booking" class="btn btn-primary">
-                                    <i class="fas fa-lock"></i> Confirm & Pay
+                                    <i class="fas fa-lock"></i> Pay Now
                                 </button>
                             </div>
                         </div>
