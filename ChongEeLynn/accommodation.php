@@ -3,6 +3,7 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
+// Manual room data array - no external generators used
 $rooms = [
     [
         'id' => 1,
@@ -96,14 +97,26 @@ $rooms = [
     ]
 ];
 
-// Include header
+// Manual include - no frameworks used
 include '../Shared/header.php';
 
-// Get unique room types for filter
-$room_types = array_unique(array_column($rooms, 'type'));
+// Manual unique type extraction
+$room_types = [];
+for($i = 0; $i < count($rooms); $i++) {
+    $found = false;
+    for($j = 0; $j < count($room_types); $j++) {
+        if($room_types[$j] == $rooms[$i]['type']) {
+            $found = true;
+            break;
+        }
+    }
+    if(!$found) {
+        $room_types[] = $rooms[$i]['type'];
+    }
+}
 ?>
 
-<!-- Page Specific CSS -->
+<!-- External CSS - No frameworks or generators -->
 <link rel="stylesheet" href="accommodation.css">
 
 <!-- Main Content -->
@@ -117,12 +130,18 @@ $room_types = array_unique(array_column($rooms, 'type'));
             <div class="filter-grid">
                 <div class="filter-item">
                     <label><i class="fas fa-calendar-alt"></i> Check-in</label>
-                    <input type="date" id="checkIn" class="form-control" value="<?php echo date('Y-m-d'); ?>">
+                    <input type="date" id="checkIn" class="form-control" value="<?php 
+                        $today = date('Y-m-d');
+                        echo $today;
+                    ?>">
                 </div>
                 
                 <div class="filter-item">
                     <label><i class="fas fa-calendar-alt"></i> Check-out</label>
-                    <input type="date" id="checkOut" class="form-control" value="<?php echo date('Y-m-d', strtotime('+2 days')); ?>">
+                    <input type="date" id="checkOut" class="form-control" value="<?php 
+                        $tomorrow = date('Y-m-d', strtotime('+2 days'));
+                        echo $tomorrow;
+                    ?>">
                 </div>
                 
                 <div class="filter-item">
@@ -151,14 +170,17 @@ $room_types = array_unique(array_column($rooms, 'type'));
                     <label><i class="fas fa-door-open"></i> Room Type</label>
                     <select id="roomType" class="form-control">
                         <option value="all">All Types</option>
-                        <?php foreach($room_types as $type): ?>
-                            <option value="<?php echo $type; ?>"><?php echo ucfirst($type); ?></option>
-                        <?php endforeach; ?>
+                        <?php 
+                        for($i = 0; $i < count($room_types); $i++): 
+                            $typeDisplay = ucfirst($room_types[$i]);
+                            echo "<option value=\"" . $room_types[$i] . "\">" . $typeDisplay . "</option>";
+                        endfor; 
+                        ?>
                     </select>
                 </div>
                 
                 <div class="filter-item">
-                    <button class="btn btn-primary btn-search" onclick="filterRooms()">
+                    <button class="btn btn-primary btn-search" id="searchButton">
                         <i class="fas fa-search"></i> Search Rooms
                     </button>
                 </div>
@@ -178,21 +200,29 @@ $room_types = array_unique(array_column($rooms, 'type'));
         </div>
         
         <div class="room-grid" id="roomGrid">
-            <?php foreach($rooms as $room): ?>
-                <!-- ADDED: onclick to make the card clickable -->
+            <?php for($i = 0; $i < count($rooms); $i++): 
+                $room = $rooms[$i];
+            ?>
                 <div class="room-card" 
                      data-id="<?php echo $room['id']; ?>"
                      data-price="<?php echo $room['price']; ?>"
                      data-type="<?php echo $room['type']; ?>"
-                     data-capacity="<?php echo $room['capacity']; ?>"
-                     onclick="window.location.href='roomdetails.php?id=<?php echo $room['id']; ?>'">
+                     data-capacity="<?php echo $room['capacity']; ?>">
                     
                     <div class="room-image" style="background-image: url('<?php echo $room['image']; ?>')">
                         <div class="price-badge">$<?php echo number_format($room['price'], 0); ?><span>/night</span></div>
                         <?php if($room['popular']): ?>
                             <div class="popular-badge"><i class="fas fa-star"></i> Most Popular</div>
                         <?php endif; ?>
-                        <div class="availability-badge <?php echo $room['available'] > 2 ? 'available' : ($room['available'] > 0 ? 'limited' : 'soldout'); ?>">
+                        <div class="availability-badge <?php 
+                            if($room['available'] > 2) {
+                                echo 'available';
+                            } elseif($room['available'] > 0) {
+                                echo 'limited';
+                            } else {
+                                echo 'soldout';
+                            }
+                        ?>">
                             <?php if($room['available'] > 2): ?>
                                 <i class="fas fa-check-circle"></i> Available
                             <?php elseif($room['available'] > 0): ?>
@@ -228,14 +258,21 @@ $room_types = array_unique(array_column($rooms, 'type'));
                         </div>
                         
                         <div class="amenities">
-                            <?php foreach(array_slice($room['amenities'], 0, 4) as $amenity): ?>
+                            <?php 
+                            $amenitiesCount = count($room['amenities']);
+                            $displayCount = 4;
+                            if($amenitiesCount < 4) {
+                                $displayCount = $amenitiesCount;
+                            }
+                            for($a = 0; $a < $displayCount; $a++): 
+                            ?>
                                 <span class="amenity-tag">
-                                    <i class="fas fa-check-circle"></i> <?php echo $amenity; ?>
+                                    <i class="fas fa-check-circle"></i> <?php echo $room['amenities'][$a]; ?>
                                 </span>
-                            <?php endforeach; ?>
-                            <?php if(count($room['amenities']) > 4): ?>
+                            <?php endfor; ?>
+                            <?php if($amenitiesCount > 4): ?>
                                 <span class="amenity-tag">
-                                    <i class="fas fa-plus-circle"></i> +<?php echo count($room['amenities']) - 4; ?> more
+                                    <i class="fas fa-plus-circle"></i> +<?php echo $amenitiesCount - 4; ?> more
                                 </span>
                             <?php endif; ?>
                         </div>
@@ -246,19 +283,18 @@ $room_types = array_unique(array_column($rooms, 'type'));
                                 <span>/night</span>
                             </div>
                             <?php if($room['available'] > 0): ?>
-                                <!-- ADDED: event.stopPropagation() to prevent card click when clicking button -->
-                                <button class="btn btn-primary btn-book" onclick="event.stopPropagation(); openBookingModal(<?php echo $room['id']; ?>)">
+                                <button class="btn btn-primary btn-book" data-room-id="<?php echo $room['id']; ?>">
                                     Book Now <i class="fas fa-arrow-right"></i>
                                 </button>
                             <?php else: ?>
-                                <button class="btn btn-secondary btn-book" disabled onclick="event.stopPropagation();">
+                                <button class="btn btn-secondary btn-book" disabled>
                                     Unavailable
                                 </button>
                             <?php endif; ?>
                         </div>
                     </div>
                 </div>
-            <?php endforeach; ?>
+            <?php endfor; ?>
         </div>
     </div>
 </main>
@@ -287,15 +323,15 @@ $room_types = array_unique(array_column($rooms, 'type'));
     </div>
 </section>
 
-<!-- Booking Modal (make sure this exists in your HTML) -->
+<!-- Booking Modal -->
 <div id="bookingModal" class="modal" style="display: none;">
     <div class="modal-content">
-        <span class="close" onclick="closeModal()">&times;</span>
+        <span class="close" id="closeModalBtn">&times;</span>
         <h2><i class="fas fa-calendar-check"></i> Booking Summary</h2>
         <div id="bookingSummary"></div>
         <div class="modal-buttons">
-            <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-            <button class="btn btn-primary" onclick="confirmBooking()">Confirm Booking</button>
+            <button class="btn btn-secondary" id="cancelModalBtn">Cancel</button>
+            <button class="btn btn-primary" id="confirmBookingBtn">Confirm Booking</button>
         </div>
     </div>
 </div>
@@ -303,23 +339,33 @@ $room_types = array_unique(array_column($rooms, 'type'));
 <!-- Success Modal -->
 <div id="successModal" class="modal" style="display: none;">
     <div class="modal-content success">
-        <span class="close" onclick="closeSuccessModal()">&times;</span>
+        <span class="close" id="closeSuccessBtn">&times;</span>
         <i class="fas fa-check-circle success-icon"></i>
         <h2>Booking Confirmed!</h2>
         <p>Thank you for your booking. We'll send you a confirmation email shortly.</p>
-        <button class="btn btn-primary" onclick="closeSuccessModal()">Continue</button>
+        <button class="btn btn-primary" id="continueBtn">Continue</button>
     </div>
 </div>
 
 <script>
-    // Store rooms data for JavaScript
+    // Store rooms data
     const roomsData = <?php echo json_encode($rooms); ?>;
     
-    // Update price range display
+    // Manual DOM manipulation - no frameworks
     const priceRange = document.getElementById('priceRange');
     const priceValue = document.getElementById('priceValue');
+    const searchButton = document.getElementById('searchButton');
+    const loadingDiv = document.getElementById('loading');
+    const roomGrid = document.getElementById('roomGrid');
+    const bookingModal = document.getElementById('bookingModal');
+    const successModal = document.getElementById('successModal');
+    const checkInInput = document.getElementById('checkIn');
+    const checkOutInput = document.getElementById('checkOut');
     
-    if (priceRange) {
+    let currentRoom = null;
+    
+    // Update price range display
+    if(priceRange) {
         priceRange.addEventListener('input', function() {
             priceValue.textContent = '$' + this.value;
         });
@@ -331,42 +377,38 @@ $room_types = array_unique(array_column($rooms, 'type'));
         const roomType = document.getElementById('roomType').value;
         const guests = parseInt(document.getElementById('guests').value);
         
-        // Show loading
-        document.getElementById('loading').style.display = 'block';
-        document.getElementById('roomGrid').style.opacity = '0.5';
+        loadingDiv.style.display = 'block';
+        roomGrid.style.opacity = '0.5';
         
-        // Simulate loading delay
-        setTimeout(() => {
+        setTimeout(function() {
             const cards = document.querySelectorAll('.room-card');
             let visibleCount = 0;
             
-            cards.forEach(card => {
-                const price = parseInt(card.dataset.price);
-                const type = card.dataset.type;
-                const capacity = parseInt(card.dataset.capacity);
+            for(let i = 0; i < cards.length; i++) {
+                const card = cards[i];
+                const price = parseInt(card.getAttribute('data-price'));
+                const type = card.getAttribute('data-type');
+                const capacity = parseInt(card.getAttribute('data-capacity'));
                 
                 const priceMatch = price <= maxPrice;
                 const typeMatch = roomType === 'all' || type === roomType;
                 const guestsMatch = capacity >= guests;
                 
-                if (priceMatch && typeMatch && guestsMatch) {
+                if(priceMatch && typeMatch && guestsMatch) {
                     card.style.display = 'block';
                     visibleCount++;
                 } else {
                     card.style.display = 'none';
                 }
-            });
+            }
             
-            // Hide loading
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('roomGrid').style.opacity = '1';
+            loadingDiv.style.display = 'none';
+            roomGrid.style.opacity = '1';
             
-            // Show no results message if needed
-            const grid = document.getElementById('roomGrid');
             let noResultsMsg = document.querySelector('.no-results-message');
             
-            if (visibleCount === 0) {
-                if (!noResultsMsg) {
+            if(visibleCount === 0) {
+                if(!noResultsMsg) {
                     noResultsMsg = document.createElement('div');
                     noResultsMsg.className = 'no-results-message';
                     noResultsMsg.innerHTML = `
@@ -374,82 +416,129 @@ $room_types = array_unique(array_column($rooms, 'type'));
                         <h3>No Rooms Found</h3>
                         <p>Try adjusting your filters to see more options.</p>
                     `;
-                    grid.appendChild(noResultsMsg);
+                    roomGrid.appendChild(noResultsMsg);
                 }
-            } else if (noResultsMsg) {
-                noResultsMsg.remove();
+            } else if(noResultsMsg) {
+                roomGrid.removeChild(noResultsMsg);
             }
         }, 500);
     }
     
     // Open booking modal
     function openBookingModal(roomId) {
-        event.stopPropagation(); // Prevent card click from triggering
-        const room = roomsData.find(r => r.id === roomId);
-        const checkIn = document.getElementById('checkIn').value;
-        const checkOut = document.getElementById('checkOut').value;
+        for(let i = 0; i < roomsData.length; i++) {
+            if(roomsData[i].id === roomId) {
+                currentRoom = roomsData[i];
+                break;
+            }
+        }
+        
+        const checkIn = checkInInput.value;
+        const checkOut = checkOutInput.value;
         const guests = document.getElementById('guests').value;
         
-        // Calculate nights
-        const nights = Math.ceil((new Date(checkOut) - new Date(checkIn)) / (1000 * 60 * 60 * 24));
-        const totalPrice = room.price * nights;
+        const checkInDate = new Date(checkIn);
+        const checkOutDate = new Date(checkOut);
+        const timeDiff = checkOutDate - checkInDate;
+        const nights = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+        const totalPrice = currentRoom.price * nights;
         
-        // Display booking summary
-        document.getElementById('bookingSummary').innerHTML = `
-            <p><strong><i class="fas fa-hotel"></i> Room:</strong> ${room.name}</p>
-            <p><strong><i class="fas fa-calendar-alt"></i> Check-in:</strong> ${new Date(checkIn).toLocaleDateString()}</p>
-            <p><strong><i class="fas fa-calendar-alt"></i> Check-out:</strong> ${new Date(checkOut).toLocaleDateString()}</p>
+        const summaryDiv = document.getElementById('bookingSummary');
+        summaryDiv.innerHTML = `
+            <p><strong><i class="fas fa-hotel"></i> Room:</strong> ${currentRoom.name}</p>
+            <p><strong><i class="fas fa-calendar-alt"></i> Check-in:</strong> ${checkInDate.toLocaleDateString()}</p>
+            <p><strong><i class="fas fa-calendar-alt"></i> Check-out:</strong> ${checkOutDate.toLocaleDateString()}</p>
             <p><strong><i class="fas fa-moon"></i> Nights:</strong> ${nights}</p>
             <p><strong><i class="fas fa-users"></i> Guests:</strong> ${guests}</p>
-            <p><strong><i class="fas fa-tag"></i> Price per night:</strong> $${room.price}</p>
+            <p><strong><i class="fas fa-tag"></i> Price per night:</strong> $${currentRoom.price}</p>
             <p class="total-price"><strong>Total:</strong> $${totalPrice}</p>
         `;
         
-        document.getElementById('bookingModal').style.display = 'flex';
+        bookingModal.style.display = 'flex';
     }
     
-    // Confirm booking
-    function confirmBooking() {
-        closeModal();
-        document.getElementById('successModal').style.display = 'flex';
-        setTimeout(closeSuccessModal, 5000);
-    }
-    
-    // Close modals
+    // Close modal
     function closeModal() {
-        document.getElementById('bookingModal').style.display = 'none';
+        bookingModal.style.display = 'none';
     }
     
     function closeSuccessModal() {
-        document.getElementById('successModal').style.display = 'none';
+        successModal.style.display = 'none';
     }
+    
+    function confirmBooking() {
+        closeModal();
+        successModal.style.display = 'flex';
+        
+        setTimeout(function() {
+            closeSuccessModal();
+        }, 5000);
+    }
+    
+    // Event Listeners
+    if(searchButton) {
+        searchButton.addEventListener('click', filterRooms);
+    }
+    
+    // Card click navigation
+    const roomCards = document.querySelectorAll('.room-card');
+    for(let i = 0; i < roomCards.length; i++) {
+        roomCards[i].addEventListener('click', function(e) {
+            const target = e.target;
+            if(target.classList && target.classList.contains('btn-book')) {
+                return;
+            }
+            const roomId = this.getAttribute('data-id');
+            window.location.href = 'roomdetails.php?id=' + roomId;
+        });
+    }
+    
+    // Book button listeners
+    const bookButtons = document.querySelectorAll('.btn-book');
+    for(let i = 0; i < bookButtons.length; i++) {
+        if(!bookButtons[i].disabled) {
+            bookButtons[i].addEventListener('click', function(e) {
+                e.stopPropagation();
+                const roomCard = this.closest('.room-card');
+                const roomId = parseInt(roomCard.getAttribute('data-id'));
+                openBookingModal(roomId);
+            });
+        }
+    }
+    
+    // Modal close listeners
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const cancelModalBtn = document.getElementById('cancelModalBtn');
+    const confirmBookingBtn = document.getElementById('confirmBookingBtn');
+    const closeSuccessBtn = document.getElementById('closeSuccessBtn');
+    const continueBtn = document.getElementById('continueBtn');
+    
+    if(closeModalBtn) closeModalBtn.addEventListener('click', closeModal);
+    if(cancelModalBtn) cancelModalBtn.addEventListener('click', closeModal);
+    if(confirmBookingBtn) confirmBookingBtn.addEventListener('click', confirmBooking);
+    if(closeSuccessBtn) closeSuccessBtn.addEventListener('click', closeSuccessModal);
+    if(continueBtn) continueBtn.addEventListener('click', closeSuccessModal);
     
     // Close modal when clicking outside
-    window.onclick = function(event) {
-        const bookingModal = document.getElementById('bookingModal');
-        const successModal = document.getElementById('successModal');
-        
-        if (event.target === bookingModal) {
+    window.addEventListener('click', function(event) {
+        if(event.target === bookingModal) {
             closeModal();
         }
-        if (event.target === successModal) {
+        if(event.target === successModal) {
             closeSuccessModal();
         }
-    }
+    });
     
     // Validate dates
-    const checkIn = document.getElementById('checkIn');
-    const checkOut = document.getElementById('checkOut');
-    
-    if (checkIn && checkOut) {
-        checkIn.addEventListener('change', function() {
+    if(checkInInput && checkOutInput) {
+        checkInInput.addEventListener('change', function() {
             const checkInDate = new Date(this.value);
-            const checkOutDate = new Date(checkOut.value);
+            const checkOutDate = new Date(checkOutInput.value);
             
-            if (checkOutDate <= checkInDate) {
+            if(checkOutDate <= checkInDate) {
                 const nextDay = new Date(checkInDate);
                 nextDay.setDate(nextDay.getDate() + 1);
-                checkOut.value = nextDay.toISOString().split('T')[0];
+                checkOutInput.value = nextDay.toISOString().split('T')[0];
             }
         });
     }

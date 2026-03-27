@@ -44,8 +44,15 @@ require_once 'config.php';
                         <li><a href="../ChongEeLynn/accommodation.php">Rooms & Suites</a></li>
                         <li><a href="../Hannah/dining.php">Dining</a></li>
                         <li><a href="../ChangJingEn/events.php">Weddings & Events</a></li>
-                        <li><a href="../ChangJingEn/facilities.php">Facilities</a></li>
-                        <li><a href="../ChongEeLynn/experiences.php">Experiences</a></li>
+
+                        <li class="dropdown">
+                            <a href="javascript:void(0)" class="dropbtn">Explore <i class="fa-solid fa-chevron-down" style="font-size: 0.75em; margin-left: 4px;"></i></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="../ChangJingEn/facilities.php">Facilities</a></li>
+                                <li><a href="../ChongEeLynn/experiences.php">Experiences</a></li>
+                            </ul>
+                        </li>
+
                         <li><a href="../ChongEeLynn/offers.php">Offers</a></li>
                         <li><a href="../Hannah/aboutus.php">About Us</a></li>
                     </ul>

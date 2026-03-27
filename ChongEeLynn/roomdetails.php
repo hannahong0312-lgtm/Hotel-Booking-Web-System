@@ -7,15 +7,18 @@ ini_set('display_errors', 1);
 include '../Shared/header.php';
 
 // Get room ID from URL
-$room_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+$room_id = 0;
+if(isset($_GET['id'])) {
+    $room_id = intval($_GET['id']);
+}
 
 // If room ID is not provided or invalid, redirect to accommodation page
-if ($room_id <= 0) {
+if($room_id <= 0) {
     header('Location: accommodation.php');
     exit;
 }
 
-// Include rooms data
+// Manual rooms data array
 $rooms = [
     [
         'id' => 1,
@@ -133,33 +136,38 @@ $rooms = [
     ]
 ];
 
-// Find the room
+// Manual room lookup
 $room = null;
-foreach ($rooms as $r) {
-    if ($r['id'] == $room_id) {
-        $room = $r;
+for($i = 0; $i < count($rooms); $i++) {
+    if($rooms[$i]['id'] == $room_id) {
+        $room = $rooms[$i];
         break;
     }
 }
 
 // If room not found, redirect to accommodation page
-if (!$room) {
+if(!$room) {
     header('Location: accommodation.php');
     exit;
 }
 
-// Get similar rooms (exclude current room, limit to 3)
-$similar_rooms = array_filter($rooms, function($r) use ($room) {
-    return $r['id'] != $room['id'];
-});
-$similar_rooms = array_slice($similar_rooms, 0, 3);
+// Manual similar rooms extraction
+$similar_rooms = [];
+for($i = 0; $i < count($rooms); $i++) {
+    if($rooms[$i]['id'] != $room['id']) {
+        $similar_rooms[] = $rooms[$i];
+    }
+    if(count($similar_rooms) >= 3) {
+        break;
+    }
+}
 
 // Get default dates
 $today = date('Y-m-d');
-$tomorrow = date('Y-m-d', strtotime('+1 day'));
+$tomorrow_date = date('Y-m-d', strtotime('+1 day'));
 ?>
 
-<!-- Page Specific CSS -->
+<!-- External CSS -->
 <link rel="stylesheet" href="roomdetails.css">
 
 <main>
@@ -196,11 +204,11 @@ $tomorrow = date('Y-m-d', strtotime('+1 day'));
                 <img id="mainImage" src="<?php echo $room['images'][0]; ?>" alt="<?php echo htmlspecialchars($room['name']); ?>">
             </div>
             <div class="thumbnail-grid">
-                <?php foreach($room['images'] as $index => $image): ?>
-                    <div class="thumbnail" onclick="changeMainImage('<?php echo $image; ?>')">
-                        <img src="<?php echo $image; ?>" alt="Room view <?php echo $index + 1; ?>">
+                <?php for($i = 0; $i < count($room['images']); $i++): ?>
+                    <div class="thumbnail">
+                        <img src="<?php echo $room['images'][$i]; ?>" alt="Room view <?php echo $i + 1; ?>">
                     </div>
-                <?php endforeach; ?>
+                <?php endfor; ?>
             </div>
         </div>
 
@@ -247,12 +255,12 @@ $tomorrow = date('Y-m-d', strtotime('+1 day'));
                 <div class="info-card">
                     <h2><i class="fas fa-concierge-bell"></i> Amenities</h2>
                     <div class="amenities-grid">
-                        <?php foreach($room['amenities'] as $amenity): ?>
+                        <?php for($i = 0; $i < count($room['amenities']); $i++): ?>
                             <div class="amenity-item">
                                 <i class="fas fa-check-circle"></i>
-                                <span><?php echo htmlspecialchars($amenity); ?></span>
+                                <span><?php echo htmlspecialchars($room['amenities'][$i]); ?></span>
                             </div>
-                        <?php endforeach; ?>
+                        <?php endfor; ?>
                     </div>
                 </div>
 
@@ -267,21 +275,21 @@ $tomorrow = date('Y-m-d', strtotime('+1 day'));
                     </ul>
                 </div>
 
-                <!-- Similar Rooms - Moved here, right after Room Policies -->
-                <?php if(!empty($similar_rooms)): ?>
+                <!-- Similar Rooms -->
+                <?php if(count($similar_rooms) > 0): ?>
                 <div class="similar-rooms">
                     <h3><i class="fas fa-hotel"></i> You might also like</h3>
                     <div class="similar-grid">
-                        <?php foreach($similar_rooms as $similar): ?>
-                            <a href="roomdetails.php?id=<?php echo $similar['id']; ?>" class="similar-card">
-                                <img src="<?php echo $similar['images'][0]; ?>" alt="<?php echo htmlspecialchars($similar['name']); ?>">
+                        <?php for($i = 0; $i < count($similar_rooms); $i++): ?>
+                            <a href="roomdetails.php?id=<?php echo $similar_rooms[$i]['id']; ?>" class="similar-card">
+                                <img src="<?php echo $similar_rooms[$i]['images'][0]; ?>" alt="<?php echo htmlspecialchars($similar_rooms[$i]['name']); ?>">
                                 <div class="similar-info">
-                                    <h4><?php echo htmlspecialchars($similar['name']); ?></h4>
-                                    <p>From $<?php echo number_format($similar['price'], 0); ?>/night</p>
-                                    <small><i class="fas fa-users"></i> Up to <?php echo $similar['capacity']; ?> guests</small>
+                                    <h4><?php echo htmlspecialchars($similar_rooms[$i]['name']); ?></h4>
+                                    <p>From $<?php echo number_format($similar_rooms[$i]['price'], 0); ?>/night</p>
+                                    <small><i class="fas fa-users"></i> Up to <?php echo $similar_rooms[$i]['capacity']; ?> guests</small>
                                 </div>
                             </a>
-                        <?php endforeach; ?>
+                        <?php endfor; ?>
                     </div>
                 </div>
                 <?php endif; ?>
@@ -305,7 +313,7 @@ $tomorrow = date('Y-m-d', strtotime('+1 day'));
                         <?php endif; ?>
                     </div>
 
-                    <form id="bookingForm" onsubmit="event.preventDefault(); processBooking();">
+                    <form id="bookingForm">
                         <div class="form-group">
                             <label><i class="fas fa-calendar-alt"></i> Check-in Date</label>
                             <input type="date" id="checkIn" name="checkIn" value="<?php echo $today; ?>" min="<?php echo $today; ?>" required>
@@ -313,14 +321,14 @@ $tomorrow = date('Y-m-d', strtotime('+1 day'));
                         
                         <div class="form-group">
                             <label><i class="fas fa-calendar-alt"></i> Check-out Date</label>
-                            <input type="date" id="checkOut" name="checkOut" value="<?php echo $tomorrow; ?>" min="<?php echo $tomorrow; ?>" required>
+                            <input type="date" id="checkOut" name="checkOut" value="<?php echo $tomorrow_date; ?>" min="<?php echo $tomorrow_date; ?>" required>
                         </div>
                         
                         <div class="form-group">
                             <label><i class="fas fa-users"></i> Number of Guests</label>
                             <select id="guests" name="guests" required>
                                 <?php for($i = 1; $i <= $room['capacity']; $i++): ?>
-                                    <option value="<?php echo $i; ?>"><?php echo $i; ?> Guest<?php echo $i > 1 ? 's' : ''; ?></option>
+                                    <option value="<?php echo $i; ?>"><?php echo $i; ?> Guest<?php if($i > 1) echo 's'; ?></option>
                                 <?php endfor; ?>
                             </select>
                         </div>
@@ -341,7 +349,7 @@ $tomorrow = date('Y-m-d', strtotime('+1 day'));
                         </div>
                         
                         <?php if($room['available'] > 0): ?>
-                            <button type="submit" class="btn btn-book-now">
+                            <button type="button" id="bookNowBtn" class="btn btn-book-now">
                                 <i class="fas fa-check-circle"></i> Book Now
                             </button>
                         <?php else: ?>
@@ -363,12 +371,12 @@ $tomorrow = date('Y-m-d', strtotime('+1 day'));
 <!-- Booking Confirmation Modal -->
 <div id="bookingModal" class="modal" style="display: none;">
     <div class="modal-content">
-        <span class="close" onclick="closeModal()">&times;</span>
+        <span class="close" id="closeModalBtn">&times;</span>
         <h2><i class="fas fa-check-circle"></i> Confirm Your Booking</h2>
         <div id="modalBookingSummary"></div>
         <div class="modal-buttons">
-            <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-            <button class="btn btn-primary" onclick="confirmBooking()">Confirm Booking</button>
+            <button class="btn btn-secondary" id="cancelModalBtn">Cancel</button>
+            <button class="btn btn-primary" id="confirmBookingBtn">Confirm Booking</button>
         </div>
     </div>
 </div>
@@ -376,61 +384,46 @@ $tomorrow = date('Y-m-d', strtotime('+1 day'));
 <!-- Success Modal -->
 <div id="successModal" class="modal" style="display: none;">
     <div class="modal-content success">
-        <span class="close" onclick="closeSuccessModal()">&times;</span>
+        <span class="close" id="closeSuccessBtn">&times;</span>
         <i class="fas fa-check-circle success-icon"></i>
         <h2>Booking Confirmed!</h2>
         <p>Thank you for choosing Paradise Hotel. We've sent a confirmation email with your booking details.</p>
-        <button class="btn btn-primary" onclick="closeSuccessModal()">Continue</button>
+        <button class="btn btn-primary" id="continueBtn">Continue</button>
     </div>
 </div>
 
 <script>
     // Store room data
-    const roomData = <?php echo json_encode($room); ?>;
+    const roomData = {
+        name: <?php echo json_encode($room['name']); ?>,
+        price: <?php echo $room['price']; ?>
+    };
     
-    // Update booking summary when dates change
+    // Get DOM elements
     const checkInInput = document.getElementById('checkIn');
     const checkOutInput = document.getElementById('checkOut');
     const guestsSelect = document.getElementById('guests');
+    const nightsCountSpan = document.getElementById('nightsCount');
+    const totalPriceSpan = document.getElementById('totalPrice');
+    const bookNowBtn = document.getElementById('bookNowBtn');
+    const bookingModal = document.getElementById('bookingModal');
+    const successModal = document.getElementById('successModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const cancelModalBtn = document.getElementById('cancelModalBtn');
+    const confirmBookingBtn = document.getElementById('confirmBookingBtn');
+    const closeSuccessBtn = document.getElementById('closeSuccessBtn');
+    const continueBtn = document.getElementById('continueBtn');
+    const modalBookingSummary = document.getElementById('modalBookingSummary');
     
+    // Update booking summary function
     function updateBookingSummary() {
         const checkIn = new Date(checkInInput.value);
         const checkOut = new Date(checkOutInput.value);
         const nights = Math.ceil((checkOut - checkIn) / (1000 * 60 * 60 * 24));
         const totalPrice = roomData.price * nights;
         
-        document.getElementById('nightsCount').textContent = nights;
-        document.getElementById('totalPrice').textContent = '$' + totalPrice.toLocaleString();
-    }
-    
-    // Add event listeners
-    if (checkInInput && checkOutInput) {
-        checkInInput.addEventListener('change', function() {
-            const checkInDate = new Date(this.value);
-            const checkOutDate = new Date(checkOutInput.value);
-            
-            if (checkOutDate <= checkInDate) {
-                const nextDay = new Date(checkInDate);
-                nextDay.setDate(nextDay.getDate() + 1);
-                checkOutInput.value = nextDay.toISOString().split('T')[0];
-            }
-            updateBookingSummary();
-        });
-        
-        checkOutInput.addEventListener('change', function() {
-            const checkInDate = new Date(checkInInput.value);
-            const checkOutDate = new Date(this.value);
-            
-            if (checkOutDate <= checkInDate) {
-                alert('Check-out date must be after check-in date.');
-                const nextDay = new Date(checkInDate);
-                nextDay.setDate(nextDay.getDate() + 1);
-                this.value = nextDay.toISOString().split('T')[0];
-            }
-            updateBookingSummary();
-        });
-        
-        guestsSelect.addEventListener('change', updateBookingSummary);
+        nightsCountSpan.textContent = nights;
+        totalPriceSpan.textContent = '$' + totalPrice.toLocaleString();
     }
     
     // Process booking
@@ -451,43 +444,113 @@ $tomorrow = date('Y-m-d', strtotime('+1 day'));
             <p class="total-price"><strong>Total:</strong> $${totalPrice.toLocaleString()}</p>
         `;
         
-        document.getElementById('modalBookingSummary').innerHTML = modalContent;
-        document.getElementById('bookingModal').style.display = 'flex';
+        modalBookingSummary.innerHTML = modalContent;
+        bookingModal.style.display = 'flex';
     }
     
     // Confirm booking
     function confirmBooking() {
-        closeModal();
-        document.getElementById('successModal').style.display = 'flex';
-        setTimeout(closeSuccessModal, 5000);
+        bookingModal.style.display = 'none';
+        successModal.style.display = 'flex';
+        
+        setTimeout(function() {
+            successModal.style.display = 'none';
+        }, 5000);
     }
     
     // Close modals
     function closeModal() {
-        document.getElementById('bookingModal').style.display = 'none';
+        bookingModal.style.display = 'none';
     }
     
     function closeSuccessModal() {
-        document.getElementById('successModal').style.display = 'none';
-    }
-    
-    // Close modal when clicking outside
-    window.onclick = function(event) {
-        const bookingModal = document.getElementById('bookingModal');
-        const successModal = document.getElementById('successModal');
-        
-        if (event.target === bookingModal) {
-            closeModal();
-        }
-        if (event.target === successModal) {
-            closeSuccessModal();
-        }
+        successModal.style.display = 'none';
     }
     
     // Change main image
     function changeMainImage(imageUrl) {
-        document.getElementById('mainImage').src = imageUrl;
+        const mainImage = document.getElementById('mainImage');
+        if(mainImage) {
+            mainImage.src = imageUrl;
+        }
     }
+    
+    // Event listeners
+    if(checkInInput && checkOutInput) {
+        checkInInput.addEventListener('change', function() {
+            const checkInDate = new Date(this.value);
+            const checkOutDate = new Date(checkOutInput.value);
+            
+            if(checkOutDate <= checkInDate) {
+                const nextDay = new Date(checkInDate);
+                nextDay.setDate(nextDay.getDate() + 1);
+                checkOutInput.value = nextDay.toISOString().split('T')[0];
+            }
+            updateBookingSummary();
+        });
+        
+        checkOutInput.addEventListener('change', function() {
+            const checkInDate = new Date(checkInInput.value);
+            const checkOutDate = new Date(this.value);
+            
+            if(checkOutDate <= checkInDate) {
+                alert('Check-out date must be after check-in date.');
+                const nextDay = new Date(checkInDate);
+                nextDay.setDate(nextDay.getDate() + 1);
+                this.value = nextDay.toISOString().split('T')[0];
+            }
+            updateBookingSummary();
+        });
+    }
+    
+    if(guestsSelect) {
+        guestsSelect.addEventListener('change', updateBookingSummary);
+    }
+    
+    if(bookNowBtn) {
+        bookNowBtn.addEventListener('click', processBooking);
+    }
+    
+    if(closeModalBtn) {
+        closeModalBtn.addEventListener('click', closeModal);
+    }
+    
+    if(cancelModalBtn) {
+        cancelModalBtn.addEventListener('click', closeModal);
+    }
+    
+    if(confirmBookingBtn) {
+        confirmBookingBtn.addEventListener('click', confirmBooking);
+    }
+    
+    if(closeSuccessBtn) {
+        closeSuccessBtn.addEventListener('click', closeSuccessModal);
+    }
+    
+    if(continueBtn) {
+        continueBtn.addEventListener('click', closeSuccessModal);
+    }
+    
+    // Thumbnail click handlers
+    const thumbnails = document.querySelectorAll('.thumbnail');
+    for(let i = 0; i < thumbnails.length; i++) {
+        thumbnails[i].addEventListener('click', function() {
+            const img = this.querySelector('img');
+            if(img) {
+                changeMainImage(img.src);
+            }
+        });
+    }
+    
+    // Close modal when clicking outside
+    window.addEventListener('click', function(event) {
+        if(event.target === bookingModal) {
+            closeModal();
+        }
+        if(event.target === successModal) {
+            closeSuccessModal();
+        }
+    });
     
     // Initialize booking summary
     updateBookingSummary();
