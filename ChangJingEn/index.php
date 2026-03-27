@@ -33,6 +33,27 @@ include '../Shared/header.php';
     <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
+<style>
+    /* ----- OVERRIDE MAIN CSS FOR THIS PAGE (transparent header + scrolled state) ----- */
+            .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background: transparent;
+            padding: 1.5rem 0;
+            transition: var(--transition);
+            backdrop-filter: blur(0);
+        }
+        /* When scrolled: semi‑transparent black background */
+        .header.scrolled {
+            background: rgba(26, 26, 26, 0.85);  /* #1A1A1A with 85% opacity */
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            padding: 0.8rem 0;
+        }
+</style>
 <body>
     <!-- Hero with Search -->
     <section class="hero">

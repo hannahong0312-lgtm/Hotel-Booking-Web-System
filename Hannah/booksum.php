@@ -226,7 +226,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
     /* Payment methods */
     .payment-methods {
         margin-bottom: 25px;
-        color: #E55A3B;
+        color: #333;
     }
     
     .payment-option {
@@ -240,7 +240,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
     .payment-option label {
         display: inline-block;
         cursor: pointer;
-        color: #333;
+        color: #E55A3B;
         padding: 2px 5px;
     }
     
@@ -469,7 +469,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
                             </div>
                             
                             <div class="payment-methods">
-                                <label><i class="fas fa-credit-card"></i>Payment Method</label>                                <div class="payment-option">
+                                <label><i class="fas fa-credit-card"></i> Select Payment Method</label>                                <div class="payment-option">
                                     <input type="radio" id="credit_card" name="payment_method" value="credit_card" checked>
                                     <label for="credit_card"><i class="fab fa-cc-visa" ></i> Credit Card</label>
                                 </div>

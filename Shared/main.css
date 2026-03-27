@@ -33,26 +33,28 @@
             text-decoration: none;
             color: inherit;
         }
-        /* ----- HEADER (transparent to white on scroll) ----- */
+        /* ----- HEADER (transparent to semi-transparent dark/black on scroll) ----- */
         .header {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             z-index: 1000;
-            background: transparent;
-            padding: 1.5rem 0;
+            background: rgba(26, 26, 26, 0.85);
+            padding: 1.2rem 0;
             transition: var(--transition);
             backdrop-filter: blur(0);
         }
+        /* When scrolled: semi‑transparent black background */
         .header.scrolled {
-            position: fixed;
-            background: var(--black);
-            box-shadow: 0 2px 10px rgba(0,0,0,0.02);
+            background: rgba(26, 26, 26, 0.85);  /* #1A1A1A with 85% opacity */
+            backdrop-filter: blur(8px);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             padding: 0.8rem 0;
         }
+
         .header.scrolled .logo h1,
-        .header.scrolled .nav ul li a,
+        .header.scrolled .nav ul li a, 
         .header.scrolled .btn-login {
             color: var(--white);
             border-color: var(--white);
