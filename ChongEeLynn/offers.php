@@ -217,7 +217,7 @@ for($i = 0; $i < count($offers); $i++) {
 
 <main>
     <div class="container">
-        <!-- Hero Section -->
+        <!-- Hero Section - Matching gradient from accommodation.css -->
         <div class="offers-hero">
             <div class="hero-content">
                 <h1>Special Offers & Promotions</h1>
@@ -229,7 +229,7 @@ for($i = 0; $i < count($offers); $i++) {
             </div>
         </div>
 
-        <!-- Category Filters -->
+        <!-- Category Filters - Matching filter section style -->
         <div class="filters-section">
             <div class="filter-tabs">
                 <button class="filter-tab active" data-category="all">All Offers</button>
@@ -318,17 +318,27 @@ for($i = 0; $i < count($offers); $i++) {
             </div>
         </section>
 
-        <!-- Newsletter Section -->
-        <section class="newsletter-section">
-            <div class="newsletter-content">
-                <i class="fas fa-envelope-open-text"></i>
-                <h3>Get Exclusive Offers</h3>
-                <p>Subscribe to our newsletter and be the first to know about special promotions and deals</p>
-                <form id="newsletterForm" class="newsletter-form">
-                    <input type="email" id="newsletterEmail" placeholder="Enter your email address" required>
-                    <button type="submit" class="btn btn-primary">Subscribe</button>
-                </form>
-                <p class="newsletter-note">No spam, unsubscribe anytime.</p>
+        <!-- Stats Section - Matching accommodation.css -->
+        <section class="stats-section">
+            <div class="container">
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-number">10+</div>
+                        <div class="stat-label">Active Offers</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">35%</div>
+                        <div class="stat-label">Maximum Savings</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">24/7</div>
+                        <div class="stat-label">Support Available</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number">100%</div>
+                        <div class="stat-label">Satisfaction</div>
+                    </div>
+                </div>
             </div>
         </section>
     </div>
@@ -372,7 +382,6 @@ for($i = 0; $i < count($offers); $i++) {
     const closeBookingModalBtn = document.getElementById('closeBookingModalBtn');
     const continueBookingBtn = document.getElementById('continueBookingBtn');
     const bookOfferBtn = document.getElementById('bookOfferBtn');
-    const newsletterForm = document.getElementById('newsletterForm');
     
     let currentOffer = null;
     
@@ -491,20 +500,6 @@ for($i = 0; $i < count($offers); $i++) {
         bookingModal.style.display = 'none';
     }
     
-    // Newsletter subscription
-    function handleNewsletterSubmit(event) {
-        event.preventDefault();
-        const emailInput = document.getElementById('newsletterEmail');
-        const email = emailInput.value;
-        
-        if(email && email.includes('@') && email.includes('.')) {
-            alert('Thank you for subscribing! You\'ll receive our latest offers soon.');
-            emailInput.value = '';
-        } else {
-            alert('Please enter a valid email address.');
-        }
-    }
-    
     // Event listeners for filter tabs
     for(let i = 0; i < filterTabs.length; i++) {
         filterTabs[i].addEventListener('click', function() {
@@ -542,11 +537,6 @@ for($i = 0; $i < count($offers); $i++) {
     if(bookOfferBtn) bookOfferBtn.addEventListener('click', bookOffer);
     if(closeBookingModalBtn) closeBookingModalBtn.addEventListener('click', closeBookingModal);
     if(continueBookingBtn) continueBookingBtn.addEventListener('click', closeBookingModal);
-    
-    // Newsletter form submit
-    if(newsletterForm) {
-        newsletterForm.addEventListener('submit', handleNewsletterSubmit);
-    }
     
     // Close modal when clicking outside
     window.addEventListener('click', function(event) {

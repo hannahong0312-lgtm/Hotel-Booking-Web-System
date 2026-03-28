@@ -1,4 +1,4 @@
-/* offers.css - External stylesheet for offers page */
+/* offers.css - External stylesheet for offers page matching accommodation.css theme */
 
 .container {
     max-width: 1200px;
@@ -6,23 +6,24 @@
     padding: 0 2rem;
 }
 
-/* Hero Section */
+/* Hero Section - Matching gradient from accommodation.css */
 .offers-hero {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    border-radius: 20px;
+    border-radius: 15px;
     padding: 4rem 2rem;
     margin: 2rem 0;
     text-align: center;
     color: white;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
 
 .hero-content h1 {
-    font-size: 3rem;
+    font-size: 2.5rem;
     margin-bottom: 1rem;
 }
 
 .hero-content p {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     margin-bottom: 2rem;
     opacity: 0.9;
 }
@@ -31,6 +32,7 @@
     display: flex;
     gap: 1rem;
     justify-content: center;
+    flex-wrap: wrap;
 }
 
 .btn {
@@ -42,6 +44,7 @@
     transition: all 0.3s;
     text-decoration: none;
     display: inline-block;
+    font-weight: 500;
 }
 
 .btn-primary {
@@ -78,7 +81,7 @@
     transform: translateY(-2px);
 }
 
-/* Filter Section */
+/* Filter Section - Matching filter section from accommodation.css */
 .filters-section {
     margin: 2rem 0;
     text-align: center;
@@ -95,11 +98,12 @@
     padding: 0.75rem 1.5rem;
     background: #f0f0f0;
     border: none;
-    border-radius: 25px;
+    border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s;
     font-size: 1rem;
     color: #666;
+    font-weight: 500;
 }
 
 .filter-tab:hover {
@@ -142,21 +146,21 @@
     background: white;
     border-radius: 15px;
     overflow: hidden;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
     transition: transform 0.3s, box-shadow 0.3s;
     position: relative;
 }
 
 .featured-card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 15px 40px rgba(0,0,0,0.15);
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
 }
 
 .featured-badge {
     position: absolute;
     top: 1rem;
     left: 1rem;
-    background: linear-gradient(135deg, #ff6b6b, #ff5252);
+    background: #ff6b6b;
     color: white;
     padding: 0.5rem 1rem;
     border-radius: 25px;
@@ -217,12 +221,14 @@
     color: #667eea;
     font-weight: 500;
     margin-bottom: 1rem;
+    font-size: 0.9rem;
 }
 
 .featured-content .description {
     color: #666;
     line-height: 1.5;
     margin-bottom: 1rem;
+    font-size: 0.9rem;
 }
 
 .price-info {
@@ -374,55 +380,34 @@
     color: #667eea;
 }
 
-/* Newsletter Section */
-.newsletter-section {
-    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-radius: 20px;
-    padding: 3rem;
+/* Stats Section - Matching accommodation.css */
+.stats-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 4rem 0;
     margin: 4rem 0;
+    color: white;
+    border-radius: 15px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
     text-align: center;
 }
 
-.newsletter-content i {
-    font-size: 3rem;
-    color: #667eea;
-    margin-bottom: 1rem;
-}
-
-.newsletter-content h3 {
-    font-size: 1.5rem;
+.stat-number {
+    font-size: 2.5rem;
+    font-weight: bold;
     margin-bottom: 0.5rem;
-    color: #333;
 }
 
-.newsletter-content p {
-    color: #666;
-    margin-bottom: 1.5rem;
-}
-
-.newsletter-form {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    max-width: 500px;
-    margin: 0 auto;
-}
-
-.newsletter-form input {
-    flex: 1;
-    padding: 0.75rem;
-    border: 1px solid #ddd;
-    border-radius: 8px;
+.stat-label {
     font-size: 1rem;
+    opacity: 0.9;
 }
 
-.newsletter-note {
-    font-size: 0.75rem;
-    margin-top: 1rem;
-    color: #999;
-}
-
-/* Modal Styles */
+/* Modal Styles - Matching roomdetails.css */
 .modal {
     position: fixed;
     top: 0;
@@ -438,13 +423,14 @@
 
 .modal-content {
     background: white;
-    border-radius: 20px;
+    border-radius: 15px;
     max-width: 800px;
     width: 90%;
     max-height: 90vh;
     overflow-y: auto;
     position: relative;
     padding: 2rem;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
 }
 
 .modal-content.success {
@@ -460,6 +446,7 @@
     cursor: pointer;
     color: #999;
     z-index: 1;
+    transition: color 0.3s;
 }
 
 .close:hover {
@@ -519,6 +506,8 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .price-section .price-info {
@@ -551,6 +540,9 @@
 .terms h4 {
     margin-bottom: 0.5rem;
     color: #333;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
 }
 
 .terms ul {
@@ -592,7 +584,7 @@
     color: #999;
 }
 
-/* Responsive Design */
+/* Responsive Design - Matching other pages */
 @media (max-width: 768px) {
     .hero-content h1 {
         font-size: 2rem;
@@ -610,10 +602,6 @@
     .featured-grid,
     .offers-grid {
         grid-template-columns: 1fr;
-    }
-    
-    .newsletter-form {
-        flex-direction: column;
     }
     
     .filter-tabs {
@@ -635,5 +623,15 @@
     
     .offer-detail-image {
         height: 200px;
+    }
+    
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+    }
+    
+    .price-section {
+        flex-direction: column;
+        text-align: center;
     }
 }
