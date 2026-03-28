@@ -232,7 +232,7 @@ $tomorrow_date = date('Y-m-d', strtotime('+1 day'));
                 </div>
             </div>
             <div class="hero-price">
-                <span class="price">$<?php echo number_format($room['price'], 0); ?></span>
+                <span class="price">RM<?php echo number_format($room['price'], 0); ?></span>
                 <span class="per-night">per night</span>
             </div>
             <div class="scroll-indicator">
@@ -323,7 +323,7 @@ $tomorrow_date = date('Y-m-d', strtotime('+1 day'));
                                 <img src="<?php echo $similar_rooms[$i]['images'][0]; ?>" alt="<?php echo htmlspecialchars($similar_rooms[$i]['name']); ?>">
                                 <div class="similar-info">
                                     <h4><?php echo htmlspecialchars($similar_rooms[$i]['name']); ?></h4>
-                                    <p>From $<?php echo number_format($similar_rooms[$i]['price'], 0); ?>/night</p>
+                                    <p>From RM<?php echo number_format($similar_rooms[$i]['price'], 0); ?>/night</p>
                                     <small><i class="fas fa-users"></i> Up to <?php echo $similar_rooms[$i]['capacity']; ?> guests</small>
                                 </div>
                             </a>
@@ -337,7 +337,7 @@ $tomorrow_date = date('Y-m-d', strtotime('+1 day'));
             <div class="booking-section-wrapper">
                 <div class="booking-card" id="bookingCard">
                     <div class="price-display">
-                        <span class="price">$<?php echo number_format($room['price'], 0); ?></span>
+                        <span class="price">RM<?php echo number_format($room['price'], 0); ?></span>
                         <span class="per-night">per night</span>
                     </div>
                     
@@ -374,7 +374,7 @@ $tomorrow_date = date('Y-m-d', strtotime('+1 day'));
                         <div class="booking-summary" id="bookingSummary">
                             <div class="summary-line">
                                 <span>Price per night:</span>
-                                <span>$<?php echo number_format($room['price'], 0); ?></span>
+                                <span>RM<?php echo number_format($room['price'], 0); ?></span>
                             </div>
                             <div class="summary-line" id="nightsLine">
                                 <span>Number of nights:</span>
@@ -382,7 +382,7 @@ $tomorrow_date = date('Y-m-d', strtotime('+1 day'));
                             </div>
                             <div class="summary-line total">
                                 <span>Total:</span>
-                                <span id="totalPrice">$<?php echo number_format($room['price'], 0); ?></span>
+                                <span id="totalPrice">RM<?php echo number_format($room['price'], 0); ?></span>
                             </div>
                         </div>
                         

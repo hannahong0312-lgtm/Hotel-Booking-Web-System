@@ -177,9 +177,9 @@ for($i = 0; $i < count($rooms); $i++) {
                     <label><i class="fas fa-tag"></i> Max Price / Night</label>
                     <input type="range" id="priceRange" min="50" max="1500" value="1500" step="10">
                     <div class="price-range-value">
-                        <span>$50</span>
-                        <span id="priceValue">$1500</span>
-                        <span>$1500</span>
+                        <span>RM50</span>
+                        <span id="priceValue">RM1500</span>
+                        <span>RM1500</span>
                     </div>
                 </div>
                 
@@ -297,7 +297,7 @@ for($i = 0; $i < count($rooms); $i++) {
                             
                             <div class="room-footer">
                                 <div class="room-price">
-                                    $<?php echo number_format($room['price'], 0); ?>
+                                    RM<?php echo number_format($room['price'], 0); ?>
                                     <span>/night</span>
                                 </div>
                                 <?php if($room['available'] > 0): ?>
