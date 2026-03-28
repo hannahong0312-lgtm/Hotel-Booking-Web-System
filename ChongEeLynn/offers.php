@@ -38,7 +38,7 @@ $offers = [
         'valid_from' => '2024-01-01',
         'valid_to' => '2024-12-31',
         'terms' => ['Minimum 2 nights stay', 'Complimentary champagne', 'Late check-out until 2 PM', 'Romantic turndown service'],
-        'image' => 'https://images.unsplash.com/photo-1516434233442-0a69c3696d7e?w=800&h=500&fit=crop',
+        'image' => 'https://i.pinimg.com/originals/e4/f2/cb/e4f2cb4a160bb41cdcbbe34db8b98631.jpg',
         'featured' => true,
         'popular' => true
     ],
@@ -55,7 +55,7 @@ $offers = [
         'valid_from' => '2024-01-01',
         'valid_to' => '2024-12-31',
         'terms' => ['Up to 2 kids under 12 eat free', 'Family suite upgrade available', 'Game room access included', 'Children\'s welcome gift'],
-        'image' => 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=800&h=500&fit=crop',
+        'image' => 'https://th.bing.com/th/id/R.e458129408cb8253af7abbba3e69bb79?rik=WpfD3uBCtoCpng&riu=http%3a%2f%2fwww.immunizekansascoalition.org%2fimages%2fhappy+family+2+kids-min.jpg&ehk=eKtLEmbr4pNO2GyZFnmBPfRoFCuS6rh5kwYXsp6kGos%3d&risl=&pid=ImgRaw&r=0',
         'featured' => true,
         'popular' => false
     ],
