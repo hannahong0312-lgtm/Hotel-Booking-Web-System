@@ -1,8 +1,8 @@
 <?php
-// register.php - Customer Registration (Two‑Column Layout with Side‑by‑Side Passwords)
+// register.php - Customer Registration (Full-width Country/Region)
 require_once '../Shared/header.php';
 
-// Redirect if already logged in as any user
+// Redirect if already logged in (any role)
 if ($is_logged_in) {
     redirect('profile.php');
 }
@@ -12,7 +12,6 @@ $subscribe = 0;
 $errors = [];
 $success = false;
 
-// Process form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Sanitize inputs
     $first_name = cleanInput($_POST['first_name'] ?? '');
@@ -43,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $errors['email'] = 'Please enter a valid email address.';
     } else {
-        // Check if email already exists
+        // Check duplicate email
         $stmt = $conn->prepare("SELECT id FROM users WHERE email = ?");
         $stmt->bind_param("s", $email);
         $stmt->execute();
@@ -100,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// List of countries for dropdown
+// Country list
 $countries = [
     'Malaysia', 'Singapore', 'Thailand', 'Indonesia', 'Vietnam', 'Philippines',
     'United States', 'United Kingdom', 'Australia', 'China', 'Japan', 'South Korea',
@@ -178,7 +177,7 @@ $countries = [
             border-color: var(--accent);
             box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.1);
         }
-        /* Password field with toggle */
+        /* Password wrapper with toggle */
         .password-wrapper {
             position: relative;
         }
@@ -361,18 +360,20 @@ $countries = [
                             <?php endif; ?>
                         </div>
 
-                        <!-- Country/Region -->
-                        <div class="form-group">
-                            <label for="country">Country/Region *</label>
-                            <select id="country" name="country" required>
-                                <option value="">Select your country</option>
-                                <?php foreach ($countries as $c): ?>
-                                    <option value="<?php echo $c; ?>" <?php echo $country === $c ? 'selected' : ''; ?>><?php echo $c; ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                            <?php if (isset($errors['country'])): ?>
-                                <div class="error-message"><?php echo $errors['country']; ?></div>
-                            <?php endif; ?>
+                        <!-- Country/Region (full width) -->
+                        <div class="full-width">
+                            <div class="form-group">
+                                <label for="country">Country/Region *</label>
+                                <select id="country" name="country" required>
+                                    <option value="">Select your country</option>
+                                    <?php foreach ($countries as $c): ?>
+                                        <option value="<?php echo $c; ?>" <?php echo $country === $c ? 'selected' : ''; ?>><?php echo $c; ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <?php if (isset($errors['country'])): ?>
+                                    <div class="error-message"><?php echo $errors['country']; ?></div>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
 
@@ -409,7 +410,7 @@ $countries = [
                         </div>
                     </div>
 
-                    <!-- Terms & Conditions (full width) -->
+                    <!-- Terms & Subscribe -->
                     <div class="full-width" style="margin-top: 1.5rem;">
                         <div class="checkbox-group">
                             <input type="checkbox" id="terms" name="terms" <?php echo isset($_POST['terms']) ? 'checked' : ''; ?>>
@@ -420,11 +421,10 @@ $countries = [
                         <?php endif; ?>
                     </div>
 
-                    <!-- Subscribe to newsletter (full width) -->
                     <div class="full-width">
                         <div class="checkbox-group">
                             <input type="checkbox" id="subscribe" name="subscribe" <?php echo $subscribe ? 'checked' : ''; ?>>
-                            <label for="subscribe">Subscribe to our newsletter for exclusive offers and updates</label>
+                            <label for="subscribe">I would like to receive exclusive offers and travel inspiration via email.</label>
                         </div>
                     </div>
 
