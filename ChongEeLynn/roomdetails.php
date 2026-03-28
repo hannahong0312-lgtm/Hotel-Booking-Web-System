@@ -18,7 +18,7 @@ if($room_id <= 0) {
     exit;
 }
 
-// Manual rooms data array
+// Manual rooms data array with more images for each room
 $rooms = [
     [
         'id' => 1,
@@ -33,8 +33,11 @@ $rooms = [
         'view' => 'Ocean View',
         'amenities' => ['King Bed', 'Ocean View', 'Private Balcony', 'Mini Bar', 'WiFi', 'Smart TV', 'Rain Shower', 'Bathrobes'],
         'images' => [
-            'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=800&h=600&fit=crop',
-            'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&h=600&fit=crop',
+            'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=1920&h=1080&fit=crop',
+            'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=1920&h=1080&fit=crop',
+            'https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=1920&h=1080&fit=crop',
+            'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1920&h=1080&fit=crop',
+            'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=1920&h=1080&fit=crop',
         ],
         'available' => 3,
         'popular' => true
@@ -52,8 +55,11 @@ $rooms = [
         'view' => 'City View',
         'amenities' => ['King Bed', 'Living Room', 'Dining Area', 'Jacuzzi', 'Kitchenette', 'WiFi', '65" TV', 'Nespresso Machine'],
         'images' => [
-            'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&h=600&fit=crop',
-            'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&h=600&fit=crop',
+            'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=1920&h=1080&fit=crop',
+            'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1920&h=1080&fit=crop',
+            'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=1920&h=1080&fit=crop',
+            'https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=1920&h=1080&fit=crop',
+            'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=1920&h=1080&fit=crop',
         ],
         'available' => 2,
         'popular' => true
@@ -71,8 +77,10 @@ $rooms = [
         'view' => 'Garden View',
         'amenities' => ['Twin Beds', 'Work Desk', 'Flat Screen TV', 'WiFi', 'Coffee Maker'],
         'images' => [
-            'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800&h=600&fit=crop',
-            'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800&h=600&fit=crop',
+            'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=1920&h=1080&fit=crop',
+            'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=1920&h=1080&fit=crop',
+            'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=1920&h=1080&fit=crop',
+            'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=1920&h=1080&fit=crop',
         ],
         'available' => 5,
         'popular' => false
@@ -90,8 +98,11 @@ $rooms = [
         'view' => 'Pool View',
         'amenities' => ['2 Bedrooms', 'Kids Corner', 'Kitchen', 'Game Console', 'WiFi', 'DVD Player'],
         'images' => [
-            'https://images.unsplash.com/photo-1568495248636-6432b97bd949?w=800&h=600&fit=crop',
-            'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800&h=600&fit=crop',
+            'https://images.unsplash.com/photo-1568495248636-6432b97bd949?w=1920&h=1080&fit=crop',
+            'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=1920&h=1080&fit=crop',
+            'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=1920&h=1080&fit=crop',
+            'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=1920&h=1080&fit=crop',
+            'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1920&h=1080&fit=crop',
         ],
         'available' => 2,
         'popular' => true
@@ -109,8 +120,11 @@ $rooms = [
         'view' => 'Panoramic City',
         'amenities' => ['Super King Bed', 'Private Rooftop', 'Butler Service', 'Private Pool', 'Home Theater'],
         'images' => [
-            'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=800&h=600&fit=crop',
-            'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&h=600&fit=crop',
+            'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1920&h=1080&fit=crop',
+            'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=1920&h=1080&fit=crop',
+            'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=1920&h=1080&fit=crop',
+            'https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=1920&h=1080&fit=crop',
+            'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=1920&h=1080&fit=crop',
         ],
         'available' => 1,
         'popular' => true
@@ -128,8 +142,10 @@ $rooms = [
         'view' => 'Garden View',
         'amenities' => ['Queen Bed', 'Private Patio', 'Garden Access', 'WiFi', 'Mini Fridge'],
         'images' => [
-            'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=800&h=600&fit=crop',
-            'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=800&h=600&fit=crop',
+            'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=1920&h=1080&fit=crop',
+            'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=1920&h=1080&fit=crop',
+            'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=1920&h=1080&fit=crop',
+            'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=1920&h=1080&fit=crop',
         ],
         'available' => 4,
         'popular' => false
@@ -171,18 +187,37 @@ $tomorrow_date = date('Y-m-d', strtotime('+1 day'));
 <link rel="stylesheet" href="css/roomdetails.css">
 
 <main>
-    <div class="container">
-        <!-- Breadcrumb - Right under header -->
-        <div class="breadcrumb">
-            <a href="accommodation.php"><i class="fas fa-home"></i> Accommodation</a>
-            <span><i class="fas fa-chevron-right"></i></span>
-            <span class="current"><?php echo htmlspecialchars($room['name']); ?></span>
+    <!-- Hero Section with Full Screen Image Gallery -->
+    <div class="room-hero">
+        <div class="hero-overlay"></div>
+        <div class="gallery-container">
+            <div class="gallery-wrapper">
+                <div class="gallery-scroll" id="galleryScroll">
+                    <?php for($i = 0; $i < count($room['images']); $i++): ?>
+                        <div class="gallery-item" data-index="<?php echo $i; ?>">
+                            <img src="<?php echo $room['images'][$i]; ?>" alt="<?php echo htmlspecialchars($room['name']); ?> - Image <?php echo $i + 1; ?>">
+                        </div>
+                    <?php endfor; ?>
+                </div>
+            </div>
+            
+            <!-- Scroll Buttons -->
+            <button class="scroll-btn scroll-left" id="scrollLeftBtn">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="scroll-btn scroll-right" id="scrollRightBtn">
+                <i class="fas fa-chevron-right"></i>
+            </button>
+            
+            <!-- Image Counter -->
+            <div class="image-counter" id="imageCounter">
+                <span id="currentImageIndex">1</span> / <span id="totalImages"><?php echo count($room['images']); ?></span>
+            </div>
         </div>
-
-        <!-- Room Header -->
-        <div class="room-header">
+        
+        <div class="hero-content">
             <h1><?php echo htmlspecialchars($room['name']); ?></h1>
-            <div class="room-meta">
+            <div class="hero-meta">
                 <span class="room-type-badge"><?php echo strtoupper($room['type']); ?></span>
                 <?php if($room['popular']): ?>
                     <span class="popular-badge"><i class="fas fa-star"></i> Most Popular</span>
@@ -196,27 +231,30 @@ $tomorrow_date = date('Y-m-d', strtotime('+1 day'));
                     <span>4.8 (245 reviews)</span>
                 </div>
             </div>
+            <div class="hero-price">
+                <span class="price">$<?php echo number_format($room['price'], 0); ?></span>
+                <span class="per-night">per night</span>
+            </div>
+            <div class="scroll-indicator">
+                <span>Scroll to explore details</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
         </div>
+    </div>
 
-        <!-- Image Gallery -->
-        <div class="gallery">
-            <div class="main-image">
-                <img id="mainImage" src="<?php echo $room['images'][0]; ?>" alt="<?php echo htmlspecialchars($room['name']); ?>">
-            </div>
-            <div class="thumbnail-grid">
-                <?php for($i = 0; $i < count($room['images']); $i++): ?>
-                    <div class="thumbnail">
-                        <img src="<?php echo $room['images'][$i]; ?>" alt="Room view <?php echo $i + 1; ?>">
-                    </div>
-                <?php endfor; ?>
-            </div>
+    <div class="container">
+        <!-- Quick Links Navigation -->
+        <div class="quick-links">
+            <a href="accommodation.php" class="quick-link">
+                <i class="fas fa-arrow-left"></i> Back to All Rooms
+            </a>
         </div>
 
         <!-- Content Grid -->
         <div class="details-grid">
             <!-- Left Column - Room Information -->
             <div class="info-section">
-                <div class="info-card">
+                <div id="overview" class="info-card">
                     <h2><i class="fas fa-info-circle"></i> Overview</h2>
                     <p class="description"><?php echo htmlspecialchars($room['long_description']); ?></p>
                     
@@ -252,7 +290,7 @@ $tomorrow_date = date('Y-m-d', strtotime('+1 day'));
                     </div>
                 </div>
 
-                <div class="info-card">
+                <div id="amenities" class="info-card">
                     <h2><i class="fas fa-concierge-bell"></i> Amenities</h2>
                     <div class="amenities-grid">
                         <?php for($i = 0; $i < count($room['amenities']); $i++): ?>
@@ -264,7 +302,7 @@ $tomorrow_date = date('Y-m-d', strtotime('+1 day'));
                     </div>
                 </div>
 
-                <div class="info-card">
+                <div id="policies" class="info-card">
                     <h2><i class="fas fa-clipboard-list"></i> Room Policies</h2>
                     <ul class="policies">
                         <li><i class="fas fa-clock"></i> Check-in: 3:00 PM | Check-out: 11:00 AM</li>
@@ -277,7 +315,7 @@ $tomorrow_date = date('Y-m-d', strtotime('+1 day'));
 
                 <!-- Similar Rooms -->
                 <?php if(count($similar_rooms) > 0): ?>
-                <div class="similar-rooms">
+                <div id="similar" class="similar-rooms">
                     <h3><i class="fas fa-hotel"></i> You might also like</h3>
                     <div class="similar-grid">
                         <?php for($i = 0; $i < count($similar_rooms); $i++): ?>
@@ -295,9 +333,9 @@ $tomorrow_date = date('Y-m-d', strtotime('+1 day'));
                 <?php endif; ?>
             </div>
 
-            <!-- Right Column - Booking Form -->
-            <div class="booking-section">
-                <div class="booking-card">
+            <!-- Right Column - Sticky Booking Form -->
+            <div class="booking-section-wrapper">
+                <div class="booking-card" id="bookingCard">
                     <div class="price-display">
                         <span class="price">$<?php echo number_format($room['price'], 0); ?></span>
                         <span class="per-night">per night</span>
@@ -399,7 +437,180 @@ $tomorrow_date = date('Y-m-d', strtotime('+1 day'));
         price: <?php echo $room['price']; ?>
     };
     
-    // Get DOM elements
+    // Gallery scroll functionality with both drag and buttons
+    const galleryScroll = document.getElementById('galleryScroll');
+    const scrollLeftBtn = document.getElementById('scrollLeftBtn');
+    const scrollRightBtn = document.getElementById('scrollRightBtn');
+    const currentImageIndexSpan = document.getElementById('currentImageIndex');
+    const totalImagesSpan = document.getElementById('totalImages');
+    const galleryItems = document.querySelectorAll('.gallery-item');
+    
+    let currentIndex = 0;
+    const totalImages = galleryItems.length;
+    let isDragging = false;
+    let startX;
+    let scrollLeftStart;
+    
+    // Update counter
+    function updateCounter() {
+        if(currentImageIndexSpan) {
+            currentImageIndexSpan.textContent = currentIndex + 1;
+        }
+    }
+    
+    // Scroll to specific image
+    function scrollToImage(index) {
+        if(index < 0) index = 0;
+        if(index >= totalImages) index = totalImages - 1;
+        
+        const item = galleryItems[index];
+        if(item) {
+            item.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest',
+                inline: 'center'
+            });
+            currentIndex = index;
+            updateCounter();
+        }
+    }
+    
+    // Scroll left
+    function scrollLeft() {
+        if(currentIndex > 0) {
+            scrollToImage(currentIndex - 1);
+        } else {
+            scrollToImage(totalImages - 1);
+        }
+    }
+    
+    // Scroll right
+    function scrollRight() {
+        if(currentIndex < totalImages - 1) {
+            scrollToImage(currentIndex + 1);
+        } else {
+            scrollToImage(0);
+        }
+    }
+    
+    // Mouse/Touch drag scrolling
+    galleryScroll.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        startX = e.pageX - galleryScroll.offsetLeft;
+        scrollLeftStart = galleryScroll.scrollLeft;
+        galleryScroll.style.cursor = 'grabbing';
+    });
+    
+    galleryScroll.addEventListener('mouseleave', () => {
+        isDragging = false;
+        galleryScroll.style.cursor = 'grab';
+    });
+    
+    galleryScroll.addEventListener('mouseup', () => {
+        isDragging = false;
+        galleryScroll.style.cursor = 'grab';
+    });
+    
+    galleryScroll.addEventListener('mousemove', (e) => {
+        if(!isDragging) return;
+        e.preventDefault();
+        const x = e.pageX - galleryScroll.offsetLeft;
+        const walk = (x - startX) * 2;
+        galleryScroll.scrollLeft = scrollLeftStart - walk;
+    });
+    
+    // Touch events for mobile
+    galleryScroll.addEventListener('touchstart', (e) => {
+        isDragging = true;
+        startX = e.touches[0].pageX - galleryScroll.offsetLeft;
+        scrollLeftStart = galleryScroll.scrollLeft;
+    });
+    
+    galleryScroll.addEventListener('touchmove', (e) => {
+        if(!isDragging) return;
+        e.preventDefault();
+        const x = e.touches[0].pageX - galleryScroll.offsetLeft;
+        const walk = (x - startX) * 2;
+        galleryScroll.scrollLeft = scrollLeftStart - walk;
+    });
+    
+    galleryScroll.addEventListener('touchend', () => {
+        isDragging = false;
+    });
+    
+    // Add click handlers for gallery items
+    for(let i = 0; i < galleryItems.length; i++) {
+        galleryItems[i].addEventListener('click', function() {
+            scrollToImage(i);
+        });
+    }
+    
+    // Add scroll event listener to update current index
+    galleryScroll.addEventListener('scroll', function() {
+        const scrollLeft = galleryScroll.scrollLeft;
+        const itemWidth = galleryItems[0]?.offsetWidth || 0;
+        const gap = 20; // Gap between items
+        const newIndex = Math.round(scrollLeft / (itemWidth + gap));
+        
+        if(newIndex !== currentIndex && newIndex >= 0 && newIndex < totalImages) {
+            currentIndex = newIndex;
+            updateCounter();
+        }
+    });
+    
+    // Button click handlers
+    if(scrollLeftBtn) scrollLeftBtn.addEventListener('click', scrollLeft);
+    if(scrollRightBtn) scrollRightBtn.addEventListener('click', scrollRight);
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+        if(e.key === 'ArrowLeft') {
+            scrollLeft();
+        } else if(e.key === 'ArrowRight') {
+            scrollRight();
+        }
+    });
+    
+    // Set initial cursor
+    galleryScroll.style.cursor = 'grab';
+    
+    // Sticky booking card
+    const bookingCard = document.getElementById('bookingCard');
+    const bookingSectionWrapper = document.querySelector('.booking-section-wrapper');
+    
+    function handleStickyBooking() {
+        const scrollY = window.scrollY;
+        const windowHeight = window.innerHeight;
+        const heroHeight = document.querySelector('.room-hero').offsetHeight;
+        const containerTop = document.querySelector('.container').offsetTop;
+        
+        if(scrollY > heroHeight - 100) {
+            bookingCard.classList.add('sticky');
+        } else {
+            bookingCard.classList.remove('sticky');
+        }
+    }
+    
+    window.addEventListener('scroll', handleStickyBooking);
+    window.addEventListener('load', handleStickyBooking);
+    
+    // Smooth scroll for quick links
+    const quickLinks = document.querySelectorAll('.quick-link[href^="#"]');
+    for(let i = 0; i < quickLinks.length; i++) {
+        quickLinks[i].addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            if(targetElement) {
+                targetElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    }
+    
+    // Get DOM elements for booking
     const checkInInput = document.getElementById('checkIn');
     const checkOutInput = document.getElementById('checkOut');
     const guestsSelect = document.getElementById('guests');
@@ -467,15 +678,7 @@ $tomorrow_date = date('Y-m-d', strtotime('+1 day'));
         successModal.style.display = 'none';
     }
     
-    // Change main image
-    function changeMainImage(imageUrl) {
-        const mainImage = document.getElementById('mainImage');
-        if(mainImage) {
-            mainImage.src = imageUrl;
-        }
-    }
-    
-    // Event listeners
+    // Event listeners for booking
     if(checkInInput && checkOutInput) {
         checkInInput.addEventListener('change', function() {
             const checkInDate = new Date(this.value);
@@ -529,17 +732,6 @@ $tomorrow_date = date('Y-m-d', strtotime('+1 day'));
     
     if(continueBtn) {
         continueBtn.addEventListener('click', closeSuccessModal);
-    }
-    
-    // Thumbnail click handlers
-    const thumbnails = document.querySelectorAll('.thumbnail');
-    for(let i = 0; i < thumbnails.length; i++) {
-        thumbnails[i].addEventListener('click', function() {
-            const img = this.querySelector('img');
-            if(img) {
-                changeMainImage(img.src);
-            }
-        });
     }
     
     // Close modal when clicking outside
