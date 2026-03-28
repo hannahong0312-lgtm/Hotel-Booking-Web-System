@@ -1,5 +1,5 @@
 <?php
-// payment.php - Payment Simulation Page
+// confirm_booking.php - Booking Confirmation Page
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
@@ -8,350 +8,233 @@ session_start();
 // Include header
 include '../Shared/header.php';
 
-// Check if booking data exists in session or GET parameters
-if (isset($_SESSION['pending_booking'])) {
-    $booking_data = $_SESSION['pending_booking'];
-} else {
-    // Fallback to GET parameters
-    $booking_data = [
-        'room_id' => isset($_GET['room_id']) ? $_GET['room_id'] : 1,
-        'room_name' => isset($_GET['room_name']) ? $_GET['room_name'] : 'Deluxe Ocean View',
-        'room_price' => isset($_GET['room_price']) ? $_GET['room_price'] : 299,
-        'check_in' => isset($_GET['check_in']) ? $_GET['check_in'] : date('Y-m-d'),
-        'check_out' => isset($_GET['check_out']) ? $_GET['check_out'] : date('Y-m-d', strtotime('+2 days')),
-        'guests' => isset($_GET['guests']) ? $_GET['guests'] : 2,
-        'fullname' => isset($_GET['fullname']) ? $_GET['fullname'] : '',
-        'email' => isset($_GET['email']) ? $_GET['email'] : '',
-        'phone' => isset($_GET['phone']) ? $_GET['phone'] : ''
-    ];
-}
-
-// Extract booking data
-$room_id = $booking_data['room_id'];
-$room_name = $booking_data['room_name'];
-$room_price = $booking_data['room_price'];
-$check_in = $booking_data['check_in'];
-$check_out = $booking_data['check_out'];
-$guests = $booking_data['guests'];
-$fullname = $booking_data['fullname'];
-$email = $booking_data['email'];
-$phone = $booking_data['phone'];
+// Get booking data from POST or GET
+$room_id = isset($_POST['room_id']) ? $_POST['room_id'] : (isset($_GET['room_id']) ? $_GET['room_id'] : 1);
+$check_in = isset($_POST['check_in']) ? $_POST['check_in'] : (isset($_GET['check_in']) ? $_GET['check_in'] : date('Y-m-d'));
+$check_out = isset($_POST['check_out']) ? $_POST['check_out'] : (isset($_GET['check_out']) ? $_GET['check_out'] : date('Y-m-d', strtotime('+2 days')));
+$guests = isset($_POST['guests']) ? $_POST['guests'] : (isset($_GET['guests']) ? $_GET['guests'] : 2);
+$room_name = isset($_POST['room_name']) ? $_POST['room_name'] : (isset($_GET['room_name']) ? $_GET['room_name'] : 'Deluxe Ocean View');
+$room_price = isset($_POST['room_price']) ? $_POST['room_price'] : (isset($_GET['room_price']) ? $_GET['room_price'] : 299);
 
 // Calculate nights and total
 $date1 = new DateTime($check_in);
 $date2 = new DateTime($check_out);
 $nights = $date2->diff($date1)->days;
 $total_price = $room_price * $nights;
-$tax = $total_price * 0.12;
-$service_fee = $total_price * 0.05;
+$tax = $total_price * 0.12; // 12% tax
+$service_fee = $total_price * 0.05; // 5% service fee
 $grand_total = $total_price + $tax + $service_fee;
 
-// Generate booking reference if not exists
-$booking_ref = isset($_SESSION['booking_ref']) ? $_SESSION['booking_ref'] : 'BK' . strtoupper(uniqid());
-$_SESSION['booking_ref'] = $booking_ref;
+// Generate booking reference
+$booking_ref = 'BK' . strtoupper(uniqid());
 
-// Payment processing simulation
-$payment_processed = false;
-$payment_error = null;
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['process_payment'])) {
-    $payment_method = isset($_POST['payment_method']) ? $_POST['payment_method'] : 'credit_card';
-    $card_number = isset($_POST['card_number']) ? $_POST['card_number'] : '';
-    $card_name = isset($_POST['card_name']) ? $_POST['card_name'] : '';
-    $expiry = isset($_POST['expiry']) ? $_POST['expiry'] : '';
-    $cvv = isset($_POST['cvv']) ? $_POST['cvv'] : '';
+// Process form submission
+$booking_success = false;
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
+    // Here you would normally save to database
+    $booking_success = true;
     
-    // Basic validation
-    $errors = [];
+    // Store booking details in session for confirmation
+    $_SESSION['last_booking'] = [
+        'reference' => $booking_ref,
+        'room_name' => $room_name,
+        'check_in' => $check_in,
+        'check_out' => $check_out,
+        'guests' => $guests,
+        'nights' => $nights,
+        'total' => $grand_total
+    ];
     
-    if ($payment_method === 'credit_card') {
-        if (empty($card_number) || strlen(preg_replace('/\s/', '', $card_number)) < 16) {
-            $errors[] = 'Please enter a valid card number.';
-        }
-        if (empty($card_name)) {
-            $errors[] = 'Please enter the cardholder name.';
-        }
-        if (empty($expiry)) {
-            $errors[] = 'Please enter expiry date.';
-        }
-        if (empty($cvv) || strlen($cvv) < 3) {
-            $errors[] = 'Please enter a valid CVV.';
-        }
-    }
-    
-    if (empty($errors)) {
-        // Simulate payment processing
-        $payment_processed = true;
-        
-        // Store complete booking in session
-        $_SESSION['confirmed_booking'] = [
-            'reference' => $booking_ref,
-            'room_id' => $room_id,
-            'room_name' => $room_name,
-            'room_price' => $room_price,
-            'check_in' => $check_in,
-            'check_out' => $check_out,
-            'guests' => $guests,
-            'nights' => $nights,
-            'total_price' => $total_price,
-            'tax' => $tax,
-            'service_fee' => $service_fee,
-            'grand_total' => $grand_total,
-            'fullname' => $fullname,
-            'email' => $email,
-            'phone' => $phone,
-            'payment_method' => $payment_method,
-            'payment_date' => date('Y-m-d H:i:s')
-        ];
-        
-        // Clear pending booking
-        unset($_SESSION['pending_booking']);
-        
-        // Redirect to success page
-        header('Location: booking_success.php?ref=' . $booking_ref);
-        exit();
-    } else {
-        $payment_error = $errors;
-    }
+    // Redirect to success page or show success message
+    header('Location: booking_success.php?ref=' . $booking_ref);
+    exit();
 }
 ?>
 
-<!-- Payment Page Specific CSS - only what's not in main.css -->
+<!-- Internal CSS -->
 <style>
-    /* Payment page specific styles - complements main.css without duplication */
-    
-    /* Payment container spacing */
-    .payment-container {
+    /* Main container styling */
+    .booking-container {
         max-width: 1000px;
         margin: 0 auto;
         padding: 110px 20px 60px;
     }
     
-    /* Payment header */
-    .payment-header {
+    /* Booking header */
+    .booking-header {
         text-align: center;
         margin-bottom: 40px;
     }
     
-    .payment-header h1 {
-        font-size: 2.2rem;
+    .booking-header h1 {
+        font-size: 2.5rem;
         font-family: 'Playfair Display', serif;
-        font-weight: 500;
-        color: var(--black);
-        margin-bottom: 12px;
+        color: #333;
+        margin-bottom: 10px;
     }
     
-    .payment-header h1 i {
-        color: var(--accent);
-        margin-right: 12px;
+    .booking-header h1 i {
+        color: green;
+        margin-right: 10px;
     }
     
-    .payment-header p {
-        color: var(--gray-text);
+    .booking-header p {
+        color: #666;
         font-size: 1rem;
     }
     
-    /* Payment grid layout */
-    .payment-grid {
+    /* Booking grid layout */
+    .booking-grid {
         display: grid;
         grid-template-columns: 1fr 1.2fr;
-        gap: 35px;
+        gap: 30px;
     }
     
-    /* Order summary card */
-    .order-summary {
-        background: var(--white);
-        border-radius: 24px;
-        box-shadow: var(--shadow-md);
+    /* Booking details card */
+    .booking-details-card,
+    .payment-card {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
         overflow: hidden;
-        border: 1px solid var(--gray-border);
-        position: sticky;
-        top: 100px;
+        margin-bottom: 30px;
     }
     
-    .summary-header {
+    .card-header {
         background: var(--black);
         color: var(--white);
         padding: 20px 25px;
         border-bottom: 3px solid var(--accent);
     }
     
-    .summary-header h2 {
+    .card-header h2 {
         margin: 0;
-        font-size: 1.2rem;
-        font-weight: 600;
+        font-size: 1.5rem;
         display: flex;
         align-items: center;
         gap: 10px;
     }
     
-    .summary-header h2 i {
-        color: var(--accent);
+    .card-header h2 i {
+        font-size: 1.3rem;
     }
     
-    .summary-body {
+    .card-content {
         padding: 25px;
     }
     
-    /* Room info in summary */
-    .summary-room {
+    /* Room info section */
+    .room-info {
         display: flex;
-        gap: 15px;
-        margin-bottom: 20px;
-        padding-bottom: 20px;
-        border-bottom: 1px solid var(--gray-border);
+        gap: 20px;
+        margin-bottom: 25px;
+        padding-bottom: 25px;
+        border-bottom: 1px solid #eee;
     }
     
-    .summary-room-icon {
-        font-size: 2rem;
-        color: var(--accent);
+    .room-icon {
+        font-size: 3rem;
+        color: #E55A3B;
     }
     
-    .summary-room-details h3 {
+    .room-details h3 {
         margin: 0 0 8px 0;
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: var(--black);
+        font-size: 1.3rem;
+        color: #333;
     }
     
-    .summary-room-details p {
-        margin: 4px 0;
-        color: var(--gray-text);
-        font-size: 0.85rem;
+    .room-details p {
+        margin: 5px 0;
+        color: #666;
     }
     
-    .summary-room-details p i {
-        color: var(--accent);
-        width: 20px;
-        margin-right: 5px;
-    }
-    
-    /* Summary items */
-    .summary-line {
+    /* Booking summary items */
+    .summary-item {
         display: flex;
         justify-content: space-between;
-        padding: 10px 0;
-        border-bottom: 1px solid var(--gray-border);
-        font-size: 0.9rem;
+        padding: 12px 0;
+        border-bottom: 1px solid #f0f0f0;
     }
     
-    .summary-line.total {
+    .summary-item:last-child {
         border-bottom: none;
-        font-weight: 700;
-        font-size: 1rem;
-        color: var(--black);
-    }
-    
-    .summary-line.grand {
-        background: var(--accent);
-        color: var(--white);
-        padding: 15px;
-        border-radius: 12px;
-        margin-top: 10px;
-        font-weight: 700;
-        font-size: 1.1rem;
-    }
-    
-    .summary-line.grand span:first-child {
-        font-weight: 600;
     }
     
     .summary-label {
-        color: var(--gray-text);
+        color: #666;
+        font-weight: 500;
     }
     
     .summary-label i {
         margin-right: 8px;
-        color: var(--accent);
+        color: #E55A3B;
         width: 20px;
     }
     
     .summary-value {
+        color: #333;
         font-weight: 600;
-        color: var(--black);
     }
     
-    /* Payment card */
-    .payment-card {
-        background: var(--white);
-        border-radius: 24px;
-        box-shadow: var(--shadow-md);
-        overflow: hidden;
-        border: 1px solid var(--gray-border);
+    /* Total sections */
+    .total-section {
+        margin-top: 20px;
+        padding-top: 15px;
+        border-top: 2px solid #FF6B4A;
     }
     
-    .payment-card-header {
-        background: var(--black);
-        color: var(--white);
-        padding: 20px 25px;
-        border-bottom: 3px solid var(--accent);
-    }
-    
-    .payment-card-header h2 {
-        margin: 0;
-        font-size: 1.2rem;
-        font-weight: 600;
+    .total-item {
         display: flex;
-        align-items: center;
-        gap: 10px;
+        justify-content: space-between;
+        padding: 10px 0;
+        font-weight: 600;
     }
     
-    .payment-card-header h2 i {
-        color: var(--accent);
-    }
-    
-    .payment-card-body {
-        padding: 25px;
-    }
-    
-    /* Form styling - using main.css variables */
-    .payment-form-group {
-        margin-bottom: 22px;
-    }
-    
-    .payment-form-group label {
-        display: block;
-        margin-bottom: 8px;
-        color: var(--black);
-        font-weight: 500;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    .payment-form-group label i {
-        margin-right: 8px;
-        color: var(--accent);
-    }
-    
-    .payment-form-control {
-        width: 100%;
-        padding: 12px 16px;
-        border: 1px solid var(--gray-border);
+    .grand-total {
+        display: flex;
+        background: #FF6B4A;
+        color: white;
+        padding: 15px;
         border-radius: 12px;
-        font-size: 0.95rem;
-        font-family: 'Inter', sans-serif;
-        transition: var(--transition);
-        background: var(--white);
+        margin-top: 10px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        justify-content: space-between;
+    }
+        
+    /* Form styling */
+    .form-group {
+        margin-bottom: 30px;
     }
     
-    .payment-form-control:focus {
-        outline: none;
-        border-color: var(--accent);
-        box-shadow: 0 0 0 3px rgba(255, 107, 74, 0.1);
+    .form-group label {
+        display: block;
+        margin-bottom: 10px;
+        color: #333;
+        font-weight: 500;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+    }
+    
+    .form-group label i {
+        margin-right: 8px;
+        color: #E55A3B;
+    }
+    
+    .form-control {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
     }
     
     /* Payment methods */
-    .payment-methods-section {
+    .payment-methods {
         margin-bottom: 25px;
-    }
-    
-    .payment-methods-section > label {
-        display: block;
-        margin-bottom: 15px;
         color: var(--black);
-        font-weight: 600;
-        font-size: 0.9rem;
+        
     }
     
     .payment-option {
@@ -363,379 +246,355 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['process_payment'])) {
         border-radius: 12px;
         cursor: pointer;
         transition: var(--transition);
-    }
     
-    .payment-option:hover {
-        border-color: var(--accent);
+    }
+
+    .payment-option:hover{
         background: var(--gray-bg);
+        border-color: var(--accent);
     }
     
     .payment-option input[type="radio"] {
-        margin-right: 12px;
-        width: 18px;
-        height: 18px;
+        margin-right: 10px;
         accent-color: var(--accent);
-        cursor: pointer;
     }
     
     .payment-option label {
-        display: inline-flex;
-        align-items: center;
+        display: inline-block;
         cursor: pointer;
         color: var(--black);
-        font-weight: 500;
-        flex: 1;
-        margin: 0;
-        text-transform: none;
-        letter-spacing: normal;
+        padding: 2px 3px;
     }
     
     .payment-option i {
-        margin-right: 10px;
+        margin-right: 8px;
         font-size: 1.2rem;
-        color: var(--accent);
+        color: var(--accent); 
     }
     
-    /* Card details section */
-    #card_details_section {
-        transition: var(--transition);
-    }
-    
-    .card-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 15px;
-        margin-top: 15px;
-    }
-    
-    /* Button styling - consistent with main.css */
-    .payment-btn {
+    /* Button styling - matching main.css */
+    .btn {
         display: inline-block;
-        padding: 14px 28px;
+        padding: 12px 30px;
         border: none;
         border-radius: 40px;
         font-size: 1rem;
         font-weight: 600;
         cursor: pointer;
-        transition: var(--transition);
+        transition: all 0.3s ease;
+        text-decoration: none;
         text-align: center;
-        width: 100%;
-        font-family: 'Inter', sans-serif;
     }
     
-    .payment-btn-primary {
-        background: var(--accent);
-        color: var(--white);
+    .btn-primary {
+        background: #FF6B4A;
+        color: white;
     }
     
-    .payment-btn-primary:hover {
-        background: var(--accent-dark);
+    .btn-primary:hover {
         transform: translateY(-2px);
-        box-shadow: 0 5px 15px rgba(255, 107, 74, 0.3);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
     }
     
-    .payment-btn-secondary {
+    .btn-secondary {
         background: transparent;
-        color: var(--black);
+        color: black;
         border: 1px solid var(--gray-border);
     }
     
-    .payment-btn-secondary:hover {
+    .btn-secondary:hover {
         background: var(--gray-bg);
         border-color: var(--black);
-        transform: translateY(-2px);
+    }
+    
+    .btn-block {
+        width: 100%;
+    }
+    
+    .btn-large {
+        padding: 15px 30px;
+        font-size: 1.1rem;
     }
     
     /* Button group */
-    .payment-button-group {
+    .button-group {
         display: flex;
         gap: 15px;
         margin-top: 25px;
     }
     
-    .payment-button-group .payment-btn {
+    .button-group .btn {
         flex: 1;
     }
     
-    /* Error messages */
-    .payment-error {
-        background: #fee2e2;
-        border-left: 4px solid #dc2626;
-        padding: 12px 16px;
-        border-radius: 12px;
+    /* Cancellation policy */
+    .cancellation-policy {
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
         margin-bottom: 20px;
+        padding: 16px 20px;
     }
     
-    .payment-error ul {
-        margin: 0;
-        padding-left: 20px;
-        color: #991b1b;
-        font-size: 0.85rem;
-    }
-    
-    .payment-error li {
-        margin: 5px 0;
-    }
-    
-    /* Secure payment badge */
-    .secure-badge {
-        text-align: center;
-        margin-top: 20px;
-        padding-top: 20px;
-        border-top: 1px solid var(--gray-border);
-    }
-    
-    .secure-badge i {
-        color: #10b981;
+    .cancellation-policy i {
+        color: #FF6B4A;
         margin-right: 8px;
     }
     
-    .secure-badge span {
-        color: var(--gray-text);
-        font-size: 0.8rem;
+    .cancellation-policy small {
+        color: #666;
+        line-height: 1.5;
+        display: block;
+        margin-top: 8px;
+    }
+    
+    /* Responsive design */
+    @media (max-width: 768px) {
+        .booking-grid {
+            grid-template-columns: 1fr;
+            gap: 20px;
+        }
+        
+        .booking-container {
+            padding: 20px 15px;
+        }
+        
+        .booking-header h1 {
+            font-size: 1.8rem;
+        }
+        
+        .button-group {
+            flex-direction: column;
+        }
+        
+        .room-info {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .room-icon {
+            font-size: 2.5rem;
+        }
     }
     
     /* Loading animation */
-    @keyframes payment-spin {
+    @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
     }
     
-    .payment-spinner {
+    .loading-spinner {
         display: inline-block;
-        width: 18px;
-        height: 18px;
-        border: 2px solid rgba(255,255,255,.3);
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255,255,255,.3);
         border-radius: 50%;
         border-top-color: white;
-        animation: payment-spin 0.8s ease-in-out infinite;
+        animation: spin 1s ease-in-out infinite;
         margin-right: 8px;
-        vertical-align: middle;
-    }
-    
-    /* Responsive */
-    @media (max-width: 768px) {
-        .payment-container {
-            padding: 90px 15px 40px;
-        }
-        
-        .payment-grid {
-            grid-template-columns: 1fr;
-            gap: 25px;
-        }
-        
-        .payment-header h1 {
-            font-size: 1.6rem;
-        }
-        
-        .payment-button-group {
-            flex-direction: column;
-        }
-        
-        .card-row {
-            grid-template-columns: 1fr;
-            gap: 12px;
-        }
-        
-        .order-summary {
-            position: relative;
-            top: 0;
-        }
     }
 </style>
 
 <main>
-    <div class="payment-container">
-        <div class="payment-header">
-            <h1><i class="fas fa-credit-card"></i> Secure Payment</h1>
-            <p>Complete your booking by making a secure payment</p>
+    <div class="booking-container">
+        <div class="booking-header">
+            <h1>Confirm Your Booking</h1>
+            <p>Please review your booking details and complete the payment</p>
         </div>
         
-        <div class="payment-grid">
-            <!-- Left Column - Order Summary -->
-            <div class="order-summary">
-                <div class="summary-header">
-                    <h2><i class="fas fa-receipt"></i> Order Summary</h2>
+        <form method="POST" action="" id="bookingForm">
+            <div class="booking-grid">
+                <!-- Left Column - Booking Summary -->
+                <div>
+                    <div class="booking-details-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-file-alt"></i> Booking Summary</h3>
+                        </div>
+                        <div class="card-content">
+                            <div class="room-info">
+                                <div class="room-icon">
+                                    <i class="fas fa-hotel"></i>
+                                </div>
+                                <div class="room-details">
+                                    <h3><?php echo htmlspecialchars($room_name); ?></h3>
+                                    <p><i class="fas fa-tag"></i> RM<?php echo number_format($room_price, 0); ?> per night</p>
+                                    <p><i class="fas fa-users"></i> Up to <?php echo htmlspecialchars($guests); ?> guests</p>
+                                </div>
+                            </div>
+                            
+                            <div class="summary-item">
+                                <span class="summary-label"><i class="fas fa-calendar-check"></i> Check-in Date</span>
+                                <span class="summary-value"><?php echo date('F d, Y', strtotime($check_in)); ?></span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label"><i class="fas fa-calendar-times"></i> Check-out Date</span>
+                                <span class="summary-value"><?php echo date('F d, Y', strtotime($check_out)); ?></span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label"><i class="fas fa-moon"></i> Number of Nights</span>
+                                <span class="summary-value"><?php echo $nights; ?></span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label"><i class="fas fa-users"></i> Number of Guests</span>
+                                <span class="summary-value"><?php echo htmlspecialchars($guests); ?></span>
+                            </div>
+                            <div class="summary-item">
+                                <span class="summary-label"><i class="fas fa-hashtag"></i> Booking Reference</span>
+                                <span class="summary-value"><?php echo $booking_ref; ?></span>
+                            </div>
+                            
+                            <div class="total-section">
+                                <div class="total-item">
+                                    <span>Subtotal (<?php echo $nights; ?> nights × RM<?php echo number_format($room_price, 0); ?>)</span>
+                                    <span>RM <?php echo number_format($total_price, 2); ?></span>
+                                </div>
+                                <div class="total-item">
+                                    <span>Tax (12%)</span>
+                                    <span>RM <?php echo number_format($tax, 2); ?></span>
+                                </div>
+                                <div class="total-item">
+                                    <span>Service Fee (5%)</span>
+                                    <span>RM <?php echo number_format($service_fee, 2); ?></span>
+                                </div>
+                                <div class="grand-total">
+                                    <span><strong>Total Amount</strong></span>
+                                    <span><strong>RM<?php echo number_format($grand_total, 2); ?></strong></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="cancellation-policy">
+                        <i class="fas fa-shield-alt"></i> <strong>Free Cancellation</strong>
+                        <small>Cancel up to 24 hours before check-in for a full refund. Terms and conditions apply.</small>
+                    </div>
                 </div>
-                <div class="summary-body">
-                    <div class="summary-room">
-                        <div class="summary-room-icon">
-                            <i class="fas fa-hotel"></i>
+                
+                <!-- Right Column - Payment Details -->
+                <div>
+                    <div class="payment-card">
+                        <div class="card-header">
+                            <h3><i class="fas fa-credit-card"></i> Payment Details</h3>
                         </div>
-                        <div class="summary-room-details">
-                            <h3><?php echo htmlspecialchars($room_name); ?></h3>
-                            <p><i class="fas fa-tag"></i> RM<?php echo number_format($room_price, 0); ?> per night</p>
-                            <p><i class="fas fa-users"></i> <?php echo htmlspecialchars($guests); ?> guest(s)</p>
-                        </div>
-                    </div>
-                    
-                    <div class="summary-line">
-                        <span class="summary-label"><i class="fas fa-calendar-check"></i> Check-in</span>
-                        <span class="summary-value"><?php echo date('M d, Y', strtotime($check_in)); ?></span>
-                    </div>
-                    <div class="summary-line">
-                        <span class="summary-label"><i class="fas fa-calendar-times"></i> Check-out</span>
-                        <span class="summary-value"><?php echo date('M d, Y', strtotime($check_out)); ?></span>
-                    </div>
-                    <div class="summary-line">
-                        <span class="summary-label"><i class="fas fa-moon"></i> Nights</span>
-                        <span class="summary-value"><?php echo $nights; ?> night(s)</span>
-                    </div>
-                    <div class="summary-line">
-                        <span class="summary-label"><i class="fas fa-hashtag"></i> Booking Ref</span>
-                        <span class="summary-value"><?php echo $booking_ref; ?></span>
-                    </div>
-                    
-                    <div style="margin-top: 15px; padding-top: 15px; border-top: 2px solid var(--gray-border);">
-                        <div class="summary-line">
-                            <span>Subtotal (<?php echo $nights; ?> nights)</span>
-                            <span>RM<?php echo number_format($total_price, 2); ?></span>
-                        </div>
-                        <div class="summary-line">
-                            <span>Tax (12%)</span>
-                            <span>RM<?php echo number_format($tax, 2); ?></span>
-                        </div>
-                        <div class="summary-line">
-                            <span>Service Fee (5%)</span>
-                            <span>RM<?php echo number_format($service_fee, 2); ?></span>
-                        </div>
-                        <div class="summary-line grand">
-                            <span><strong>Total Amount</strong></span>
-                            <span><strong>RM<?php echo number_format($grand_total, 2); ?></strong></span>
+                        <div class="card-content">
+                            <div class="form-group">
+                                <label for="fullname"><i class="fas fa-user"></i> Guest Name</label>
+                                <input type="text" class="form-control" id="fullname" name="fullname" required value="John Doe">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="email"><i class="fas fa-envelope"></i> Email Address</label>
+                                <input type="email" class="form-control" id="email" name="email" required value="john@example.com">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="phone"><i class="fas fa-phone"></i> Phone Number</label>
+                                <input type="tel" class="form-control" id="phone" name="phone" required value="+60123456789">
+                            </div>
+                            
+                            <div class="payment-methods">
+                                <label><i class="fas fa-credit-card"></i> Select Payment Method</label>   
+                                <div class="payment-option">
+                                    <input type="radio" id="credit_card" name="payment_method" value="credit_card" checked>
+                                    <label for="credit_card"><i class="fab fa-cc-visa" ></i> Credit/Debit Card</label>
+                                </div>
+                                <div class="payment-option">
+                                    <input type="radio" id="TouchnGo" name="payment_method" value="TouchnGo">
+                                    <label for="TouchnGo"><i class="fas fa-wifi"></i> Touch 'n Go eWallet</label>
+                                </div>
+                                <div class="payment-option">
+                                    <input type="radio" id="bank_transfer" name="payment_method" value="bank_transfer">
+                                    <label for="bank_transfer"><i class="fas fa-university"></i> Online Banking</label>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group" id="card_details">
+                                <label for="card_number"><i class="fas fa-credit-card"></i> Card Number</label>
+                                <input type="text" class="form-control" id="card_number" placeholder="1234 5678 9012 3456">
+                                
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                                    <div>
+                                        <label for="expiry">Expiry Date</label>
+                                        <input type="text" class="form-control" id="expiry" placeholder="MM/YY">
+                                    </div>
+                                    <div>
+                                        <label for="cvv">CVV</label>
+                                        <input type="text" class="form-control" id="cvv" placeholder="123">
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="special_requests"><i class="fas fa-comment"></i> Special Requests (Optional)</label>
+                                <textarea class="form-control" id="special_requests" name="special_requests" rows="3" 
+                                          placeholder="Please advise your request, arrival time, flight details, food preferences, airline membership number..."></textarea>
+                            </div>
+                            
+                            <div class="button-group">
+                                <button type="button" class="btn btn-secondary" onclick="window.history.back()">
+                                    <i class="fas fa-arrow-left"></i> Back
+                                </button>
+                                <button type="submit" name="confirm_booking" class="btn btn-primary">
+                                    <i class="fas fa-lock"></i> Pay Now
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Right Column - Payment Form -->
-            <div class="payment-card">
-                <div class="payment-card-header">
-                    <h2><i class="fas fa-lock"></i> Payment Details</h2>
-                </div>
-                <div class="payment-card-body">
-                    <?php if ($payment_error): ?>
-                    <div class="payment-error">
-                        <ul>
-                            <?php foreach ($payment_error as $error): ?>
-                                <li><i class="fas fa-exclamation-circle"></i> <?php echo htmlspecialchars($error); ?></li>
-                            <?php endforeach; ?>
-                        </ul>
-                    </div>
-                    <?php endif; ?>
-                    
-                    <form method="POST" action="" id="paymentForm">
-                        <!-- Customer Information Display -->
-                        <div class="payment-form-group">
-                            <label><i class="fas fa-user"></i> Guest Name</label>
-                            <input type="text" class="payment-form-control" value="<?php echo htmlspecialchars($fullname ?: 'Guest'); ?>" readonly disabled style="background: var(--gray-bg);">
-                        </div>
-                        
-                        <div class="payment-form-group">
-                            <label><i class="fas fa-envelope"></i> Email</label>
-                            <input type="text" class="payment-form-control" value="<?php echo htmlspecialchars($email ?: 'guest@example.com'); ?>" readonly disabled style="background: var(--gray-bg);">
-                        </div>
-                        
-                        <!-- Payment Method Selection -->
-                        <div class="payment-methods-section">
-                            <label><i class="fas fa-credit-card"></i> Select Payment Method</label>
-                            
-                            <div class="payment-option">
-                                <input type="radio" id="credit_card" name="payment_method" value="credit_card" checked>
-                                <label for="credit_card"><i class="fab fa-cc-visa"></i> Credit / Debit Card</label>
-                                <i class="fas fa-check-circle" style="color: var(--accent); display: none;"></i>
-                            </div>
-                            
-                            <div class="payment-option">
-                                <input type="radio" id="touchngo" name="payment_method" value="touchngo">
-                                <label for="touchngo"><i class="fas fa-mobile-alt"></i> Touch 'n Go eWallet</label>
-                            </div>
-                            
-                            <div class="payment-option">
-                                <input type="radio" id="online_banking" name="payment_method" value="online_banking">
-                                <label for="online_banking"><i class="fas fa-university"></i> Online Banking</label>
-                            </div>
-                            
-                            <div class="payment-option">
-                                <input type="radio" id="qr_pay" name="payment_method" value="qr_pay">
-                                <label for="qr_pay"><i class="fas fa-qrcode"></i> QR Pay</label>
-                            </div>
-                        </div>
-                        
-                        <!-- Credit Card Details Section -->
-                        <div id="card_details_section">
-                            <div class="payment-form-group">
-                                <label for="card_number"><i class="fas fa-credit-card"></i> Card Number</label>
-                                <input type="text" class="payment-form-control" id="card_number" name="card_number" placeholder="1234 5678 9012 3456" autocomplete="off">
-                            </div>
-                            
-                            <div class="payment-form-group">
-                                <label for="card_name"><i class="fas fa-user"></i> Cardholder Name</label>
-                                <input type="text" class="payment-form-control" id="card_name" name="card_name" placeholder="Name as on card">
-                            </div>
-                            
-                            <div class="card-row">
-                                <div class="payment-form-group">
-                                    <label for="expiry"><i class="fas fa-calendar-alt"></i> Expiry Date</label>
-                                    <input type="text" class="payment-form-control" id="expiry" name="expiry" placeholder="MM/YY">
-                                </div>
-                                <div class="payment-form-group">
-                                    <label for="cvv"><i class="fas fa-shield-alt"></i> CVV</label>
-                                    <input type="password" class="payment-form-control" id="cvv" name="cvv" placeholder="123" maxlength="4">
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Alternative Payment Methods Info -->
-                        <div id="alternative_payment_info" style="display: none; text-align: center; padding: 30px 20px; background: var(--gray-bg); border-radius: 16px;">
-                            <i class="fas fa-mobile-alt" style="font-size: 3rem; color: var(--accent); margin-bottom: 15px; display: block;"></i>
-                            <p style="color: var(--gray-text); margin-bottom: 10px;">You will be redirected to complete your payment.</p>
-                            <p style="color: var(--black); font-weight: 500;">Click "Pay Now" to continue</p>
-                        </div>
-                        
-                        <div class="secure-badge">
-                            <i class="fas fa-shield-alt"></i>
-                            <span>Secure payment • 256-bit encryption</span>
-                        </div>
-                        
-                        <div class="payment-button-group">
-                            <button type="button" class="payment-btn payment-btn-secondary" onclick="window.location.href='booksum.php'">
-                                <i class="fas fa-arrow-left"></i> Back
-                            </button>
-                            <button type="submit" name="process_payment" class="payment-btn payment-btn-primary" id="payNowBtn">
-                                <i class="fas fa-lock"></i> Pay Now
-                            </button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
+            <!-- Hidden fields to pass data -->
+            <input type="hidden" name="room_id" value="<?php echo htmlspecialchars($room_id); ?>">
+            <input type="hidden" name="room_name" value="<?php echo htmlspecialchars($room_name); ?>">
+            <input type="hidden" name="room_price" value="<?php echo htmlspecialchars($room_price); ?>">
+            <input type="hidden" name="check_in" value="<?php echo htmlspecialchars($check_in); ?>">
+            <input type="hidden" name="check_out" value="<?php echo htmlspecialchars($check_out); ?>">
+            <input type="hidden" name="guests" value="<?php echo htmlspecialchars($guests); ?>">
+            <input type="hidden" name="nights" value="<?php echo $nights; ?>">
+            <input type="hidden" name="total_price" value="<?php echo $total_price; ?>">
+        </form>
     </div>
 </main>
 
 <script>
-    // Payment method toggle
+    // Toggle card details based on payment method
     const paymentMethods = document.querySelectorAll('input[name="payment_method"]');
-    const cardDetailsSection = document.getElementById('card_details_section');
-    const alternativeInfo = document.getElementById('alternative_payment_info');
-    
-    function togglePaymentFields() {
-        const selectedMethod = document.querySelector('input[name="payment_method"]:checked').value;
-        
-        if (selectedMethod === 'credit_card') {
-            cardDetailsSection.style.display = 'block';
-            alternativeInfo.style.display = 'none';
-        } else {
-            cardDetailsSection.style.display = 'none';
-            alternativeInfo.style.display = 'block';
-        }
-    }
+    const cardDetails = document.getElementById('card_details');
     
     paymentMethods.forEach(method => {
-        method.addEventListener('change', togglePaymentFields);
+        method.addEventListener('change', function() {
+            if (this.value === 'credit_card') {
+                cardDetails.style.display = 'block';
+            } else {
+                cardDetails.style.display = 'none';
+            }
+        });
     });
     
-    // Initial call
-    togglePaymentFields();
+    // Form validation
+    document.getElementById('bookingForm').addEventListener('submit', function(e) {
+        const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
+        
+        if (paymentMethod === 'credit_card') {
+            const cardNumber = document.getElementById('card_number').value;
+            const expiry = document.getElementById('expiry').value;
+            const cvv = document.getElementById('cvv').value;
+            
+            if (!cardNumber || !expiry || !cvv) {
+                e.preventDefault();
+                alert('Please fill in all credit card details');
+                return false;
+            }
+        }
+        
+        // Show loading state
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.innerHTML = '<span class="loading-spinner"></span> Processing...';
+        submitBtn.disabled = true;
+        
+        return true;
+    });
     
     // Format card number
     const cardNumberInput = document.getElementById('card_number');
@@ -760,81 +619,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['process_payment'])) {
             this.value = value;
         });
     }
-    
-    // Restrict CVV to numbers only
-    const cvvInput = document.getElementById('cvv');
-    if (cvvInput) {
-        cvvInput.addEventListener('input', function(e) {
-            this.value = this.value.replace(/[^0-9]/g, '');
-        });
-    }
-    
-    // Form validation
-    document.getElementById('paymentForm').addEventListener('submit', function(e) {
-        const paymentMethod = document.querySelector('input[name="payment_method"]:checked').value;
-        
-        if (paymentMethod === 'credit_card') {
-            const cardNumber = document.getElementById('card_number').value.replace(/\s/g, '');
-            const cardName = document.getElementById('card_name').value;
-            const expiry = document.getElementById('expiry').value;
-            const cvv = document.getElementById('cvv').value;
-            
-            if (!cardNumber || cardNumber.length < 16) {
-                e.preventDefault();
-                alert('Please enter a valid 16-digit card number.');
-                return false;
-            }
-            
-            if (!cardName) {
-                e.preventDefault();
-                alert('Please enter the cardholder name.');
-                return false;
-            }
-            
-            if (!expiry || expiry.length < 5) {
-                e.preventDefault();
-                alert('Please enter a valid expiry date (MM/YY).');
-                return false;
-            }
-            
-            if (!cvv || cvv.length < 3) {
-                e.preventDefault();
-                alert('Please enter a valid CVV.');
-                return false;
-            }
-        }
-        
-        // Show loading state
-        const submitBtn = document.getElementById('payNowBtn');
-        const originalHtml = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<span class="payment-spinner"></span> Processing Payment...';
-        submitBtn.disabled = true;
-        
-        // Allow form submission
-        return true;
-    });
-    
-    // Add visual feedback for payment method selection
-    const paymentOptions = document.querySelectorAll('.payment-option');
-    paymentOptions.forEach(option => {
-        const radio = option.querySelector('input[type="radio"]');
-        radio.addEventListener('change', function() {
-            paymentOptions.forEach(opt => {
-                opt.style.borderColor = 'var(--gray-border)';
-                opt.style.background = 'transparent';
-            });
-            if (this.checked) {
-                option.style.borderColor = 'var(--accent)';
-                option.style.background = 'var(--gray-bg)';
-            }
-        });
-        
-        // Highlight the selected one on page load
-        if (radio.checked) {
-            option.style.borderColor = 'var(--accent)';
-            option.style.background = 'var(--gray-bg)';
-        }
-    });
 </script>
 
 <?php
