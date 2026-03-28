@@ -62,8 +62,8 @@ require_once 'config.php';
                         <a href="profile.php" class="btn-login">My Profile</a>
                         <a href="logout.php" class="btn-register">Logout</a>
                     <?php else: ?>
-                        <a href="login.php" class="btn-login">Sign In</a>
-                        <a href="register.php" class="btn-register">Join</a>
+                        <a href="../ChangJingEn/login.php" class="btn-login">Sign In</a>
+                        <a href="../ChangJingEn/register.php" class="btn-register">Join</a>
                     <?php endif; ?>
                 </div>
             </div>
