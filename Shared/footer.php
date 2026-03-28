@@ -17,13 +17,14 @@
                 </div>
 
                 <div class="footer-section">
-                    <h4>Explore</h4>
+                    <h4>Quick Links</h4>
                     <ul>
-                        <li><a href="index.php">Home</a></li>
+                        <li><a href="homepage.php">Home</a></li>
                         <li><a href="room_list.php">Rooms & Suites</a></li>
-                        <li><a href="dining.php">Eat & Drink</a></li>
-                        <li><a href="meetings.php">Meetings & Events</a></li>
+                        <li><a href="dining.php">Dining</a></li>
+                        <li><a href="weddings&events.php">Weddings & Events</a></li>
                         <li><a href="offers.php">Offers</a></li>
+                        <li><a href="aboutus.php">About Us</a></li>
                     </ul>
                 </div>
 

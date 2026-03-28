@@ -9,14 +9,16 @@
             --accent: #FF6B4A;
             --accent-dark: #E55A3B;
             --shadow-sm: 0 2px 8px rgba(0,0,0,0.02);
-            --shadow-md: 0 8px 24px rgba(0,0,0,0.04);
+            --shadow-md: 0 12px 30px rgba(0,0,0,0.2);
             --transition: all 0.25s ease;
         }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+
         body {
             font-family: 'Inter', sans-serif;
             color: var(--black);
@@ -24,16 +26,19 @@
             line-height: 1.5;
             padding-top: 0;
         }
+
         .container {
             max-width: 1280px;
             margin: 0 auto;
             padding: 0 2rem;
         }
+
         a {
             text-decoration: none;
             color: inherit;
         }
-        /* ----- HEADER (transparent to semi-transparent dark/black on scroll) ----- */
+
+        /* ----- HEADER ----- */
         .header {
             position: fixed;
             top: 0;
@@ -43,22 +48,16 @@
             background: rgba(26, 26, 26, 0.85);
             padding: 1.2rem 0;
             transition: var(--transition);
-            backdrop-filter: blur(0);
-        }
-        /* When scrolled: semi‑transparent black background */
-        .header.scrolled {
-            background: rgba(26, 26, 26, 0.85);  /* #1A1A1A with 85% opacity */
             backdrop-filter: blur(8px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .header.scrolled {
+            background: rgba(26, 26, 26, 0.95);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             padding: 0.8rem 0;
         }
 
-        .header.scrolled .logo h1,
-        .header.scrolled .nav ul li a, 
-        .header.scrolled .btn-login {
-            color: var(--white);
-            border-color: var(--white);
-        }
         .header-inner {
             display: flex;
             justify-content: space-between;
@@ -66,41 +65,102 @@
             flex-wrap: wrap;
             gap: 1rem;
         }
+
         .logo h1 {
             font-family: 'Playfair Display', serif;
             font-size: 1.8rem;
             font-weight: 500;
             color: var(--white);
             letter-spacing: -0.5px;
-            transition: var(--transition);
         }
-        .header.scrolled .logo h1 {
-            color: var(--white);
-        }
+
+        /* ----- NAVIGATION ----- */
         .nav ul {
             display: flex;
             list-style: none;
             gap: 2rem;
-            flex-wrap: wrap;
+            align-items: center;
         }
+
         .nav ul li a {
-            color: var(--white);
+            color: rgba(255, 255, 255, 0.9);
             font-weight: 500;
             font-size: 0.9rem;
             transition: var(--transition);
         }
-        .header.scrolled .nav ul li a {
-            color: var(--white);
-        }
+
         .nav ul li a:hover,
         .nav ul li a.active {
             color: var(--accent);
         }
+
+        /* ----- DROPDOWN MENU */
+        .nav ul li.dropdown {
+            position: relative;
+            padding-bottom: 10px; 
+            margin-bottom: -10px; 
+        }
+
+        .nav ul .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            left: 0%;
+            transform: translateY(15px); 
+            background: rgba(30, 30, 30, 0.95); 
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            min-width: 160px;
+            box-shadow: var(--shadow-md);
+            border-radius: 8px;
+            padding: 0.8rem 0;
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+            pointer-events: none;
+        }
+
+        .nav ul li.dropdown:hover .dropdown-menu {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .nav ul .dropdown-menu li {
+            width: 100%;
+        }
+
+        .nav ul .dropdown-menu li a {
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0.7rem 1.5rem;
+            display: block;
+            font-weight: 400;
+            font-size: 0.85rem;
+            text-align: left;
+        }
+
+        .nav ul .dropdown-menu li a:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: var(--accent);
+            padding-left: 1.8rem;
+        }
+
+        .nav ul li.dropdown:hover .fa-chevron-down {
+            transform: rotate(180deg);
+            transition: var(--transition);
+        }
+
+        /* ----- HEADER ACTIONS ----- */
         .header-actions {
             display: flex;
             gap: 1rem;
             align-items: center;
         }
+
         .btn-login {
             background: transparent;
             border: 1px solid var(--white);
@@ -110,6 +170,7 @@
             font-weight: 500;
             transition: var(--transition);
         }
+
         .btn-register {
             background: var(--accent);
             border: none;
@@ -119,6 +180,7 @@
             font-weight: 600;
             transition: var(--transition);
         }
+
         .btn-register:hover {
             background: var(--accent-dark);
         }
@@ -327,7 +389,7 @@
             }
         }
 
-        /* ----- index.php css ----- */
+        /* ----- homepage.php css ----- */
         /* Hero Section */
         .hero {
             position: relative;
