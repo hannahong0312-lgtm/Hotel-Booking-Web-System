@@ -216,9 +216,11 @@ for($i = 0; $i < count($offers); $i++) {
 <link rel="stylesheet" href="css/offers.css">
 
 <main>
-    <div class="container">
-        <!-- Hero Section - Matching gradient from accommodation.css -->
-        <div class="offers-hero">
+    <!-- Hero Section with Full Screen Background Image -->
+    <div class="offers-hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-bg-image"></div>
+        <div class="hero-container">
             <div class="hero-content">
                 <h1>Special Offers & Promotions</h1>
                 <p>Discover exclusive deals and packages designed to make your stay extraordinary</p>
@@ -227,8 +229,14 @@ for($i = 0; $i < count($offers); $i++) {
                     <a href="#all-offers" class="btn btn-outline">Browse All Deals</a>
                 </div>
             </div>
+            <div class="scroll-indicator">
+                <span>Scroll to explore</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
         </div>
+    </div>
 
+    <div class="container">
         <!-- Category Filters - Matching filter section style -->
         <div class="filters-section">
             <div class="filter-tabs">
@@ -563,6 +571,28 @@ for($i = 0; $i < count($offers); $i++) {
             }
         });
     }
+    
+    // Scroll animation for fade-in elements
+    const fadeElements = document.querySelectorAll('.featured-card, .offer-card, .stat-item');
+    
+    function checkFade() {
+        fadeElements.forEach(element => {
+            const elementTop = element.getBoundingClientRect().top;
+            const windowHeight = window.innerHeight;
+            
+            if(elementTop < windowHeight - 100) {
+                element.classList.add('visible');
+            }
+        });
+    }
+    
+    // Add fade class initially and on scroll
+    fadeElements.forEach(element => {
+        element.classList.add('fade-in');
+    });
+    
+    window.addEventListener('scroll', checkFade);
+    window.addEventListener('load', checkFade);
 </script>
 
 <?php include '../Shared/footer.php'; ?>

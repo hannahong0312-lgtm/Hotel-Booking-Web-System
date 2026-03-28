@@ -118,11 +118,31 @@ for($i = 0; $i < count($rooms); $i++) {
 
 <!-- Main Content -->
 <main>
+    <!-- Hero Section with Full Screen Background Image -->
+    <div class="accommodation-hero">
+        <div class="hero-overlay"></div>
+        <div class="hero-bg-image"></div>
+        <div class="hero-container">
+            <div class="hero-content">
+                <h1>Luxury Accommodations</h1>
+                <p>Experience unparalleled comfort and elegance in our carefully designed rooms and suites</p>
+                <div class="hero-buttons">
+                    <a href="#filter-section" class="btn btn-primary">View Rooms</a>
+                    <a href="#rooms-section" class="btn btn-outline">Explore Suites</a>
+                </div>
+            </div>
+            <div class="scroll-indicator">
+                <span>Scroll to explore</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+        </div>
+    </div>
+
     <div class="container">
         <!-- Filter Section -->
-        <section class="filter-section">
+        <section id="filter-section" class="filter-section">
             <div style="display: flex; justify-content: center; align-items: center;">
-            <h2><i class="fas fa-search"></i> Find Your Perfect Stay</h2>
+                <h2><i class="fas fa-search"></i> Find Your Perfect Stay</h2>
             </div>
             <div class="filter-grid">
                 <div class="filter-item">
@@ -191,108 +211,110 @@ for($i = 0; $i < count($rooms); $i++) {
         </div>
 
         <!-- Rooms Grid -->
-        <div class="section-header">
-            <h2>Choose Your Perfect Stay</h2>
-            <p>Each room is thoughtfully designed with your comfort in mind</p>
-        </div>
-        
-        <div class="room-grid" id="roomGrid">
-            <?php for($i = 0; $i < count($rooms); $i++): 
-                $room = $rooms[$i];
-            ?>
-                <div class="room-card" 
-                     data-id="<?php echo $room['id']; ?>"
-                     data-price="<?php echo $room['price']; ?>"
-                     data-type="<?php echo $room['type']; ?>"
-                     data-capacity="<?php echo $room['capacity']; ?>">
-                    
-                    <div class="room-image" style="background-image: url('<?php echo $room['image']; ?>')">
-                        <div class="price-badge">$<?php echo number_format($room['price'], 0); ?><span>/night</span></div>
-                        <?php if($room['popular']): ?>
-                            <div class="popular-badge"><i class="fas fa-star"></i> Most Popular</div>
-                        <?php endif; ?>
-                        <div class="availability-badge <?php 
-                            if($room['available'] > 2) {
-                                echo 'available';
-                            } elseif($room['available'] > 0) {
-                                echo 'limited';
-                            } else {
-                                echo 'soldout';
-                            }
-                        ?>">
-                            <?php if($room['available'] > 2): ?>
-                                <i class="fas fa-check-circle"></i> Available
-                            <?php elseif($room['available'] > 0): ?>
-                                <i class="fas fa-exclamation-circle"></i> Only <?php echo $room['available']; ?> left!
-                            <?php else: ?>
-                                <i class="fas fa-times-circle"></i> Sold Out
+        <section id="rooms-section">
+            <div class="section-header">
+                <h2>Choose Your Perfect Stay</h2>
+                <p>Each room is thoughtfully designed with your comfort in mind</p>
+            </div>
+            
+            <div class="room-grid" id="roomGrid">
+                <?php for($i = 0; $i < count($rooms); $i++): 
+                    $room = $rooms[$i];
+                ?>
+                    <div class="room-card fade-in" 
+                         data-id="<?php echo $room['id']; ?>"
+                         data-price="<?php echo $room['price']; ?>"
+                         data-type="<?php echo $room['type']; ?>"
+                         data-capacity="<?php echo $room['capacity']; ?>">
+                        
+                        <div class="room-image" style="background-image: url('<?php echo $room['image']; ?>')">
+                            <div class="price-badge">$<?php echo number_format($room['price'], 0); ?><span>/night</span></div>
+                            <?php if($room['popular']): ?>
+                                <div class="popular-badge"><i class="fas fa-star"></i> Most Popular</div>
                             <?php endif; ?>
+                            <div class="availability-badge <?php 
+                                if($room['available'] > 2) {
+                                    echo 'available';
+                                } elseif($room['available'] > 0) {
+                                    echo 'limited';
+                                } else {
+                                    echo 'soldout';
+                                }
+                            ?>">
+                                <?php if($room['available'] > 2): ?>
+                                    <i class="fas fa-check-circle"></i> Available
+                                <?php elseif($room['available'] > 0): ?>
+                                    <i class="fas fa-exclamation-circle"></i> Only <?php echo $room['available']; ?> left!
+                                <?php else: ?>
+                                    <i class="fas fa-times-circle"></i> Sold Out
+                                <?php endif; ?>
+                            </div>
+                        </div>
+                        
+                        <div class="room-content">
+                            <h3 class="room-title"><?php echo htmlspecialchars($room['name']); ?></h3>
+                            <div class="room-type"><?php echo strtoupper($room['type']); ?></div>
+                            <p class="room-description"><?php echo htmlspecialchars($room['description']); ?></p>
+                            
+                            <div class="room-features">
+                                <div class="feature">
+                                    <i class="fas fa-bed"></i>
+                                    <span><?php echo $room['bed_type']; ?></span>
+                                </div>
+                                <div class="feature">
+                                    <i class="fas fa-arrows-alt"></i>
+                                    <span><?php echo $room['size']; ?></span>
+                                </div>
+                                <div class="feature">
+                                    <i class="fas fa-eye"></i>
+                                    <span><?php echo $room['view']; ?></span>
+                                </div>
+                                <div class="feature">
+                                    <i class="fas fa-users"></i>
+                                    <span>Up to <?php echo $room['capacity']; ?></span>
+                                </div>
+                            </div>
+                            
+                            <div class="amenities">
+                                <?php 
+                                $amenitiesCount = count($room['amenities']);
+                                $displayCount = 4;
+                                if($amenitiesCount < 4) {
+                                    $displayCount = $amenitiesCount;
+                                }
+                                for($a = 0; $a < $displayCount; $a++): 
+                                ?>
+                                    <span class="amenity-tag">
+                                        <i class="fas fa-check-circle"></i> <?php echo $room['amenities'][$a]; ?>
+                                    </span>
+                                <?php endfor; ?>
+                                <?php if($amenitiesCount > 4): ?>
+                                    <span class="amenity-tag">
+                                        <i class="fas fa-plus-circle"></i> +<?php echo $amenitiesCount - 4; ?> more
+                                    </span>
+                                <?php endif; ?>
+                            </div>
+                            
+                            <div class="room-footer">
+                                <div class="room-price">
+                                    $<?php echo number_format($room['price'], 0); ?>
+                                    <span>/night</span>
+                                </div>
+                                <?php if($room['available'] > 0): ?>
+                                    <button class="btn btn-primary btn-book" data-room-id="<?php echo $room['id']; ?>">
+                                        Book Now <i class="fas fa-arrow-right"></i>
+                                    </button>
+                                <?php else: ?>
+                                    <button class="btn btn-secondary btn-book" disabled>
+                                        Unavailable
+                                    </button>
+                                <?php endif; ?>
+                            </div>
                         </div>
                     </div>
-                    
-                    <div class="room-content">
-                        <h3 class="room-title"><?php echo htmlspecialchars($room['name']); ?></h3>
-                        <div class="room-type"><?php echo strtoupper($room['type']); ?></div>
-                        <p class="room-description"><?php echo htmlspecialchars($room['description']); ?></p>
-                        
-                        <div class="room-features">
-                            <div class="feature">
-                                <i class="fas fa-bed"></i>
-                                <span><?php echo $room['bed_type']; ?></span>
-                            </div>
-                            <div class="feature">
-                                <i class="fas fa-arrows-alt"></i>
-                                <span><?php echo $room['size']; ?></span>
-                            </div>
-                            <div class="feature">
-                                <i class="fas fa-eye"></i>
-                                <span><?php echo $room['view']; ?></span>
-                            </div>
-                            <div class="feature">
-                                <i class="fas fa-users"></i>
-                                <span>Up to <?php echo $room['capacity']; ?></span>
-                            </div>
-                        </div>
-                        
-                        <div class="amenities">
-                            <?php 
-                            $amenitiesCount = count($room['amenities']);
-                            $displayCount = 4;
-                            if($amenitiesCount < 4) {
-                                $displayCount = $amenitiesCount;
-                            }
-                            for($a = 0; $a < $displayCount; $a++): 
-                            ?>
-                                <span class="amenity-tag">
-                                    <i class="fas fa-check-circle"></i> <?php echo $room['amenities'][$a]; ?>
-                                </span>
-                            <?php endfor; ?>
-                            <?php if($amenitiesCount > 4): ?>
-                                <span class="amenity-tag">
-                                    <i class="fas fa-plus-circle"></i> +<?php echo $amenitiesCount - 4; ?> more
-                                </span>
-                            <?php endif; ?>
-                        </div>
-                        
-                        <div class="room-footer">
-                            <div class="room-price">
-                                $<?php echo number_format($room['price'], 0); ?>
-                                <span>/night</span>
-                            </div>
-                            <?php if($room['available'] > 0): ?>
-                                <button class="btn btn-primary btn-book" data-room-id="<?php echo $room['id']; ?>">
-                                    Book Now <i class="fas fa-arrow-right"></i>
-                                </button>
-                            <?php else: ?>
-                                <button class="btn btn-secondary btn-book" disabled>
-                                    Unavailable
-                                </button>
-                            <?php endif; ?>
-                        </div>
-                    </div>
-                </div>
-            <?php endfor; ?>
-        </div>
+                <?php endfor; ?>
+            </div>
+        </section>
     </div>
 </main>
 
@@ -472,6 +494,20 @@ for($i = 0; $i < count($rooms); $i++) {
         }, 5000);
     }
     
+    // Scroll animation for fade-in elements
+    const fadeElements = document.querySelectorAll('.fade-in');
+    
+    function checkFade() {
+        fadeElements.forEach(element => {
+            const elementTop = element.getBoundingClientRect().top;
+            const windowHeight = window.innerHeight;
+            
+            if(elementTop < windowHeight - 100) {
+                element.classList.add('visible');
+            }
+        });
+    }
+    
     // Event Listeners
     if(searchButton) {
         searchButton.addEventListener('click', filterRooms);
@@ -536,6 +572,26 @@ for($i = 0; $i < count($rooms); $i++) {
                 const nextDay = new Date(checkInDate);
                 nextDay.setDate(nextDay.getDate() + 1);
                 checkOutInput.value = nextDay.toISOString().split('T')[0];
+            }
+        });
+    }
+    
+    // Add fade animation on scroll
+    window.addEventListener('scroll', checkFade);
+    window.addEventListener('load', checkFade);
+    
+    // Smooth scroll for anchor links
+    const heroButtons = document.querySelectorAll('.hero-buttons a');
+    for(let i = 0; i < heroButtons.length; i++) {
+        heroButtons[i].addEventListener('click', function(e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            if(targetElement) {
+                targetElement.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
             }
         });
     }
