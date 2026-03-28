@@ -24,6 +24,7 @@
                         <li><a href="dining.php">Dining</a></li>
                         <li><a href="weddings&events.php">Weddings & Events</a></li>
                         <li><a href="offers.php">Offers</a></li>
+                        <li><a href="aboutus.php">About Us</a></li>
                     </ul>
                 </div>
 
