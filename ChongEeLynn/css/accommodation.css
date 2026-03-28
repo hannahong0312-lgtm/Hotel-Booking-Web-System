@@ -9,7 +9,7 @@
 
 /* Filter Section */
 .filter-section {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #D4AF37 0%, #ffffff 100%);
     padding: 3rem 0;
     border-radius: 15px;
     margin: 2rem 0;
@@ -17,7 +17,7 @@
 }
 
 .filter-section h2 {
-    color: white;
+    color: #D4AF37;
     margin-bottom: 2rem;
     text-align: center;
 }

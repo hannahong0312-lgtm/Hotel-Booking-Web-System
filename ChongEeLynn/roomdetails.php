@@ -168,7 +168,7 @@ $tomorrow_date = date('Y-m-d', strtotime('+1 day'));
 ?>
 
 <!-- External CSS -->
-<link rel="stylesheet" href="roomdetails.css">
+<link rel="stylesheet" href="css/roomdetails.css">
 
 <main>
     <div class="container">

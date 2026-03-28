@@ -213,7 +213,7 @@ for($i = 0; $i < count($offers); $i++) {
 ?>
 
 <!-- External CSS -->
-<link rel="stylesheet" href="offers.css">
+<link rel="stylesheet" href="css/offers.css">
 
 <main>
     <div class="container">
