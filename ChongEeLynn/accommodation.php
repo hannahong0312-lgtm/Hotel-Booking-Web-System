@@ -97,10 +97,8 @@ $rooms = [
     ]
 ];
 
-// Manual include - no frameworks used
 include '../Shared/header.php';
 
-// Manual unique type extraction
 $room_types = [];
 for($i = 0; $i < count($rooms); $i++) {
     $found = false;
@@ -116,8 +114,7 @@ for($i = 0; $i < count($rooms); $i++) {
 }
 ?>
 
-<!-- External CSS - No frameworks or generators -->
-<link rel="stylesheet" href="accommodation.css">
+<link rel="stylesheet" href="css/accommodation.css">
 
 <!-- Main Content -->
 <main>
