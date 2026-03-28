@@ -38,7 +38,7 @@ $offers = [
         'valid_from' => '2024-01-01',
         'valid_to' => '2024-12-31',
         'terms' => ['Minimum 2 nights stay', 'Complimentary champagne', 'Late check-out until 2 PM', 'Romantic turndown service'],
-        'image' => 'https://i.pinimg.com/originals/e4/f2/cb/e4f2cb4a160bb41cdcbbe34db8b98631.jpg',
+        'image' => 'https://images.unsplash.com/photo-1516434233442-0a69c3696d7e?w=800&h=500&fit=crop',
         'featured' => true,
         'popular' => true
     ],
@@ -55,7 +55,7 @@ $offers = [
         'valid_from' => '2024-01-01',
         'valid_to' => '2024-12-31',
         'terms' => ['Up to 2 kids under 12 eat free', 'Family suite upgrade available', 'Game room access included', 'Children\'s welcome gift'],
-        'image' => 'https://th.bing.com/th/id/R.e458129408cb8253af7abbba3e69bb79?rik=WpfD3uBCtoCpng&riu=http%3a%2f%2fwww.immunizekansascoalition.org%2fimages%2fhappy+family+2+kids-min.jpg&ehk=eKtLEmbr4pNO2GyZFnmBPfRoFCuS6rh5kwYXsp6kGos%3d&risl=&pid=ImgRaw&r=0',
+        'image' => 'https://images.unsplash.com/photo-1544723795-3fb6469f5b39?w=800&h=500&fit=crop',
         'featured' => true,
         'popular' => false
     ],
@@ -202,6 +202,14 @@ for($i = 0; $i < count($offers); $i++) {
         $featured_offers[] = $offers[$i];
     }
 }
+
+// Get popular offers
+$popular_offers = [];
+for($i = 0; $i < count($offers); $i++) {
+    if($offers[$i]['popular']) {
+        $popular_offers[] = $offers[$i];
+    }
+}
 ?>
 
 <!-- External CSS -->
@@ -209,8 +217,8 @@ for($i = 0; $i < count($offers); $i++) {
 
 <main>
     <div class="container">
-        <!-- Hero Section - Matching gradient from accommodation -->
-        <section class="offers-hero">
+        <!-- Hero Section -->
+        <div class="offers-hero">
             <div class="hero-content">
                 <h1>Special Offers & Promotions</h1>
                 <p>Discover exclusive deals and packages designed to make your stay extraordinary</p>
@@ -219,75 +227,52 @@ for($i = 0; $i < count($offers); $i++) {
                     <a href="#all-offers" class="btn btn-outline">Browse All Deals</a>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <!-- Filter Section - Matching filter section from accommodation -->
-        <section class="filter-section">
-            <div style="display: flex; justify-content: center; align-items: center;">
-                <h2><i class="fas fa-tags"></i> Browse By Category</h2>
-            </div>
-            <div class="filter-grid">
-                <div class="filter-item">
-                    <button class="filter-tab active" data-category="all">All Offers</button>
-                </div>
+        <!-- Category Filters -->
+        <div class="filters-section">
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-category="all">All Offers</button>
                 <?php for($i = 0; $i < count($categories); $i++): 
                     $category_display = ucfirst($categories[$i]);
                 ?>
-                    <div class="filter-item">
-                        <button class="filter-tab" data-category="<?php echo $categories[$i]; ?>">
-                            <?php echo $category_display; ?>
-                        </button>
-                    </div>
+                    <button class="filter-tab" data-category="<?php echo $categories[$i]; ?>">
+                        <?php echo $category_display; ?>
+                    </button>
                 <?php endfor; ?>
             </div>
-        </section>
+        </div>
 
         <!-- Featured Offers Section -->
-        <section id="featured-offers">
+        <section id="featured-offers" class="featured-section">
             <div class="section-header">
                 <h2>Featured Offers</h2>
                 <p>Our most popular packages and limited-time deals</p>
             </div>
-            <div class="room-grid" id="featuredGrid">
+            <div class="featured-grid">
                 <?php for($i = 0; $i < count($featured_offers); $i++): 
                     $offer = $featured_offers[$i];
                 ?>
-                    <div class="room-card" data-category="<?php echo $offer['category']; ?>">
-                        <div class="room-image" style="background-image: url('<?php echo $offer['image']; ?>')">
-                            <div class="price-badge"><?php echo $offer['discount']; ?></div>
-                            <div class="popular-badge"><i class="fas fa-star"></i> Featured</div>
-                            <div class="availability-badge available">
-                                <i class="fas fa-tag"></i> Limited Time
-                            </div>
+                    <div class="featured-card" data-category="<?php echo $offer['category']; ?>">
+                        <div class="featured-badge">Featured</div>
+                        <div class="featured-image" style="background-image: url('<?php echo $offer['image']; ?>')">
+                            <div class="discount-badge"><?php echo $offer['discount']; ?></div>
                         </div>
-                        
-                        <div class="room-content">
-                            <div class="room-type"><?php echo strtoupper($offer['category']); ?></div>
-                            <h3 class="room-title"><?php echo htmlspecialchars($offer['title']); ?></h3>
-                            <p class="room-description"><?php echo htmlspecialchars($offer['subtitle']); ?></p>
-                            <p class="room-description" style="font-size: 0.9rem;"><?php echo htmlspecialchars($offer['description']); ?></p>
-                            
-                            <div class="room-features">
-                                <div class="feature">
-                                    <i class="fas fa-percent"></i>
-                                    <span><?php echo $offer['discount']; ?> Savings</span>
-                                </div>
-                                <div class="feature">
-                                    <i class="fas fa-calendar-alt"></i>
-                                    <span>Limited Time</span>
-                                </div>
+                        <div class="featured-content">
+                            <div class="category-tag <?php echo $offer['category']; ?>">
+                                <?php echo ucfirst($offer['category']); ?>
                             </div>
-                            
-                            <div class="room-footer">
-                                <div class="room-price">
-                                    <span style="text-decoration: line-through; font-size: 1rem;"><?php echo $offer['original_price']; ?></span><br>
-                                    <?php echo $offer['discounted_price']; ?>
-                                    <span>/package</span>
-                                </div>
-                                <button class="btn btn-primary btn-book" data-offer-id="<?php echo $offer['id']; ?>">
-                                    View Details <i class="fas fa-arrow-right"></i>
-                                </button>
+                            <h3><?php echo htmlspecialchars($offer['title']); ?></h3>
+                            <p class="subtitle"><?php echo htmlspecialchars($offer['subtitle']); ?></p>
+                            <p class="description"><?php echo htmlspecialchars($offer['description']); ?></p>
+                            <div class="price-info">
+                                <span class="original-price"><?php echo $offer['original_price']; ?></span>
+                                <span class="discounted-price"><?php echo $offer['discounted_price']; ?></span>
+                                <span class="per-night">/package</span>
                             </div>
+                            <button class="btn btn-primary btn-view-offer" data-offer-id="<?php echo $offer['id']; ?>">
+                                View Details <i class="fas fa-arrow-right"></i>
+                            </button>
                         </div>
                     </div>
                 <?php endfor; ?>
@@ -295,40 +280,36 @@ for($i = 0; $i < count($offers); $i++) {
         </section>
 
         <!-- All Offers Section -->
-        <section id="all-offers">
+        <section id="all-offers" class="offers-section">
             <div class="section-header">
                 <h2>All Offers & Promotions</h2>
                 <p>Find the perfect package for your next visit</p>
             </div>
-            <div class="room-grid" id="offersGrid">
+            <div class="offers-grid" id="offersGrid">
                 <?php for($i = 0; $i < count($offers); $i++): 
                     $offer = $offers[$i];
                 ?>
-                    <div class="room-card" data-category="<?php echo $offer['category']; ?>">
-                        <div class="room-image" style="background-image: url('<?php echo $offer['image']; ?>')">
-                            <div class="price-badge"><?php echo $offer['discount']; ?></div>
+                    <div class="offer-card" data-category="<?php echo $offer['category']; ?>">
+                        <div class="offer-image" style="background-image: url('<?php echo $offer['image']; ?>')">
+                            <div class="offer-discount"><?php echo $offer['discount']; ?></div>
                             <?php if($offer['popular']): ?>
-                                <div class="popular-badge"><i class="fas fa-star"></i> Popular</div>
+                                <div class="popular-tag">Popular</div>
                             <?php endif; ?>
-                            <div class="availability-badge available">
-                                <i class="fas fa-check-circle"></i> Available
-                            </div>
                         </div>
-                        
-                        <div class="room-content">
-                            <div class="room-type"><?php echo strtoupper($offer['category']); ?></div>
-                            <h3 class="room-title"><?php echo htmlspecialchars($offer['title']); ?></h3>
-                            <p class="room-description"><?php echo htmlspecialchars($offer['subtitle']); ?></p>
-                            <p class="room-description" style="font-size: 0.85rem; color: #666;"><?php echo htmlspecialchars($offer['description']); ?></p>
-                            
-                            <div class="room-footer">
-                                <div class="room-price">
-                                    <span style="text-decoration: line-through; font-size: 1rem;"><?php echo $offer['original_price']; ?></span><br>
-                                    <?php echo $offer['discounted_price']; ?>
-                                    <span>/package</span>
+                        <div class="offer-content">
+                            <div class="category-badge <?php echo $offer['category']; ?>">
+                                <?php echo ucfirst($offer['category']); ?>
+                            </div>
+                            <h3><?php echo htmlspecialchars($offer['title']); ?></h3>
+                            <p class="offer-subtitle"><?php echo htmlspecialchars($offer['subtitle']); ?></p>
+                            <p class="offer-description"><?php echo htmlspecialchars($offer['description']); ?></p>
+                            <div class="offer-price">
+                                <div class="price-details">
+                                    <span class="original"><?php echo $offer['original_price']; ?></span>
+                                    <span class="current"><?php echo $offer['discounted_price']; ?></span>
                                 </div>
-                                <button class="btn btn-primary btn-book" data-offer-id="<?php echo $offer['id']; ?>">
-                                    View Details <i class="fas fa-arrow-right"></i>
+                                <button class="btn btn-secondary btn-details" data-offer-id="<?php echo $offer['id']; ?>">
+                                    Details
                                 </button>
                             </div>
                         </div>
@@ -337,27 +318,17 @@ for($i = 0; $i < count($offers); $i++) {
             </div>
         </section>
 
-        <!-- Stats Section - Matching accommodation -->
-        <section class="stats-section">
-            <div class="container">
-                <div class="stats-grid">
-                    <div class="stat-item">
-                        <div class="stat-number">10+</div>
-                        <div class="stat-label">Active Offers</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">35%</div>
-                        <div class="stat-label">Maximum Savings</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">24/7</div>
-                        <div class="stat-label">Support Available</div>
-                    </div>
-                    <div class="stat-item">
-                        <div class="stat-number">100%</div>
-                        <div class="stat-label">Satisfaction</div>
-                    </div>
-                </div>
+        <!-- Newsletter Section -->
+        <section class="newsletter-section">
+            <div class="newsletter-content">
+                <i class="fas fa-envelope-open-text"></i>
+                <h3>Get Exclusive Offers</h3>
+                <p>Subscribe to our newsletter and be the first to know about special promotions and deals</p>
+                <form id="newsletterForm" class="newsletter-form">
+                    <input type="email" id="newsletterEmail" placeholder="Enter your email address" required>
+                    <button type="submit" class="btn btn-primary">Subscribe</button>
+                </form>
+                <p class="newsletter-note">No spam, unsubscribe anytime.</p>
             </div>
         </section>
     </div>
@@ -392,7 +363,8 @@ for($i = 0; $i < count($offers); $i++) {
     
     // Get DOM elements
     const filterTabs = document.querySelectorAll('.filter-tab');
-    const offerCards = document.querySelectorAll('.room-card');
+    const offerCards = document.querySelectorAll('.offer-card');
+    const featuredCards = document.querySelectorAll('.featured-card');
     const offerModal = document.getElementById('offerModal');
     const bookingModal = document.getElementById('bookingModal');
     const closeModalBtn = document.getElementById('closeModalBtn');
@@ -400,15 +372,28 @@ for($i = 0; $i < count($offers); $i++) {
     const closeBookingModalBtn = document.getElementById('closeBookingModalBtn');
     const continueBookingBtn = document.getElementById('continueBookingBtn');
     const bookOfferBtn = document.getElementById('bookOfferBtn');
+    const newsletterForm = document.getElementById('newsletterForm');
     
     let currentOffer = null;
     
     // Filter offers by category
     function filterOffers(category) {
-        const allCards = document.querySelectorAll('#offersGrid .room-card, #featuredGrid .room-card');
+        const allCards = document.querySelectorAll('.offer-card');
+        const allFeaturedCards = document.querySelectorAll('.featured-card');
         
         for(let i = 0; i < allCards.length; i++) {
             const card = allCards[i];
+            const cardCategory = card.getAttribute('data-category');
+            
+            if(category === 'all' || cardCategory === category) {
+                card.style.display = 'block';
+            } else {
+                card.style.display = 'none';
+            }
+        }
+        
+        for(let i = 0; i < allFeaturedCards.length; i++) {
+            const card = allFeaturedCards[i];
             const cardCategory = card.getAttribute('data-category');
             
             if(category === 'all' || cardCategory === category) {
@@ -459,15 +444,14 @@ for($i = 0; $i < count($offers); $i++) {
                 <div class="offer-detail">
                     <div class="offer-detail-image" style="background-image: url('${currentOffer.image}')"></div>
                     <div class="offer-detail-content">
-                        <div class="room-type">${currentOffer.category.toUpperCase()}</div>
+                        <div class="category-tag ${currentOffer.category}">${currentOffer.category.charAt(0).toUpperCase() + currentOffer.category.slice(1)}</div>
                         <h2>${currentOffer.title}</h2>
-                        <p style="color: #667eea; margin-bottom: 1rem;">${currentOffer.subtitle}</p>
-                        <p style="color: #666; line-height: 1.6; margin-bottom: 1.5rem;">${currentOffer.long_description}</p>
+                        <p class="offer-subtitle">${currentOffer.subtitle}</p>
+                        <p class="offer-description">${currentOffer.long_description}</p>
                         <div class="price-section">
-                            <div>
-                                <span style="text-decoration: line-through; color: #999;">${currentOffer.original_price}</span>
-                                <span style="font-size: 2rem; font-weight: bold; color: #667eea;"> ${currentOffer.discounted_price}</span>
-                                <span style="color: #666;">/package</span>
+                            <div class="price-info">
+                                <span class="original-price">${currentOffer.original_price}</span>
+                                <span class="discounted-price">${currentOffer.discounted_price}</span>
                             </div>
                             <div class="discount-badge-large">${currentOffer.discount} OFF</div>
                         </div>
@@ -507,6 +491,20 @@ for($i = 0; $i < count($offers); $i++) {
         bookingModal.style.display = 'none';
     }
     
+    // Newsletter subscription
+    function handleNewsletterSubmit(event) {
+        event.preventDefault();
+        const emailInput = document.getElementById('newsletterEmail');
+        const email = emailInput.value;
+        
+        if(email && email.includes('@') && email.includes('.')) {
+            alert('Thank you for subscribing! You\'ll receive our latest offers soon.');
+            emailInput.value = '';
+        } else {
+            alert('Please enter a valid email address.');
+        }
+    }
+    
     // Event listeners for filter tabs
     for(let i = 0; i < filterTabs.length; i++) {
         filterTabs[i].addEventListener('click', function() {
@@ -521,10 +519,18 @@ for($i = 0; $i < count($offers); $i++) {
     }
     
     // Event listeners for view details buttons
-    const viewButtons = document.querySelectorAll('.btn-book');
+    const viewButtons = document.querySelectorAll('.btn-view-offer');
     for(let i = 0; i < viewButtons.length; i++) {
-        viewButtons[i].addEventListener('click', function(e) {
-            e.stopPropagation();
+        viewButtons[i].addEventListener('click', function() {
+            const offerId = parseInt(this.getAttribute('data-offer-id'));
+            showOfferDetails(offerId);
+        });
+    }
+    
+    // Event listeners for details buttons
+    const detailButtons = document.querySelectorAll('.btn-details');
+    for(let i = 0; i < detailButtons.length; i++) {
+        detailButtons[i].addEventListener('click', function() {
             const offerId = parseInt(this.getAttribute('data-offer-id'));
             showOfferDetails(offerId);
         });
@@ -536,6 +542,11 @@ for($i = 0; $i < count($offers); $i++) {
     if(bookOfferBtn) bookOfferBtn.addEventListener('click', bookOffer);
     if(closeBookingModalBtn) closeBookingModalBtn.addEventListener('click', closeBookingModal);
     if(continueBookingBtn) continueBookingBtn.addEventListener('click', closeBookingModal);
+    
+    // Newsletter form submit
+    if(newsletterForm) {
+        newsletterForm.addEventListener('submit', handleNewsletterSubmit);
+    }
     
     // Close modal when clicking outside
     window.addEventListener('click', function(event) {
