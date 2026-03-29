@@ -59,12 +59,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
         top: 0;
         left: 0;
         width: 100%;
-        z-index: 1000;
+        z-index: 100;
         background: rgba(26, 26, 26, 0.95);
-        padding: 0.8rem 0;
+        padding: 0.6rem 0;
         transition: var(--transition);
     }
-
       
     /* Main container styling */
     .booking-container {
