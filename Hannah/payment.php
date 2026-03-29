@@ -208,9 +208,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
         color: white;
         padding: 15px;
         border-radius: 12px;
-        margin-top: 10px;
-        font-size: 1.1rem;
-        font-weight: 600;
+        margin-left: -5px;
+        margin-right: -5px;
+        font-size: 1.2rem;
         justify-content: space-between;
     }
         
@@ -350,7 +350,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
     }
     
     .cancellation-policy i {
-        color: #FF6B4A;
+        color: var(--gold-dark);
         margin-right: 8px;
     }
     
@@ -437,11 +437,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
                             
                             <div class="summary-item">
                                 <span class="summary-label"><i class="fas fa-calendar-check"></i> Check-in Date</span>
-                                <span class="summary-value"><?php echo date('F d, Y', strtotime($check_in)); ?></span>
+                                <span class="summary-value"><?php echo date('d F Y', strtotime($check_in)); ?></span>
                             </div>
                             <div class="summary-item">
                                 <span class="summary-label"><i class="fas fa-calendar-times"></i> Check-out Date</span>
-                                <span class="summary-value"><?php echo date('F d, Y', strtotime($check_out)); ?></span>
+                                <span class="summary-value"><?php echo date('d F Y', strtotime($check_out)); ?></span>
                             </div>
                             <div class="summary-item">
                                 <span class="summary-label"><i class="fas fa-moon"></i> Number of Nights</span>
