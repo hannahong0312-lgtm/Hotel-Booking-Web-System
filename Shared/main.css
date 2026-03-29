@@ -6,8 +6,8 @@
             --gray-bg: #F8F8F8;
             --gray-border: #E5E5E5;
             --gray-text: #666666;
-            --accent: #C5A059;
-            --accent-dark: #B88608;
+            --gold: #C5A059;
+            --gold-dark: #B88608;
             --shadow-sm: 0 2px 8px rgba(0,0,0,0.02);
             --shadow-md: 0 12px 30px rgba(0,0,0,0.2);
             --transition: all 0.25s ease;
@@ -44,12 +44,10 @@
             top: 0;
             left: 0;
             width: 100%;
-            z-index: 1000;
-            background: rgba(26, 26, 26, 0.85);
-            padding: 1.2rem 0;
+            z-index: 100;
+            background: transparent;
+            padding: 1.5rem 0;
             transition: var(--transition);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
         }
 
         .header.scrolled {
@@ -91,7 +89,7 @@
 
         .nav ul li a:hover,
         .nav ul li a.active {
-            color: var(--accent);
+            color: var(--gold);
         }
 
         /* ----- DROPDOWN MENU */
@@ -145,7 +143,7 @@
 
         .nav ul .dropdown-menu li a:hover {
             background: rgba(255, 255, 255, 0.05);
-            color: var(--accent);
+            color: var(--gold);
             padding-left: 1.8rem;
         }
 
@@ -172,7 +170,7 @@
         }
 
         .btn-register {
-            background: var(--accent);
+            background: #B8963E;
             border: none;
             padding: 0.5rem 1.2rem;
             border-radius: 40px;
@@ -182,7 +180,7 @@
         }
 
         .btn-register:hover {
-            background: var(--accent-dark);
+            background: var(--gold-dark);
         }
 
         /* ========== FOOTER ENHANCEMENTS ========== */
@@ -216,7 +214,7 @@
             left: 0;
             width: 30px;
             height: 2px;
-            background: var(--accent);
+            background: var(--gold);
             border-radius: 2px;
         }
 
@@ -250,7 +248,7 @@
             transition: all 0.2s ease;
         }
         .social-links a:hover {
-            background: var(--accent);
+            background: var(--gold);
             color: var(--white);
             transform: translateY(-2px);
         }
@@ -268,7 +266,7 @@
             transition: color 0.2s ease;
         }
         .footer-section ul li a:hover {
-            color: var(--accent);
+            color: var(--gold);
             padding-left: 3px;
         }
         .contact-info li {
@@ -278,7 +276,7 @@
         }
         .contact-info i {
             width: 20px;
-            color: var(--accent);
+            color: var(--gold);
             font-size: 0.9rem;
         }
 
@@ -295,7 +293,7 @@
             transition: all 0.2s;
         }
         .newsletter-form .form-group:focus-within {
-            border-color: var(--accent);
+            border-color: var(--gold);
             background: rgba(255,255,255,0.08);
         }
         .newsletter-form input {
@@ -315,7 +313,7 @@
             background: transparent;
             border: none;
             padding: 0 1.2rem;
-            color: var(--accent);
+            color: var(--gold);
             cursor: pointer;
             font-size: 1rem;
             transition: color 0.2s;
@@ -341,7 +339,7 @@
             transition: color 0.2s;
         }
         .legal-links a:hover {
-            color: var(--accent);
+            color: var(--gold);
         }
 
         /* Responsive */
@@ -438,7 +436,6 @@
             flex: 1;
             min-width: 150px;
             padding: 0.5rem 1rem;
-            border-right: 1px solid var(--gray-border);
         }
         .search-group:last-child {
             border-right: none;
@@ -448,7 +445,7 @@
             font-size: 0.7rem;
             text-transform: uppercase;
             font-weight: 600;
-            color: var(--black);
+  
             letter-spacing: 1px;
             margin-bottom: 0.25rem;
         }
@@ -463,7 +460,7 @@
             outline: none;
         }
         .search-btn {
-            background: var(--accent);
+            background: var(--gold);
             color: var(--white);
             border: none;
             padding: 0.8rem 2rem;
@@ -474,7 +471,7 @@
             width: 100%;
         }
         .search-btn:hover {
-            background: var(--accent-dark);
+            background: var(--gold-dark);
         }
         /* ----- SECTIONS ----- */
         .section {
@@ -514,7 +511,7 @@
         }
         .amenity-item i {
             font-size: 2.5rem;
-            color: var(--accent);
+            color: var(--gold);
             margin-bottom: 1rem;
         }
         .amenity-item h4 {
@@ -554,7 +551,7 @@
             color: var(--black);
         }
         .room-type {
-            color: var(--accent);
+            color: var(--gold);
             font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 1px;
@@ -602,7 +599,7 @@
             font-weight: 500;
         }
         .btn-cta {
-            background: var(--accent);
+            background: var(--gold);
             color: var(--white);
             padding: 0.8rem 2rem;
             border-radius: 40px;
@@ -612,5 +609,5 @@
             transition: var(--transition);
         }
         .btn-cta:hover {
-            background: var(--accent-dark);
+            background: var(--gold-dark);
         }

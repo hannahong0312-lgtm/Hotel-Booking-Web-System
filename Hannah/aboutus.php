@@ -74,7 +74,7 @@ include '../Shared/header.php';
         }
 
         .story-feature-list i {
-            color: #FF6B4A;
+            color: var(--gold);
             font-size: 1rem;
             width: 20px;
         }
@@ -142,7 +142,7 @@ include '../Shared/header.php';
 
         .service-icon i {
             font-size: 2.5rem;
-            color: #FF6B4A;
+            color: var(--gold-dark);
         }
 
         .service-card h3 {
@@ -167,18 +167,10 @@ include '../Shared/header.php';
 
         .contact-detail a {
             font-weight: 600;
-            color: #FF6B4A;
+            color: var(--gold);
             transition: all 0.25s ease;
             font-size: 0.9rem;
             text-decoration: none;
-        }
-
-        .contact-detail a:hover {
-            color: #E55A3B;
-        }
-
-        .contact-detail i {
-            margin-right: 8px;
         }
 
         .service-hours {
@@ -193,7 +185,7 @@ include '../Shared/header.php';
 
         .faq-section {
             background: #FFFFFF;
-            padding: 5rem 0;
+            padding: 2rem 0 7rem;
         }
 
         .faq-grid {
@@ -208,7 +200,7 @@ include '../Shared/header.php';
             padding: 1.5rem;
             border-radius: 20px;
             transition: all 0.25s ease;
-            border-left: 4px solid #FF6B4A;
+            border-left: 4px solid var(--gold);
         }
 
         .faq-item h4 {
@@ -222,7 +214,7 @@ include '../Shared/header.php';
         }
 
         .faq-item h4 i {
-            color: #FF6B4A;
+            color: var(--gold-dark);
         }
 
         .faq-item p {
@@ -420,22 +412,22 @@ include '../Shared/header.php';
             </div>
         </div>
     </section>
-
-    <!-- Header scroll effect -->
-    <script>
-        window.addEventListener('scroll', function() {
-            const header = document.getElementById('mainHeader');
-            if (window.scrollY > 50) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
-            }
-        });
-    </script>
 </body>
 
 <?php
 // Include footer
 include '../Shared/footer.php';
 ?>
+
+<script>
+    // Sticky header
+    window.addEventListener('scroll', function() {
+        const header = document.getElementById('header');
+        if (window.scrollY > 50) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+    });
+</script>
 </html>

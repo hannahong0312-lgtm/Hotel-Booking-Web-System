@@ -53,6 +53,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
 
 <!-- Internal CSS -->
 <style>
+    /* ----- Ovveride Header ----- */
+    .header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        z-index: 100;
+        background: rgba(26, 26, 26, 0.95);
+        padding: 0.6rem 0;
+        transition: var(--transition);
+    }
+      
     /* Main container styling */
     .booking-container {
         max-width: 1000px;
@@ -134,7 +146,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
     
     .room-icon {
         font-size: 3rem;
-        color: #E55A3B;
+        color: var(--gold-dark);
     }
     
     .room-details h3 {
@@ -167,7 +179,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
     
     .summary-label i {
         margin-right: 8px;
-        color: #E55A3B;
+        color: var(--gold-dark);
         width: 20px;
     }
     
@@ -180,7 +192,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
     .total-section {
         margin-top: 20px;
         padding-top: 15px;
-        border-top: 2px solid #FF6B4A;
+        border-top: 2px solid var(--gold);
     }
     
     .total-item {
@@ -192,7 +204,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
     
     .grand-total {
         display: flex;
-        background: #FF6B4A;
+        background: var(--gold);
         color: white;
         padding: 15px;
         border-radius: 12px;
@@ -218,7 +230,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
     
     .form-group label i {
         margin-right: 8px;
-        color: #E55A3B;
+        color: var(--gold-dark);
     }
     
     .form-control {
@@ -269,7 +281,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
     .payment-option i {
         margin-right: 8px;
         font-size: 1.2rem;
-        color: var(--accent); 
+        color: var(--gold); 
     }
     
     /* Button styling - matching main.css */
@@ -287,7 +299,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
     }
     
     .btn-primary {
-        background: #FF6B4A;
+        background: var(--gold);
         color: white;
     }
     

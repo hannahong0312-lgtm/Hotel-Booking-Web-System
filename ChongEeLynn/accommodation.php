@@ -214,7 +214,10 @@ $room_types = array_unique(array_column($rooms, 'type'));
 </div>
 
 <script>
-    const roomsData = <?= json_encode($rooms) ?>;
+    // Store rooms data
+    const roomsData = <?php echo json_encode($rooms); ?>;
+    
+    // Manual DOM manipulation - no frameworks
     const priceRange = document.getElementById('priceRange');
     const priceValue = document.getElementById('priceValue');
     const searchButton = document.getElementById('searchButton');

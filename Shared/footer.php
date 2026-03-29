@@ -19,10 +19,10 @@
                 <div class="footer-section">
                     <h4>Quick Links</h4>
                     <ul>
-                        <li><a href="homepage.php">Home</a></li>
-                        <li><a href="room_list.php">Rooms & Suites</a></li>
                         <li><a href="dining.php">Dining</a></li>
-                        <li><a href="weddings&events.php">Weddings & Events</a></li>
+                        <li><a href="wedding&events.php">Weddings & Events</a></li>
+                        <li><a href="facilities.php">Facilities</a></li>
+                        <li><a href="experiences.php">Experiences</a></li>
                         <li><a href="offers.php">Offers</a></li>
                         <li><a href="aboutus.php">About Us</a></li>
                     </ul>
@@ -39,7 +39,7 @@
 
                 <div class="footer-section newsletter">
                     <h4>Stay Inspired</h4>
-                    <p>Receive exclusive offers & travel inspiration.</p>
+                    <p>Join our email list to receive special offers.</p>
                     <form class="newsletter-form" action="#" method="post">
                         <div class="form-group">
                             <input type="email" placeholder="Your email address" required>
