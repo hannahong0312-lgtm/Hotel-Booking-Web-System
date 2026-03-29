@@ -6,184 +6,53 @@ ini_set('display_errors', 1);
 // Include header
 include '../Shared/header.php';
 
-// Get room ID from URL
-$room_id = 0;
-if(isset($_GET['id'])) {
-    $room_id = intval($_GET['id']);
+// 1. DATABASE CONNECTION
+$conn = new mysqli("localhost", "root", "", "hotel_booking");
+if ($conn->connect_error) { 
+    die("Connection failed: " . $conn->connect_error); 
 }
 
-// If room ID is not provided or invalid, redirect to accommodation page
+// 2. GET ROOM ID FROM URL
+$room_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
+
 if($room_id <= 0) {
     header('Location: accommodation.php');
     exit;
 }
 
-// Manual rooms data array with more images for each room
-$rooms = [
-    [
-        'id' => 1,
-        'name' => 'Deluxe Ocean View',
-        'type' => 'deluxe',
-        'description' => 'Experience luxury with breathtaking ocean views from your private balcony.',
-        'long_description' => 'Wake up to the soothing sound of waves and enjoy panoramic ocean views from your private balcony. This deluxe room combines modern elegance with coastal charm, featuring a spacious layout, premium bedding, and a spa-inspired marble bathroom.',
-        'price' => 299,
-        'capacity' => 2,
-        'bed_type' => 'King Size Bed',
-        'size' => '45 m² / 484 ft²',
-        'view' => 'Ocean View',
-        'amenities' => ['King Bed', 'Ocean View', 'Private Balcony', 'Mini Bar', 'WiFi', 'Smart TV', 'Rain Shower', 'Bathrobes'],
-        'images' => [
-            'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=1920&h=1080&fit=crop',
-            'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=1920&h=1080&fit=crop',
-            'https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=1920&h=1080&fit=crop',
-            'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1920&h=1080&fit=crop',
-            'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=1920&h=1080&fit=crop',
-        ],
-        'available' => 3,
-        'popular' => true
-    ],
-    [
-        'id' => 2,
-        'name' => 'Executive Suite',
-        'type' => 'suite',
-        'description' => 'Spacious suite with separate living and dining areas.',
-        'long_description' => 'Indulge in unparalleled comfort with this expansive suite featuring a separate living room, dining area, and luxurious amenities. Designed for the discerning traveler, this suite offers a perfect blend of work and relaxation. Enjoy the jacuzzi tub after a long day, or host a small gathering in your private dining space.',
-        'price' => 499,
-        'capacity' => 4,
-        'bed_type' => 'King Bed + Sofa Bed',
-        'size' => '75 m² / 807 ft²',
-        'view' => 'City View',
-        'amenities' => ['King Bed', 'Living Room', 'Dining Area', 'Jacuzzi', 'Kitchenette', 'WiFi', '65" TV', 'Nespresso Machine'],
-        'images' => [
-            'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=1920&h=1080&fit=crop',
-            'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1920&h=1080&fit=crop',
-            'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=1920&h=1080&fit=crop',
-            'https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=1920&h=1080&fit=crop',
-            'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=1920&h=1080&fit=crop',
-        ],
-        'available' => 2,
-        'popular' => true
-    ],
-    [
-        'id' => 3,
-        'name' => 'Standard Twin Room',
-        'type' => 'standard',
-        'description' => 'Comfortable room with two twin beds.',
-        'long_description' => 'A cozy and functional room designed for comfort and convenience. Perfect for friends traveling together or colleagues on a business trip.',
-        'price' => 149,
-        'capacity' => 2,
-        'bed_type' => '2 Twin Beds',
-        'size' => '30 m² / 323 ft²',
-        'view' => 'Garden View',
-        'amenities' => ['Twin Beds', 'Work Desk', 'Flat Screen TV', 'WiFi', 'Coffee Maker'],
-        'images' => [
-            'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=1920&h=1080&fit=crop',
-            'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=1920&h=1080&fit=crop',
-            'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=1920&h=1080&fit=crop',
-            'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=1920&h=1080&fit=crop',
-        ],
-        'available' => 5,
-        'popular' => false
-    ],
-    [
-        'id' => 4,
-        'name' => 'Family Suite',
-        'type' => 'family',
-        'description' => 'Designed for families with connecting rooms.',
-        'long_description' => 'Create lasting memories in our Family Suite, thoughtfully designed with families in mind. Featuring connecting bedrooms, a kitchen area, and child-friendly amenities.',
-        'price' => 399,
-        'capacity' => 5,
-        'bed_type' => 'Queen + 2 Singles',
-        'size' => '65 m² / 700 ft²',
-        'view' => 'Pool View',
-        'amenities' => ['2 Bedrooms', 'Kids Corner', 'Kitchen', 'Game Console', 'WiFi', 'DVD Player'],
-        'images' => [
-            'https://images.unsplash.com/photo-1568495248636-6432b97bd949?w=1920&h=1080&fit=crop',
-            'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=1920&h=1080&fit=crop',
-            'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=1920&h=1080&fit=crop',
-            'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=1920&h=1080&fit=crop',
-            'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1920&h=1080&fit=crop',
-        ],
-        'available' => 2,
-        'popular' => true
-    ],
-    [
-        'id' => 5,
-        'name' => 'Presidential Penthouse',
-        'type' => 'suite',
-        'description' => 'Ultimate luxury with panoramic views.',
-        'long_description' => 'Experience the pinnacle of luxury in our Presidential Penthouse. This magnificent residence spans the entire top floor, offering 360-degree panoramic city views.',
-        'price' => 1299,
-        'capacity' => 6,
-        'bed_type' => 'Super King + 2 Doubles',
-        'size' => '150 m² / 1615 ft²',
-        'view' => 'Panoramic City',
-        'amenities' => ['Super King Bed', 'Private Rooftop', 'Butler Service', 'Private Pool', 'Home Theater'],
-        'images' => [
-            'https://images.unsplash.com/photo-1631049307264-da0ec9d70304?w=1920&h=1080&fit=crop',
-            'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=1920&h=1080&fit=crop',
-            'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=1920&h=1080&fit=crop',
-            'https://images.unsplash.com/photo-1618773928121-c32242e63f39?w=1920&h=1080&fit=crop',
-            'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=1920&h=1080&fit=crop',
-        ],
-        'available' => 1,
-        'popular' => true
-    ],
-    [
-        'id' => 6,
-        'name' => 'Garden View Room',
-        'type' => 'standard',
-        'description' => 'Peaceful room overlooking lush tropical gardens.',
-        'long_description' => 'Escape to tranquility in our Garden View Room, where you can step directly onto your private patio and immerse yourself in lush tropical surroundings.',
-        'price' => 189,
-        'capacity' => 2,
-        'bed_type' => 'Queen Size Bed',
-        'size' => '35 m² / 377 ft²',
-        'view' => 'Garden View',
-        'amenities' => ['Queen Bed', 'Private Patio', 'Garden Access', 'WiFi', 'Mini Fridge'],
-        'images' => [
-            'https://images.unsplash.com/photo-1611892440504-42a792e24d32?w=1920&h=1080&fit=crop',
-            'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=1920&h=1080&fit=crop',
-            'https://images.unsplash.com/photo-1578683010236-d716f9a3f461?w=1920&h=1080&fit=crop',
-            'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=1920&h=1080&fit=crop',
-        ],
-        'available' => 4,
-        'popular' => false
-    ]
-];
+// 3. FETCH SPECIFIC ROOM DATA
+$sql = "SELECT * FROM room WHERE id = $room_id";
+$result = $conn->query($sql);
+$room = $result->fetch_assoc();
 
-// Manual room lookup
-$room = null;
-for($i = 0; $i < count($rooms); $i++) {
-    if($rooms[$i]['id'] == $room_id) {
-        $room = $rooms[$i];
-        break;
-    }
-}
-
-// If room not found, redirect to accommodation page
+// If room not found in DB, redirect
 if(!$room) {
     header('Location: accommodation.php');
     exit;
 }
 
-// Manual similar rooms extraction
+// 4. DECODE JSON DATA (Crucial for gallery and amenities)
+$room['amenities'] = json_decode($room['amenities'], true);
+$room['images'] = json_decode($room['images'], true);
+
+// 5. FETCH SIMILAR ROOMS (For the "You might also like" section)
 $similar_rooms = [];
-for($i = 0; $i < count($rooms); $i++) {
-    if($rooms[$i]['id'] != $room['id']) {
-        $similar_rooms[] = $rooms[$i];
-    }
-    if(count($similar_rooms) >= 3) {
-        break;
+$sim_sql = "SELECT * FROM room WHERE id != $room_id LIMIT 3";
+$sim_result = $conn->query($sim_sql);
+
+if ($sim_result->num_rows > 0) {
+    while($s_row = $sim_result->fetch_assoc()) {
+        // Decode images for the similar room thumbnails
+        $s_row['images'] = json_decode($s_row['images'], true);
+        $similar_rooms[] = $s_row;
     }
 }
 
-// Get default dates
+// 6. GET DEFAULT DATES
 $today = date('Y-m-d');
 $tomorrow_date = date('Y-m-d', strtotime('+1 day'));
 ?>
 
-<!-- External CSS -->
 <link rel="stylesheet" href="css/roomdetails.css">
 
 <main>
