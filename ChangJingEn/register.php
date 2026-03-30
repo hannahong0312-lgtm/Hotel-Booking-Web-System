@@ -114,6 +114,10 @@ $countries = [
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register | Grand Hotel</title>
     <style>
+        .header {
+            background: rgba(26, 26, 26, 0.95);
+            padding: 0.8rem 0;
+        }
         /* Additional styles for register page */
         .register-section {
             padding: 8rem 0 4rem;
@@ -174,7 +178,7 @@ $countries = [
         }
         .form-group input:focus, .form-group select:focus {
             outline: none;
-            border-color: var(--accent);
+            border-color: var(--gold);
             box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.1);
         }
         /* Password wrapper with toggle */
@@ -191,7 +195,7 @@ $countries = [
             font-size: 1rem;
         }
         .toggle-password:hover {
-            color: var(--accent);
+            color: var(--gold);
         }
         /* Password strength meter */
         .strength-meter {
@@ -231,13 +235,13 @@ $countries = [
             font-size: 0.85rem;
         }
         .error-message {
-            color: #e74c3c;
+            color: var(--gold);
             font-size: 0.75rem;
             margin-top: 0.3rem;
         }
         .btn-register-submit {
             width: 100%;
-            background: var(--accent);
+            background: var(--gold);
             color: white;
             border: none;
             padding: 1rem;
@@ -249,7 +253,7 @@ $countries = [
             margin-top: 1rem;
         }
         .btn-register-submit:hover {
-            background: var(--accent-dark);
+            background: var(--gold-dark);
         }
         .login-link {
             text-align: center;
@@ -258,7 +262,7 @@ $countries = [
             color: var(--gray-text);
         }
         .login-link a {
-            color: var(--accent);
+            color: var(--gold);
             font-weight: 500;
         }
         .login-link a:hover {
@@ -414,7 +418,7 @@ $countries = [
                     <div class="full-width" style="margin-top: 1.5rem;">
                         <div class="checkbox-group">
                             <input type="checkbox" id="terms" name="terms" <?php echo isset($_POST['terms']) ? 'checked' : ''; ?>>
-                            <label for="terms">I agree to the <a href="#" style="color: var(--accent);">Terms & Conditions</a> and <a href="#" style="color: var(--accent);">Privacy Policy</a> *</label>
+                            <label for="terms">I agree to the <a href="#" style="color: var(--gold);">Terms & Conditions</a> and <a href="#" style="color: var(--accent);">Privacy Policy</a> *</label>
                         </div>
                         <?php if (isset($errors['terms'])): ?>
                             <div class="error-message"><?php echo $errors['terms']; ?></div>
