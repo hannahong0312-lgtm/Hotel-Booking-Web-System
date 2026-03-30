@@ -89,7 +89,7 @@ include '../Shared/header.php';
 
         .services-contact {
             background: #F8F8F8;
-            padding: 5rem 0;
+            padding: 3rem 0;
         }
 
         .section-title {
@@ -185,7 +185,7 @@ include '../Shared/header.php';
 
         .faq-section {
             background: #FFFFFF;
-            padding: 2rem 0 7rem;
+            padding: 3rem 0 7rem;
         }
 
         .faq-grid {
@@ -269,7 +269,7 @@ include '../Shared/header.php';
                     <li><i class="fas fa-check-circle"></i> 12+ Luxury Rooms & Suites</li>
                     <li><i class="fas fa-check-circle"></i> Award-winning Restaurant & Bar</li>
                     <li><i class="fas fa-check-circle"></i> 24/7 Concierge & Room Service</li>
-                    <li><i class="fas fa-check-circle"></i> 5-star reviewed Good Facilities</li>
+                    <li><i class="fas fa-check-circle"></i> 5-star reviewed facilities</li>
                 </ul>
             </div>
             <div class="story-image">
@@ -293,7 +293,7 @@ include '../Shared/header.php';
                     <h3>Room Service</h3>
                     <p>In-room dining fresh meals delivered to your door & facilities service.</p>
                     <div class="contact-detail">
-                        <a href="tel:+6062896888"><i class="fas fa-phone-alt"></i> +60 6 289 6888 ext. 220</a>
+                        <a href="tel:+6062896888"><i class="fas fa-phone-alt"></i> +60 6 289 6885 ext. 220</a>
                     </div>
                     <div class="contact-detail">
                         <a href="mailto:rooms@grandhotel.com"><i class="fas fa-envelope"></i> rooms@grandhotel.com</a>
@@ -311,7 +311,7 @@ include '../Shared/header.php';
                     <h3>Dining Reservations</h3>
                     <p>Book tables at The Palette Café, Signature Grill, or private dining experiences.</p>
                     <div class="contact-detail">
-                        <a href="tel:+6062896888"><i class="fas fa-phone-alt"></i> +60 6 289 6888 ext. 330</a>
+                        <a href="tel:+6062896888"><i class="fas fa-phone-alt"></i> +60 6 289 6886</a>
                     </div>
                     <div class="contact-detail">
                         <a href="mailto:dining@grandhotel.com"><i class="fas fa-envelope"></i> dining@grandhotel.com</a>
@@ -329,7 +329,7 @@ include '../Shared/header.php';
                     <h3>Weddings & Events</h3>
                     <p>Plan your dream wedding or corporate gathering with our expert event planners.</p>
                     <div class="contact-detail">
-                        <a href="tel:+6062896888"><i class="fas fa-phone-alt"></i> +60 6 289 6888 ext. 440</a>
+                        <a href="tel:+6062896888"><i class="fas fa-phone-alt"></i> +60 6 289 6887</a>
                     </div>
                     <div class="contact-detail">
                         <a href="mailto:events@grandhotel.com"><i class="fas fa-envelope"></i> events@grandhotel.com</a>
@@ -347,10 +347,10 @@ include '../Shared/header.php';
                     <h3>Front Desk</h3>
                     <p>Check-in assistance, transportation and special requests.</p>
                     <div class="contact-detail">
-                        <a href="tel:+6062896888"><i class="fas fa-phone-alt"></i> +60 6 289 6888</a>
+                        <a href="tel:+6062896888"><i class="fas fa-phone-alt"></i> +60 6 289 6888 ext. 330</a>
                     </div>
                     <div class="contact-detail">
-                        <a href="mailto:frontdesk@grandhotel.com"><i class="fas fa-envelope"></i> frontdesk@grandhotel.com</a>
+                        <a href="mailto:frontdesk@grandhotel.com"><i class="fas fa-envelope"></i> info@grandhotel.com</a>
                     </div>
                     <div class="service-hours">
                         <i class="far fa-clock"></i> 24/7 Guest Support
@@ -365,7 +365,7 @@ include '../Shared/header.php';
                     <h3>Sales & Group Bookings</h3>
                     <p>Corporate rates, group accommodations, and exclusive packages.</p>
                     <div class="contact-detail">
-                        <a href="tel:+6062896888"><i class="fas fa-phone-alt"></i> +60 6 289 6888 ext. 660</a>
+                        <a href="tel:+6062896888"><i class="fas fa-phone-alt"></i> +60 6 289 6883</a>
                     </div>
                     <div class="contact-detail">
                         <a href="mailto:sales@grandhotel.com"><i class="fas fa-envelope"></i> sales@grandhotel.com</a>
