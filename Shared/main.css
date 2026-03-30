@@ -87,8 +87,7 @@
             transition: var(--transition);
         }
 
-        .nav ul li a:hover,
-        .nav ul li a.active {
+        .nav ul li a:hover, {
             color: var(--gold);
         }
 

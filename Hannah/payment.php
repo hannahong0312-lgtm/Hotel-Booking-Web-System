@@ -55,14 +55,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
 <style>
     /* ----- Ovveride Header ----- */
     .header {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        z-index: 100;
         background: rgba(26, 26, 26, 0.95);
-        padding: 0.6rem 0;
-        transition: var(--transition);
+        padding: 0.8rem 0;
     }
       
     /* Main container styling */
@@ -570,6 +564,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
 </main>
 
 <script>
+    // Sticky header
+    window.addEventListener('scroll', function() {
+        const header = document.getElementById('header');
+        if (window.scrollY > 50) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+    });
+
     // Toggle card details based on payment method
     const paymentMethods = document.querySelectorAll('input[name="payment_method"]');
     const cardDetails = document.getElementById('card_details');
