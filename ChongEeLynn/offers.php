@@ -309,6 +309,16 @@ const fadeEls = document.querySelectorAll('.featured-card, .offer-card, .stat-it
 for (let i = 0; i < fadeEls.length; i++) fadeEls[i].classList.add('fade-in');
 window.onscroll = checkFade;
 window.onload = checkFade;
+
+ // Sticky header
+window.addEventListener('scroll', function() {
+    const header = document.getElementById('header');
+    if (window.scrollY > 50) {
+        header.classList.add('scrolled');
+    } else {
+        header.classList.remove('scrolled');
+    }
+});
 </script>
 
 <?php include '../Shared/footer.php'; ?>

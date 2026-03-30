@@ -347,6 +347,16 @@ $room_types = array_unique(array_column($rooms, 'type'));
             document.querySelector(link.getAttribute('href'))?.scrollIntoView({ behavior: 'smooth' });
         });
     });
+
+        // Sticky header
+    window.addEventListener('scroll', function() {
+        const header = document.getElementById('header');
+        if (window.scrollY > 50) {
+            header.classList.add('scrolled');
+        } else {
+            header.classList.remove('scrolled');
+        }
+    });
 </script>
 
 <?php include '../Shared/footer.php'; ?>

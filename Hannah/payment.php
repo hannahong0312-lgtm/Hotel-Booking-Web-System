@@ -564,16 +564,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
 </main>
 
 <script>
-    // Sticky header
-    window.addEventListener('scroll', function() {
-        const header = document.getElementById('header');
-        if (window.scrollY > 50) {
-            header.classList.add('scrolled');
-        } else {
-            header.classList.remove('scrolled');
-        }
-    });
-
     // Toggle card details based on payment method
     const paymentMethods = document.querySelectorAll('input[name="payment_method"]');
     const cardDetails = document.getElementById('card_details');
