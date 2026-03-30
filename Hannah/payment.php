@@ -110,7 +110,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
         background: var(--black);
         color: var(--white);
         padding: 20px 25px;
-        border-bottom: 3px solid var(--accent);
+        border-bottom: 5px solid var(--gold);
     }
     
     .card-header h2 {
