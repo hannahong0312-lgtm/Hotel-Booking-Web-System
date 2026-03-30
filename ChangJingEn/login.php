@@ -140,7 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         .form-group input:focus {
             outline: none;
-            border-color: var(--accent);
+            border-color: var(--gold);
             box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.1);
         }
         .checkbox-group {
@@ -162,7 +162,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         .checkbox-group .forgot-password {
             font-size: 0.85rem;
-            color: var(--accent);
+            color: var(--gold);
             text-decoration: none;
         }
         .checkbox-group .forgot-password:hover {
@@ -170,7 +170,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
         .btn-login-submit {
             width: 100%;
-            background: var(--accent);
+            background: var(--gold);
             color: white;
             border: none;
             padding: 1rem;
@@ -182,7 +182,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             margin-bottom: 1rem;
         }
         .btn-login-submit:hover {
-            background: var(--accent-dark);
+            background: var(--gold-dark);
         }
         .register-link {
             text-align: center;
@@ -191,7 +191,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             color: var(--gray-text);
         }
         .register-link a {
-            color: var(--accent);
+            color: var(--gold);
             font-weight: 500;
         }
         .register-link a:hover {
@@ -209,7 +209,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border: 1px solid #f5c6cb;
         }
         .error-message {
-            color: #e74c3c;
+            color: var(--gold);
             font-size: 0.75rem;
             margin-top: 0.3rem;
         }
