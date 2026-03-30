@@ -402,7 +402,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm_booking'])) {
     }
 </style>
 
-<main>
+<main>   
     <div class="booking-container">
         <div class="booking-header">
             <h1>Confirm Your Booking</h1>
