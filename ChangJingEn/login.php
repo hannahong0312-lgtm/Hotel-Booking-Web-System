@@ -79,6 +79,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | Grand Hotel</title>
     <style>
+        .header {
+            background: rgba(26, 26, 26, 0.95);
+            padding: 0.8rem 0;
+        }
         .login-section {
             padding: 8rem 0 4rem;
             min-height: calc(100vh - 300px);
