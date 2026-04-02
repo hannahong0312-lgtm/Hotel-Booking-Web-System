@@ -7,8 +7,8 @@ include '../Shared/header.php';
 $room_type = $_GET['room_type'] ?? '';
 $guests = $_GET['guests'] ?? '';
 $max_price = $_GET['max_price'] ?? '';
-$check_in = $_GET['check_in'] ?? '';
-$check_out = $_GET['check_out'] ?? '';
+$arrive = $_GET['arrive'] ?? '';
+$depart = $_GET['depart'] ?? '';
 
 $sql = "SELECT * FROM rooms WHERE is_active = 1";
 if(!empty($room_type)) $sql .= " AND category = '" . $conn->real_escape_string($room_type) . "'";
@@ -51,16 +51,16 @@ if($result && $result->num_rows > 0) {
     <div class="filter-wrapper">
         <div class="filter-oval-card">
             <form method="GET" action="" class="filter-form">
-                <!-- Check In Date -->
+                <!-- Arrive Date -->
                 <div class="filter-group">
-                    <label>CHECK IN</label>
-                    <input type="date" name="check_in" value="<?= htmlspecialchars($check_in) ?>" class="date-input">
+                    <label>ARRIVE</label>
+                    <input type="date" name="arrive" value="<?= htmlspecialchars($arrive) ?>" class="date-input">
                 </div>
                 
-                <!-- Check Out Date -->
+                <!-- Depart Date -->
                 <div class="filter-group">
-                    <label>CHECK OUT</label>
-                    <input type="date" name="check_out" value="<?= htmlspecialchars($check_out) ?>" class="date-input">
+                    <label>DEPART</label>
+                    <input type="date" name="depart" value="<?= htmlspecialchars($depart) ?>" class="date-input">
                 </div>
                 
                 <!-- Guests (Pax) -->
@@ -97,7 +97,7 @@ if($result && $result->num_rows > 0) {
                     </div>
                 </div>
                 
-                <button type="submit" class="search-btn-oval">Search →</button>
+                <button type="submit" class="search-btn-oval">Check Availability →</button>
             </form>
         </div>
     </div>
@@ -114,7 +114,7 @@ if($result && $result->num_rows > 0) {
             <?php if(empty($rooms)): ?>
                 <p class="no-results">No rooms found.</p>
             <?php else: foreach($rooms as $room): ?>
-                <div class="room-card" onclick="window.location.href='roomdetails.php?id=<?= $room['id'] ?>&check_in=<?= urlencode($check_in) ?>&check_out=<?= urlencode($check_out) ?>&guests=<?= $guests ?: 2 ?>'" style="cursor: pointer;">
+                <div class="room-card" onclick="window.location.href='roomdetails.php?id=<?= $room['id'] ?>&arrive=<?= urlencode($arrive) ?>&depart=<?= urlencode($depart) ?>&guests=<?= $guests ?: 2 ?>'" style="cursor: pointer;">
                     <div class="room-img">
                         <img src="<?= $room['image'] ?>" alt="<?= $room['name'] ?>">
                         <span class="room-badge <?= $room['category'] ?>"><?= ucfirst($room['category']) ?></span>
@@ -134,8 +134,8 @@ if($result && $result->num_rows > 0) {
                             <span class="price">RM <?= number_format($room['price'], 0) ?></span>
                             <span class="night">/ night</span>
                         </div>
-                        <a href="booking.php?room_id=<?= $room['id'] ?>" class="book-btn <?= $room['rooms_available'] == 0 ? 'disabled' : '' ?>" onclick="event.stopPropagation();">
-                            <?= $room['rooms_available'] > 0 ? 'Book Now →' : 'Unavailable' ?>
+                        <a href="roomdetails.php?id=<?= $room['id'] ?>&arrive=<?= urlencode($arrive) ?>&depart=<?= urlencode($depart) ?>&guests=<?= $guests ?: 2 ?>" class="book-btn <?= $room['rooms_available'] == 0 ? 'disabled' : '' ?>" onclick="event.stopPropagation();">
+                            <?= $room['rooms_available'] > 0 ? 'View Details →' : 'Unavailable' ?>
                         </a>
                     </div>
                 </div>
@@ -170,17 +170,17 @@ function updatePrice() {
 slider.addEventListener('input', updatePrice);
 updatePrice();
 
-// Optional: Set min date for check-in to today
-let checkInInput = document.querySelector('input[name="check_in"]');
-if(checkInInput) {
+// Optional: Set min date for arrive to today
+let arriveInput = document.querySelector('input[name="arrive"]');
+if(arriveInput) {
     let today = new Date().toISOString().split('T')[0];
-    if(!checkInInput.value) checkInInput.min = today;
-    checkInInput.addEventListener('change', function() {
-        let checkOutInput = document.querySelector('input[name="check_out"]');
-        if(checkOutInput && this.value) {
-            checkOutInput.min = this.value;
-            if(checkOutInput.value && checkOutInput.value < this.value) {
-                checkOutInput.value = '';
+    if(!arriveInput.value) arriveInput.min = today;
+    arriveInput.addEventListener('change', function() {
+        let departInput = document.querySelector('input[name="depart"]');
+        if(departInput && this.value) {
+            departInput.min = this.value;
+            if(departInput.value && departInput.value < this.value) {
+                departInput.value = '';
             }
         }
     });

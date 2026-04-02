@@ -1,6 +1,7 @@
 <?php
 // roomdetails.php
 include '../Shared/config.php';
+include '../Shared/header.php';
 
 // Get room ID from URL
 $room_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
@@ -21,9 +22,9 @@ if (!$result || $result->num_rows == 0) {
 
 $room = $result->fetch_assoc();
 
-// Fetch 4 similar rooms (same category, different id) - changed from 3 to 4
+// Fetch 4 similar rooms (same category, different id)
 $similar_sql = "SELECT * FROM rooms WHERE category = '{$conn->real_escape_string($room['category'])}' AND id != $room_id AND is_active = 1 LIMIT 4";
-$similar_result = $conn->query($sql);
+$similar_result = $conn->query($similar_sql);
 $similar_rooms = [];
 if ($similar_result && $similar_result->num_rows > 0) {
     while ($row = $similar_result->fetch_assoc()) {
@@ -32,15 +33,15 @@ if ($similar_result && $similar_result->num_rows > 0) {
 }
 
 // Get date parameters from URL (if coming from search)
-$check_in = isset($_GET['check_in']) ? htmlspecialchars($_GET['check_in']) : '';
-$check_out = isset($_GET['check_out']) ? htmlspecialchars($_GET['check_out']) : '';
+$arrive = isset($_GET['arrive']) ? htmlspecialchars($_GET['arrive']) : '';
+$depart = isset($_GET['depart']) ? htmlspecialchars($_GET['depart']) : '';
 $guests = isset($_GET['guests']) ? intval($_GET['guests']) : $room['max_guests'];
 
 // Calculate number of nights
 $nights = 0;
-if ($check_in && $check_out) {
-    $date1 = new DateTime($check_in);
-    $date2 = new DateTime($check_out);
+if ($arrive && $depart) {
+    $date1 = new DateTime($arrive);
+    $date2 = new DateTime($depart);
     $interval = $date1->diff($date2);
     $nights = $interval->days;
 }
@@ -75,7 +76,7 @@ $total_price = $nights * $room['price'];
 <!-- Room Details Main Content -->
 <section class="detail-main">
     <div class="detail-container">
-        <!-- Back Button - MOVED ABOVE room description -->
+        <!-- Back Button - ABOVE room description -->
         <div class="back-section-top">
             <a href="accommodation.php" class="back-btn">← Back to All Rooms</a>
         </div>
@@ -137,7 +138,7 @@ $total_price = $nights * $room['price'];
                     </div>
                 </div>
                 
-                <!-- NEW: Room Policies Section -->
+                <!-- Room Policies Section -->
                 <div class="info-card">
                     <h2>Room Policies</h2>
                     <div class="policies-list">
@@ -193,13 +194,13 @@ $total_price = $nights * $room['price'];
                         <input type="hidden" name="room_id" value="<?= $room['id'] ?>">
                         
                         <div class="form-group">
-                            <label>CHECK-IN DATE</label>
-                            <input type="date" name="check_in" class="form-input" id="checkInInput" value="<?= $check_in ?>" required>
+                            <label>ARRIVE DATE</label>
+                            <input type="date" name="arrive" class="form-input" id="arriveInput" value="<?= $arrive ?>" required>
                         </div>
                         
                         <div class="form-group">
-                            <label>CHECK-OUT DATE</label>
-                            <input type="date" name="check_out" class="form-input" id="checkOutInput" value="<?= $check_out ?>" required>
+                            <label>DEPART DATE</label>
+                            <input type="date" name="depart" class="form-input" id="departInput" value="<?= $depart ?>" required>
                         </div>
                         
                         <div class="form-group">
@@ -212,7 +213,7 @@ $total_price = $nights * $room['price'];
                             </div>
                         </div>
                         
-                        <!-- NEW: Total Price Display -->
+                        <!-- Total Price Display -->
                         <div class="total-price-display" id="totalPriceDisplay">
                             <div class="total-row">
                                 <span>RM <?= number_format($room['price'], 0) ?> × <span id="nightCount"><?= $nights ?></span> night(s)</span>
@@ -240,7 +241,7 @@ $total_price = $nights * $room['price'];
     </div>
 </section>
 
-<!-- Similar Rooms Section (now shows 4 rooms) -->
+<!-- Similar Rooms Section (shows 4 rooms) -->
 <?php if (!empty($similar_rooms)): ?>
 <section class="similar-rooms">
     <div class="detail-container">
@@ -250,7 +251,7 @@ $total_price = $nights * $room['price'];
         </div>
         <div class="similar-grid">
             <?php foreach($similar_rooms as $similar): ?>
-                <div class="similar-card" onclick="window.location.href='roomdetails.php?id=<?= $similar['id'] ?>&check_in=<?= urlencode($check_in) ?>&check_out=<?= urlencode($check_out) ?>&guests=<?= $guests ?>'">
+                <div class="similar-card" onclick="window.location.href='roomdetails.php?id=<?= $similar['id'] ?>&arrive=<?= urlencode($arrive) ?>&depart=<?= urlencode($depart) ?>&guests=<?= $guests ?>'">
                     <div class="similar-img">
                         <img src="<?= htmlspecialchars($similar['image']) ?>" alt="<?= htmlspecialchars($similar['name']) ?>">
                         <span class="similar-badge"><?= ucfirst($similar['category']) ?></span>
@@ -275,20 +276,20 @@ $total_price = $nights * $room['price'];
 
 <script>
 // Date picker logic with total calculation
-let checkInInput = document.getElementById('checkInInput');
-let checkOutInput = document.getElementById('checkOutInput');
+let arriveInput = document.getElementById('arriveInput');
+let departInput = document.getElementById('departInput');
 let nightCountSpan = document.getElementById('nightCount');
 let subtotalSpan = document.getElementById('subtotal');
 let grandTotalSpan = document.getElementById('grandTotal');
 let roomPrice = <?= $room['price'] ?>;
 
 function calculateTotal() {
-    let checkIn = checkInInput.value;
-    let checkOut = checkOutInput.value;
+    let arrive = arriveInput.value;
+    let depart = departInput.value;
     
-    if (checkIn && checkOut) {
-        let date1 = new Date(checkIn);
-        let date2 = new Date(checkOut);
+    if (arrive && depart) {
+        let date1 = new Date(arrive);
+        let date2 = new Date(depart);
         let timeDiff = date2.getTime() - date1.getTime();
         let nights = Math.ceil(timeDiff / (1000 * 3600 * 24));
         
@@ -306,29 +307,29 @@ function calculateTotal() {
 }
 
 let today = new Date().toISOString().split('T')[0];
-checkInInput.min = today;
+arriveInput.min = today;
 
-if (!checkInInput.value) {
+if (!arriveInput.value) {
     let tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
-    checkInInput.value = tomorrow.toISOString().split('T')[0];
+    arriveInput.value = tomorrow.toISOString().split('T')[0];
     let dayAfter = new Date(tomorrow);
     dayAfter.setDate(dayAfter.getDate() + 1);
-    checkOutInput.value = dayAfter.toISOString().split('T')[0];
+    departInput.value = dayAfter.toISOString().split('T')[0];
     calculateTotal();
 }
 
-checkInInput.addEventListener('change', function() {
+arriveInput.addEventListener('change', function() {
     if (this.value) {
-        checkOutInput.min = this.value;
-        if (checkOutInput.value && checkOutInput.value < this.value) {
-            checkOutInput.value = '';
+        departInput.min = this.value;
+        if (departInput.value && departInput.value < this.value) {
+            departInput.value = '';
         }
         calculateTotal();
     }
 });
 
-checkOutInput.addEventListener('change', function() {
+departInput.addEventListener('change', function() {
     if (this.value) {
         calculateTotal();
     }
