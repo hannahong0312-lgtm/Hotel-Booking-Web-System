@@ -14,8 +14,8 @@ body {
 /* Detail Hero Section */
 .detail-hero {
     position: relative;
-    height: 65vh;
-    min-height: 450px;
+    height: 100vh;
+    min-height: 700px;
     background-size: cover;
     background-position: center;
     display: flex;

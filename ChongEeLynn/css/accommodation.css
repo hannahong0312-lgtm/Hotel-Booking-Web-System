@@ -17,7 +17,7 @@ body {
     position: relative;
     height: 100vh;
     min-height: 700px;
-    background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.3)), url('https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&dpr=2') center/cover no-repeat;
+    background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.3)), url('https://familytravelgenie.com/media/wp-uploads/2022/03/Taj-Dubai-King-Style-Bedroom.jpg') center/cover no-repeat;
     display: flex;
     align-items: center;
     justify-content: center;
