@@ -2,18 +2,41 @@
 // index.php - Grand Hotel Homepage (Minimalist Black/White + Coral)
 require_once '../Shared/config.php';
 
-$featured_rooms = [];
-$sql = "SELECT id, room_name, room_type, price_per_night, description, image_url 
-        FROM rooms 
-        WHERE status = 'available' 
-        ORDER BY featured DESC, id DESC 
-        LIMIT 4";
-$result = $conn->query($sql);
-if ($result && $result->num_rows > 0) {
-    while ($row = $result->fetch_assoc()) {
-        $featured_rooms[] = $row;
-    }
-}
+// 临时静态数据 – 不依赖数据库 rooms 表
+$featured_rooms = [
+    [
+        'id' => 1,
+        'room_name' => 'Grand Deluxe Suite',
+        'room_type' => 'Suite',
+        'price_per_night' => 450.00,
+        'description' => 'Spacious suite with separate living area, panoramic city views, and marble bathroom.',
+        'image_url' => 'https://images.pexels.com/photos/1648777/pexels-photo-1648777.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&dpr=2'
+    ],
+    [
+        'id' => 2,
+        'room_name' => 'Premier Ocean View',
+        'room_type' => 'Double',
+        'price_per_night' => 320.00,
+        'description' => 'King-size bed, floor-to-ceiling windows overlooking the ocean, and a private balcony.',
+        'image_url' => 'https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&dpr=2'
+    ],
+    [
+        'id' => 3,
+        'room_name' => 'Executive Club Room',
+        'room_type' => 'Single',
+        'price_per_night' => 280.00,
+        'description' => 'Access to executive lounge, complimentary breakfast, and high-speed Wi-Fi.',
+        'image_url' => 'https://images.pexels.com/photos/271618/pexels-photo-271618.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&dpr=2'
+    ],
+    [
+        'id' => 4,
+        'room_name' => 'Family Garden View',
+        'room_type' => 'Family',
+        'price_per_night' => 380.00,
+        'description' => 'Two connecting rooms, garden terrace, and kid-friendly amenities.',
+        'image_url' => 'https://images.pexels.com/photos/189296/pexels-photo-189296.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&dpr=2'
+    ]
+];
 
 $user_role = isset($_SESSION['user_role']) ? $_SESSION['user_role'] : null;
 $is_logged_in = isLoggedIn();
