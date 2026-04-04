@@ -7,6 +7,11 @@ if (session_status() === PHP_SESSION_NONE) {
 // Include configuration file
 require_once 'config.php';
 
+$user_display_name = '';
+if ($is_logged_in && isset($_SESSION['user_name'])) {
+    $user_display_name = explode(' ', trim($_SESSION['user_name']))[0];
+}
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -59,7 +64,7 @@ require_once 'config.php';
                 </nav>
                 <div class="header-actions">
                     <?php if ($is_logged_in): ?>
-                        <a href="profile.php" class="btn-login">My Profile</a>
+                        <a href="profile.php" class="btn-login"> <i class="fas fa-user-circle"></i> Hi, <?php echo htmlspecialchars($user_display_name); ?></a>
                         <a href="logout.php" class="btn-register">Logout</a>
                     <?php else: ?>
                         <a href="../ChangJingEn/login.php" class="btn-login">Sign In</a>
