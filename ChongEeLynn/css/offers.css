@@ -260,8 +260,8 @@ body {
 
 /* Detail Page */
 .detail-hero {
-    height: 50vh;
-    min-height: 350px;
+    height: 100vh;
+    min-height: 700px;
     background-size: cover;
     background-position: center;
     display: flex;
@@ -322,43 +322,47 @@ body {
     color: white;
 }
 
-.detail-grid {
-    display: grid;
-    grid-template-columns: 1fr 380px;
-    gap: 40px;
-    margin-bottom: 60px;
+/* Single column layout for detail page */
+.detail-grid.single-column {
+    display: block;
+    max-width: 900px;
+    margin: 0 auto;
 }
 
 .info-box {
     background: white;
     border-radius: 20px;
-    padding: 25px;
+    padding: 30px;
     margin-bottom: 25px;
     box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    border: 1px solid #f0f0f0;
 }
 
 .info-box h2 {
-    font-size: 1.3rem;
-    margin-bottom: 15px;
-    padding-bottom: 10px;
+    font-size: 1.4rem;
+    margin-bottom: 18px;
+    padding-bottom: 12px;
     border-bottom: 2px solid #f0f0f0;
+    color: #1a1a1a;
 }
 
 .info-box p {
     color: #555;
-    line-height: 1.6;
+    line-height: 1.7;
 }
 
+/* Price Breakdown */
 .price-breakdown {
     background: #fefcf9;
-    border-radius: 12px;
-    padding: 15px;
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid #f0ede8;
 }
 
 .price-row {
     display: flex;
     justify-content: space-between;
-    padding: 10px 0;
+    padding: 12px 0;
     border-bottom: 1px solid #eee;
 }
 
@@ -374,6 +378,7 @@ body {
 
 .discount-amt {
     color: #dc3545;
+    font-weight: 600;
 }
 
 .final-price {
@@ -381,183 +386,69 @@ body {
     font-size: 1.2rem;
 }
 
+/* Code Info Section */
+.code-info {
+    margin-top: 25px;
+    padding-top: 20px;
+    border-top: 1px solid #eee;
+    text-align: center;
+}
+
+.code-info p {
+    margin-bottom: 10px;
+}
+
+.code-value {
+    display: inline-block;
+    background: #fefcf9;
+    border: 1px solid #e9e5df;
+    padding: 10px 25px;
+    border-radius: 50px;
+    font-family: monospace;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #C5A059;
+}
+
+.code-note {
+    font-size: 0.8rem;
+    color: #888;
+    margin-top: 8px;
+}
+
+/* Terms List */
 .terms-list {
     list-style: none;
     padding-left: 0;
 }
 
 .terms-list li {
-    padding: 8px 0;
+    padding: 10px 0;
     color: #555;
     border-bottom: 1px solid #f0f0f0;
 }
 
-/* Booking Box */
-.booking-box {
-    background: white;
-    border-radius: 20px;
-    padding: 25px;
-    position: sticky;
-    top: 20px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-}
-
-.booking-box h3 {
-    font-size: 1.3rem;
-    margin-bottom: 15px;
-}
-
-.offer-price {
-    margin-bottom: 20px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #f0f0f0;
-}
-
-.offer-price .price {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #C5A059;
-}
-
-.offer-price .per-night {
-    font-size: 0.85rem;
-    color: #888;
-}
-
-.code-box {
-    margin-bottom: 20px;
-}
-
-.code-box label {
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: #C5A059;
-    display: block;
-    margin-bottom: 8px;
-}
-
-.code-box .code {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: #fefcf9;
-    border: 1px solid #eee;
-    border-radius: 12px;
-    padding: 10px 15px;
-}
-
-.code-box .code span {
-    font-family: monospace;
-    font-size: 1rem;
-    font-weight: 700;
-    color: #C5A059;
-}
-
-.code-box .code button {
-    background: #C5A059;
-    color: white;
-    border: none;
-    padding: 5px 12px;
-    border-radius: 8px;
-    cursor: pointer;
-}
-
-.form-group {
-    margin-bottom: 15px;
-}
-
-.form-group label {
-    display: block;
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: #C5A059;
-    margin-bottom: 6px;
-}
-
-.form-group input {
-    width: 100%;
-    padding: 12px;
-    border: 1px solid #e9e5df;
-    border-radius: 12px;
-    font-size: 0.9rem;
-}
-
-.stepper {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: #fefcf9;
-    border: 1px solid #eee;
-    border-radius: 12px;
-    padding: 5px 10px;
-}
-
-.stepper button {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
-    border: none;
-    background: white;
-    font-size: 1.2rem;
-    cursor: pointer;
-    color: #C5A059;
-}
-
-.stepper button:hover {
-    background: #C5A059;
-    color: white;
-}
-
-.stepper span {
-    font-weight: 600;
-    min-width: 40px;
-    text-align: center;
-}
-
-.btn-book {
-    width: 100%;
-    background: #C5A059;
-    color: white;
-    border: none;
-    padding: 14px;
-    border-radius: 12px;
-    font-weight: 700;
-    font-size: 1rem;
-    cursor: pointer;
-    margin-top: 10px;
-}
-
-.btn-book:hover {
-    background: #a88845;
-}
-
-.notes {
-    margin-top: 20px;
-    padding-top: 15px;
-    border-top: 1px solid #eee;
-}
-
-.notes p {
-    font-size: 0.75rem;
-    color: #777;
-    margin-bottom: 5px;
+.terms-list li:last-child {
+    border-bottom: none;
 }
 
 /* Similar Offers */
 .similar-section {
-    margin-top: 40px;
+    margin-top: 60px;
     padding-top: 40px;
     border-top: 1px solid #eee;
 }
 
 .similar-section h2 {
     text-align: center;
-    margin-bottom: 30px;
+    font-size: 1.8rem;
+    margin-bottom: 35px;
 }
 
 .similar-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 25px;
 }
 
@@ -576,7 +467,7 @@ body {
 }
 
 .similar-img {
-    height: 160px;
+    height: 180px;
     background-size: cover;
     background-position: center;
     position: relative;
@@ -588,8 +479,8 @@ body {
     right: 10px;
     background: #dc3545;
     color: white;
-    padding: 3px 10px;
-    border-radius: 15px;
+    padding: 4px 12px;
+    border-radius: 20px;
     font-size: 0.7rem;
     font-weight: 700;
 }
@@ -601,6 +492,7 @@ body {
 .similar-info h3 {
     font-size: 1rem;
     margin-bottom: 8px;
+    font-weight: 600;
 }
 
 .similar-price {
@@ -621,6 +513,13 @@ body {
     color: #C5A059;
 }
 
+.similar-code {
+    font-size: 0.7rem;
+    color: #C5A059;
+    font-family: monospace;
+    margin-top: 8px;
+}
+
 .no-results {
     text-align: center;
     padding: 60px;
@@ -629,18 +528,41 @@ body {
 
 /* Responsive */
 @media (max-width: 900px) {
-    .detail-grid {
-        grid-template-columns: 1fr;
+    .detail-grid.single-column {
+        max-width: 100%;
     }
     
-    .booking-box {
-        position: static;
+    .info-box {
+        padding: 20px;
     }
 }
 
 @media (max-width: 768px) {
+    .hero {
+        height: 70vh;
+        min-height: 500px;
+    }
+    
     .hero h1 {
         font-size: 2rem;
+    }
+    
+    .hero p {
+        font-size: 1rem;
+    }
+    
+    .detail-hero {
+        height: 60vh;
+        min-height: 400px;
+    }
+    
+    .detail-hero .hero-content h1 {
+        font-size: 1.8rem;
+    }
+    
+    .badge-cat, .badge-discount {
+        padding: 4px 12px;
+        font-size: 0.7rem;
     }
     
     .filter-form {
@@ -656,8 +578,29 @@ body {
         border-radius: 30px;
     }
     
+    .offers-section h2 {
+        font-size: 1.5rem;
+    }
+    
     .offers-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .info-box h2 {
+        font-size: 1.2rem;
+    }
+    
+    .price-row {
+        font-size: 0.9rem;
+    }
+    
+    .code-value {
+        font-size: 0.9rem;
+        padding: 8px 18px;
+    }
+    
+    .similar-section h2 {
+        font-size: 1.4rem;
     }
     
     .similar-grid {
