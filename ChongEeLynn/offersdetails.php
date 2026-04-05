@@ -50,7 +50,7 @@ while ($row = mysqli_fetch_assoc($similar_result)) {
 <body>
 
 <!-- Hero -->
-<section class="detail-hero" style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.6)), url('<?php echo $offer['image']; ?>')">
+<section class="detail-hero" style="background-image: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)), url('<?php echo $offer['image']; ?>')">
     <div class="hero-content">
         <h1><?php echo htmlspecialchars($offer['title']); ?></h1>
         <div class="badges">
