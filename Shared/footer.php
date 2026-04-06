@@ -1,7 +1,6 @@
 <?php
 // Shared/footer.php
 ?>
- <!-- Footer -->
     <footer class="footer">
         <div class="container">
             <div class="footer-grid">
@@ -15,7 +14,6 @@
                         <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
                     </div>
                 </div>
-
                 <div class="footer-section">
                     <h4>Quick Links</h4>
                     <ul>
@@ -27,7 +25,6 @@
                         <li><a href="aboutus.php">About Us</a></li>
                     </ul>
                 </div>
-
                 <div class="footer-section">
                     <h4>Visit Us</h4>
                     <ul class="contact-info">
@@ -36,7 +33,6 @@
                         <li><i class="fas fa-envelope"></i> info@grandhotel.com</li>
                     </ul>
                 </div>
-
                 <div class="footer-section newsletter">
                     <h4>Stay Inspired</h4>
                     <p>Join our email list to receive special offers.</p>
