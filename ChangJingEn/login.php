@@ -66,7 +66,7 @@ unset($_SESSION['login_errors'], $_SESSION['login_email']);
                 </form>
 
                 <div class="register-link">
-                    Don't have an account? <a href="register.php">Create one</a>
+                    Don't have an account? <a href="register.php">Join now</a>
                 </div>
             </div>
         </div>
