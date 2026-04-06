@@ -1,6 +1,6 @@
 <?php
 // login_process.php - 处理顾客登录请求
-require_once '../Shared/config.php';
+require_once '../../Shared/config.php';
 
 session_start();
 
@@ -66,7 +66,7 @@ if (empty($errors)) {
                 $tokenStmt->close();
             }
 
-            redirect('profile.php');
+            redirect('../profile.php');
         }
     } else {
         $errors['general'] = 'Invalid email or password.';

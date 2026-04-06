@@ -1,24 +1,25 @@
 <?php
-// register.php - Customer Registration (仅显示表单)
+// register.php - Customer Registration
 require_once '../Shared/header.php';
 
-if ($is_logged_in) {
+if (isset($is_logged_in) && $is_logged_in) {
     redirect('profile.php');
 }
 
 // 从 session 获取错误信息和上次输入的数据
-$errors = $_SESSION['reg_errors'] ?? [];
+$errors    = $_SESSION['reg_errors'] ?? [];
 $old_input = $_SESSION['reg_old'] ?? [];
+
 // 清除 session 中的临时数据
 unset($_SESSION['reg_errors'], $_SESSION['reg_old']);
 
-// 默认值
+// 设置默认值
 $first_name = $old_input['first_name'] ?? '';
-$last_name  = $old_input['last_name'] ?? '';
-$email      = $old_input['email'] ?? '';
-$phone      = $old_input['phone'] ?? '';
-$country    = $old_input['country'] ?? '';
-$subscribe  = $old_input['subscribe'] ?? 0;
+$last_name  = $old_input['last_name']  ?? '';
+$email      = $old_input['email']      ?? '';
+$phone      = $old_input['phone']      ?? '';
+$country    = $old_input['country']    ?? '';
+$subscribe  = $old_input['subscribe']  ?? 0;
 ?>
 
 <!DOCTYPE html>
@@ -34,18 +35,21 @@ $subscribe  = $old_input['subscribe'] ?? 0;
 <section class="register-section">
     <div class="container">
         <div class="register-container">
+            
             <div class="register-header">
                 <h2>Create Your Account</h2>
                 <p>Join Grand Hotel for exclusive offers and seamless booking</p>
             </div>
 
             <?php if (!empty($errors['general'])): ?>
-                <div class="alert alert-danger"><?php echo htmlspecialchars($errors['general']); ?></div>
+                <div class="alert alert-danger">
+                    <?php echo htmlspecialchars($errors['general']); ?>
+                </div>
             <?php endif; ?>
 
             <form method="POST" action="process/register_process.php" novalidate>
                 <div class="form-grid">
-                    <!-- First Name -->
+                    
                     <div class="form-group">
                         <label for="first_name">First Name *</label>
                         <input type="text" id="first_name" name="first_name" value="<?php echo htmlspecialchars($first_name); ?>" required>
@@ -54,7 +58,6 @@ $subscribe  = $old_input['subscribe'] ?? 0;
                         <?php endif; ?>
                     </div>
 
-                    <!-- Last Name -->
                     <div class="form-group">
                         <label for="last_name">Last Name *</label>
                         <input type="text" id="last_name" name="last_name" value="<?php echo htmlspecialchars($last_name); ?>" required>
@@ -63,7 +66,6 @@ $subscribe  = $old_input['subscribe'] ?? 0;
                         <?php endif; ?>
                     </div>
 
-                    <!-- Email -->
                     <div class="form-group">
                         <label for="email">Email Address *</label>
                         <input type="email" id="email" name="email" value="<?php echo htmlspecialchars($email); ?>" required>
@@ -72,7 +74,6 @@ $subscribe  = $old_input['subscribe'] ?? 0;
                         <?php endif; ?>
                     </div>
 
-                    <!-- Phone -->
                     <div class="form-group">
                         <label for="phone">Phone Number *</label>
                         <input type="tel" id="phone" name="phone" value="<?php echo htmlspecialchars($phone); ?>" required>
@@ -81,7 +82,6 @@ $subscribe  = $old_input['subscribe'] ?? 0;
                         <?php endif; ?>
                     </div>
 
-                    <!-- Country/Region -->
                     <div class="full-width">
                         <div class="form-group">
                             <label for="country">Country/Region *</label>
@@ -94,7 +94,9 @@ $subscribe  = $old_input['subscribe'] ?? 0;
                                     'India', 'Germany', 'France', 'Italy', 'Canada', 'Other'
                                 ];
                                 foreach ($countries as $c): ?>
-                                    <option value="<?php echo $c; ?>" <?php echo $country === $c ? 'selected' : ''; ?>><?php echo $c; ?></option>
+                                    <option value="<?php echo $c; ?>" <?php echo $country === $c ? 'selected' : ''; ?>>
+                                        <?php echo $c; ?>
+                                    </option>
                                 <?php endforeach; ?>
                             </select>
                             <?php if (isset($errors['country'])): ?>
@@ -104,7 +106,6 @@ $subscribe  = $old_input['subscribe'] ?? 0;
                     </div>
                 </div>
 
-                <!-- Password Row -->
                 <div class="password-row" style="margin-top: 1.5rem;">
                     <div class="form-group">
                         <label for="password">Password *</label>
@@ -137,7 +138,6 @@ $subscribe  = $old_input['subscribe'] ?? 0;
                     </div>
                 </div>
 
-                <!-- Terms & Subscribe -->
                 <div class="full-width" style="margin-top: 1.5rem;">
                     <div class="checkbox-group">
                         <input type="checkbox" id="terms" name="terms" <?php echo isset($old_input['terms']) ? 'checked' : ''; ?>>
@@ -148,7 +148,7 @@ $subscribe  = $old_input['subscribe'] ?? 0;
                     <?php endif; ?>
                 </div>
 
-                <div class="full-width">
+                <div class="full-width" style="margin-top: 0.5rem;">
                     <div class="checkbox-group">
                         <input type="checkbox" id="subscribe" name="subscribe" value="1" <?php echo $subscribe ? 'checked' : ''; ?>>
                         <label for="subscribe">I would like to receive exclusive offers and travel inspiration via email.</label>
@@ -161,6 +161,7 @@ $subscribe  = $old_input['subscribe'] ?? 0;
             <div class="login-link">
                 Already have an account? <a href="login.php">Sign in</a>
             </div>
+            
         </div>
     </div>
 </section>
@@ -170,53 +171,53 @@ $subscribe  = $old_input['subscribe'] ?? 0;
     function togglePassword(fieldId) {
         const input = document.getElementById(fieldId);
         const icon = input.nextElementSibling.querySelector('i');
+        
         if (input.type === 'password') {
             input.type = 'text';
-            icon.classList.remove('fa-eye');
-            icon.classList.add('fa-eye-slash');
+            icon.classList.replace('fa-eye', 'fa-eye-slash');
         } else {
             input.type = 'password';
-            icon.classList.remove('fa-eye-slash');
-            icon.classList.add('fa-eye');
+            icon.classList.replace('fa-eye-slash', 'fa-eye');
         }
     }
 
     // Password strength meter
     const passwordInput = document.getElementById('password');
-    const strengthBar = document.getElementById('strength-bar');
-    const strengthText = document.getElementById('strength-text');
+    const strengthBar   = document.getElementById('strength-bar');
+    const strengthText  = document.getElementById('strength-text');
 
     passwordInput.addEventListener('input', function() {
         const password = this.value;
         let strength = 0;
+        
         if (password.length >= 6) strength++;
         if (password.match(/[a-z]+/)) strength++;
         if (password.match(/[A-Z]+/)) strength++;
         if (password.match(/[0-9]+/)) strength++;
         if (password.match(/[$@#&!]+/)) strength++;
 
-        let strengthLevel = '';
-        let strengthClass = '';
         if (password.length === 0) {
             strengthBar.style.width = '0%';
             strengthText.innerHTML = '';
+            strengthBar.className = 'strength-bar';
             return;
         }
-        if (strength <= 2) {
-            strengthLevel = 'Weak';
-            strengthClass = 'strength-weak';
-        } else if (strength === 3) {
-            strengthLevel = 'Medium';
-            strengthClass = 'strength-medium';
-        } else if (strength === 4) {
-            strengthLevel = 'Strong';
-            strengthClass = 'strength-strong';
-        } else {
-            strengthLevel = 'Very Strong';
-            strengthClass = 'strength-very-strong';
-        }
-        strengthBar.className = 'strength-bar ' + strengthClass;
-        strengthText.innerHTML = `Password strength: ${strengthLevel}`;
+
+        const strengthConfig = [
+            { level: 'Weak', class: 'strength-weak' },
+            { level: 'Weak', class: 'strength-weak' },
+            { level: 'Weak', class: 'strength-weak' },
+            { level: 'Medium', class: 'strength-medium' },
+            { level: 'Strong', class: 'strength-strong' },
+            { level: 'Very Strong', class: 'strength-very-strong' }
+        ];
+
+        // Cap strength index at 5
+        const configIndex = Math.min(strength, 5);
+        const currentConfig = strengthConfig[configIndex];
+
+        strengthBar.className = 'strength-bar ' + currentConfig.class;
+        strengthText.innerHTML = `Password strength: ${currentConfig.level}`;
     });
 </script>
 

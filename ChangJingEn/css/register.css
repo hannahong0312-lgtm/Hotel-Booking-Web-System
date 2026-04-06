@@ -1,4 +1,6 @@
 /* register.css - 注册页面专用样式 */
+
+/* --- 基础布局 --- */
 .header {
     background: rgba(26, 26, 26, 0.95);
     padding: 0.8rem 0;
@@ -31,6 +33,8 @@
     color: var(--gray-text);
     font-size: 0.9rem;
 }
+
+/* --- 表单网格 --- */
 .form-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -49,6 +53,8 @@
     color: var(--black);
     font-size: 0.9rem;
 }
+
+/* --- 输入框样式 --- */
 .form-group input, .form-group select {
     width: 100%;
     padding: 0.8rem 1rem;
@@ -59,26 +65,58 @@
     transition: var(--transition);
     background: var(--white);
 }
+
 .form-group input:focus, .form-group select:focus {
     outline: none;
     border-color: var(--gold);
     box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.1);
 }
+
+/* --- 核心修复：隐藏浏览器原生密码图标 --- */
+input[type="password"]::-ms-reveal,
+input[type="password"]::-ms-clear,
+input[type="password"]::-webkit-contacts-auto-fill-button,
+input[type="password"]::-webkit-credentials-auto-fill-button {
+    display: none ;
+    visibility: hidden ;
+    pointer-events: none ;
+    width: 0 ;
+    height: 0 ;
+}
+
+/* --- 密码查看切换器 --- */
 .password-wrapper {
     position: relative;
+    display: flex;
+    align-items: center;
 }
+
+/* 增加右侧内边距，确保文字不被图标遮挡，并推开潜在的插件图标 */
+.password-wrapper input {
+    padding-right: 45px !important;
+}
+
 .toggle-password {
     position: absolute;
-    right: 1rem;
+    right: 12px;
     top: 50%;
     transform: translateY(-50%);
     cursor: pointer;
     color: var(--gray-text);
     font-size: 1rem;
+    z-index: 10;            /* 确保在最上层 */
+    background: var(--white); /* 使用背景色遮挡下方可能残留的图标 */
+    padding: 0 4px;         /* 略微增加遮挡范围 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
+
 .toggle-password:hover {
     color: var(--gold);
 }
+
+/* --- 强度条样式 --- */
 .strength-meter {
     margin-top: 0.5rem;
     height: 4px;
@@ -100,6 +138,8 @@
 .strength-medium { background: #f39c12; width: 50%; }
 .strength-strong { background: #2ecc71; width: 75%; }
 .strength-very-strong { background: #27ae60; width: 100%; }
+
+/* --- 复选框与错误 --- */
 .checkbox-group {
     display: flex;
     align-items: center;
@@ -120,6 +160,8 @@
     font-size: 0.75rem;
     margin-top: 0.3rem;
 }
+
+/* --- 按钮与链接 --- */
 .btn-register-submit {
     width: 100%;
     background: var(--gold);
@@ -149,6 +191,8 @@
 .login-link a:hover {
     text-decoration: underline;
 }
+
+/* --- 警示框 --- */
 .alert {
     padding: 1rem;
     border-radius: 12px;
@@ -165,11 +209,14 @@
     color: #721c24;
     border: 1px solid #f5c6cb;
 }
+
 .password-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
 }
+
+/* --- 响应式 --- */
 @media (max-width: 768px) {
     .form-grid, .password-row {
         grid-template-columns: 1fr;
