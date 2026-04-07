@@ -12,12 +12,6 @@
     text-align: center;
 }
 
-.hero-overlay {
-    position: absolute;
-    inset: 0;
-    background: rgba(0,0,0,0.3);
-}
-
 .hero-content {
     position: relative;
     z-index: 2;
@@ -126,13 +120,6 @@
 .filter-form input:focus, .filter-form select:focus {
     outline: none;
     border-color: #C5A059;
-}
-
-/* Container */
-.container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 20px;
 }
 
 /* Offers Grid */
