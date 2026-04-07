@@ -1,4 +1,4 @@
-/* offers.css */
+/* offers.css - Complete File */
 
 /* Hero */
 .hero {
@@ -144,6 +144,16 @@
     text-align: center;
     font-size: 2rem;
     margin-bottom: 40px;
+    position: relative;
+}
+
+.offers-section h2:after {
+    content: '';
+    display: block;
+    width: 60px;
+    height: 3px;
+    background: #C5A059;
+    margin: 15px auto 0;
 }
 
 .offers-grid {
@@ -163,36 +173,49 @@
 
 .offer-card:hover {
     transform: translateY(-5px);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
 }
 
 .offer-image {
-    height: 200px;
+    height: 220px;
     background-size: cover;
     background-position: center;
     position: relative;
 }
 
-.discount-badge, .inactive-badge {
+.discount-badge {
     position: absolute;
     top: 15px;
     right: 15px;
-    padding: 5px 12px;
+    background: #dc3545;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 30px;
+    font-size: 1rem;
+    font-weight: 800;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+    z-index: 2;
+}
+
+.inactive-badge, .expired-badge {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    padding: 6px 14px;
     border-radius: 20px;
     font-size: 0.75rem;
     font-weight: 700;
-}
-
-.discount-badge {
-    background: #dc3545;
-    color: white;
+    z-index: 2;
 }
 
 .inactive-badge {
     background: #999;
     color: white;
-    left: 15px;
-    right: auto;
+}
+
+.expired-badge {
+    background: #6c757d;
+    color: white;
 }
 
 .offer-content {
@@ -201,71 +224,86 @@
 
 .offer-content .category {
     display: inline-block;
-    padding: 3px 10px;
-    background: #f0f0f0;
-    border-radius: 15px;
+    padding: 4px 12px;
+    background: #f5f0e8;
+    color: #C5A059;
+    border-radius: 20px;
     font-size: 0.7rem;
-    margin-bottom: 10px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 .offer-content h3 {
-    font-size: 1.2rem;
-    margin-bottom: 8px;
+    font-size: 1.25rem;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #1a1a1a;
 }
 
 .offer-content p {
     color: #666;
     font-size: 0.85rem;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.discount-info {
     margin-bottom: 12px;
-    line-height: 1.4;
 }
 
-.price {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-    margin-bottom: 10px;
-}
-
-.price .old {
-    text-decoration: line-through;
-    color: #999;
+.discount-percent {
+    display: inline-block;
+    background: linear-gradient(135deg, #C5A059, #a8883a);
+    color: white;
+    padding: 5px 14px;
+    border-radius: 25px;
     font-size: 0.85rem;
-}
-
-.price .new {
-    font-size: 1.3rem;
     font-weight: 700;
-    color: #C5A059;
 }
 
 .code {
     font-size: 0.8rem;
     color: #888;
-    margin-bottom: 15px;
+    margin-bottom: 8px;
 }
 
 .code strong {
     color: #C5A059;
     font-family: monospace;
+    font-size: 0.9rem;
+}
+
+.valid-date {
+    font-size: 0.7rem;
+    color: #28a745;
+    margin-bottom: 15px;
+    font-weight: 500;
+}
+
+.valid-date.expired-date {
+    color: #dc3545;
 }
 
 /* Detail Page */
 .detail-hero {
-    height: 100vh;
-    min-height: 700px;
+    height: 70vh;
+    min-height: 500px;
     background-size: cover;
     background-position: center;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    color: white
+    color: white;
+    position: relative;
 }
 
 .detail-hero .hero-content h1 {
-    font-size: 2.5rem;
-    margin-bottom: 15px;
+    font-size: 3rem;
+    margin-bottom: 20px;
+    text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
 }
 
 .badges {
@@ -275,30 +313,43 @@
     flex-wrap: wrap;
 }
 
-.badge-cat, .badge-discount {
-    padding: 6px 18px;
-    border-radius: 30px;
-    font-size: 0.8rem;
+.badge-cat, .badge-discount, .badge-inactive, .badge-expired {
+    padding: 8px 22px;
+    border-radius: 40px;
+    font-size: 0.85rem;
     font-weight: 600;
+    backdrop-filter: blur(10px);
 }
 
 .badge-cat {
-    background: #C5A059;
+    background: rgba(197, 160, 89, 0.9);
     color: white;
 }
 
 .badge-discount {
-    background: #dc3545;
+    background: rgba(220, 53, 69, 0.9);
+    color: white;
+}
+
+.badge-inactive {
+    background: rgba(153, 153, 153, 0.9);
+    color: white;
+}
+
+.badge-expired {
+    background: rgba(108, 117, 125, 0.9);
     color: white;
 }
 
 .detail-section {
-    padding: 50px 0;
+    padding: 60px 0;
     background: #FAFAFA;
 }
 
 .back-btn {
-    display: inline-block;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
     padding: 10px 24px;
     background: white;
     border: 2px solid #C5A059;
@@ -306,13 +357,14 @@
     border-radius: 50px;
     text-decoration: none;
     font-weight: 600;
-    margin-bottom: 30px;
+    margin-bottom: 40px;
     transition: 0.3s;
 }
 
 .back-btn:hover {
     background: #C5A059;
     color: white;
+    gap: 12px;
 }
 
 /* Single column layout for detail page */
@@ -324,90 +376,122 @@
 
 .info-box {
     background: white;
-    border-radius: 20px;
-    padding: 30px;
-    margin-bottom: 25px;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    border-radius: 24px;
+    padding: 35px;
+    margin-bottom: 30px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.05);
     border: 1px solid #f0f0f0;
+    transition: 0.3s;
+}
+
+.info-box:hover {
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
 }
 
 .info-box h2 {
-    font-size: 1.4rem;
-    margin-bottom: 18px;
-    padding-bottom: 12px;
-    border-bottom: 2px solid #f0f0f0;
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #C5A059;
     color: #1a1a1a;
+    display: inline-block;
 }
 
 .info-box p {
     color: #555;
-    line-height: 1.7;
+    line-height: 1.8;
 }
 
-/* Price Breakdown */
-.price-breakdown {
-    background: #fefcf9;
-    border-radius: 16px;
-    padding: 20px;
+/* Discount Info Box */
+.discount-info-box {
+    text-align: center;
+    padding: 30px;
+    background: linear-gradient(135deg, #fefcf9 0%, #fff8f0 100%);
+    border-radius: 20px;
+    margin-bottom: 25px;
     border: 1px solid #f0ede8;
 }
 
-.price-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 12px 0;
-    border-bottom: 1px solid #eee;
+.discount-percent-large {
+    font-size: 5rem;
+    font-weight: 800;
+    background: linear-gradient(135deg, #dc3545, #ff6b6b);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    margin: 15px 0;
+    letter-spacing: -2px;
+    text-shadow: none;
 }
 
-.price-row:last-child {
-    border-bottom: none;
+.discount-note {
+    font-size: 1rem;
+    color: #555;
+    margin-bottom: 25px;
 }
 
-.price-row.total {
-    padding-top: 15px;
+.valid-date-box {
+    margin-top: 20px;
+    padding: 15px 25px;
+    background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+    border-radius: 50px;
+    display: inline-block;
+    width: auto;
+}
+
+.valid-date-box.expired {
+    background: linear-gradient(135deg, #ffebee, #ffcdd2);
+}
+
+.valid-label {
     font-weight: 700;
-    font-size: 1.1rem;
+    color: #2e7d32;
+    margin-right: 8px;
 }
 
-.discount-amt {
-    color: #dc3545;
-    font-weight: 600;
+.valid-date-box.expired .valid-label {
+    color: #c62828;
 }
 
-.final-price {
-    color: #C5A059;
-    font-size: 1.2rem;
+.valid-date-value {
+    color: #1b5e20;
+    font-weight: 500;
+}
+
+.valid-date-box.expired .valid-date-value {
+    color: #b71c1c;
+    text-decoration: line-through;
 }
 
 /* Code Info Section */
 .code-info {
     margin-top: 25px;
-    padding-top: 20px;
-    border-top: 1px solid #eee;
+    padding-top: 25px;
+    border-top: 2px dashed #e9e5df;
     text-align: center;
 }
 
 .code-info p {
-    margin-bottom: 10px;
+    margin-bottom: 12px;
 }
 
 .code-value {
     display: inline-block;
-    background: #fefcf9;
-    border: 1px solid #e9e5df;
-    padding: 10px 25px;
+    background: #1a1a1a;
+    border: none;
+    padding: 12px 32px;
     border-radius: 50px;
     font-family: monospace;
-    font-size: 1.1rem;
+    font-size: 1.2rem;
     font-weight: 700;
-    letter-spacing: 1px;
+    letter-spacing: 2px;
     color: #C5A059;
 }
 
 .code-note {
     font-size: 0.8rem;
     color: #888;
-    margin-top: 8px;
+    margin-top: 10px;
 }
 
 /* Terms List */
@@ -417,37 +501,57 @@
 }
 
 .terms-list li {
-    padding: 10px 0;
+    padding: 12px 0;
     color: #555;
     border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
 }
 
 .terms-list li:last-child {
     border-bottom: none;
 }
 
+.terms-list li:before {
+    content: "✓";
+    color: #C5A059;
+    font-weight: bold;
+    font-size: 1.1rem;
+}
+
 /* Similar Offers */
 .similar-section {
-    margin-top: 60px;
-    padding-top: 40px;
-    border-top: 1px solid #eee;
+    margin-top: 70px;
+    padding-top: 50px;
+    border-top: 2px solid #eee;
 }
 
 .similar-section h2 {
     text-align: center;
     font-size: 1.8rem;
-    margin-bottom: 35px;
+    margin-bottom: 40px;
+    position: relative;
+}
+
+.similar-section h2:after {
+    content: '';
+    display: block;
+    width: 50px;
+    height: 3px;
+    background: #C5A059;
+    margin: 15px auto 0;
 }
 
 .similar-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 25px;
+    gap: 30px;
 }
 
 .similar-card {
     background: white;
-    border-radius: 16px;
+    border-radius: 20px;
     overflow: hidden;
     cursor: pointer;
     transition: 0.3s;
@@ -455,12 +559,12 @@
 }
 
 .similar-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+    transform: translateY(-5px);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.12);
 }
 
 .similar-img {
-    height: 180px;
+    height: 200px;
     background-size: cover;
     background-position: center;
     position: relative;
@@ -468,42 +572,39 @@
 
 .similar-img span {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 12px;
+    right: 12px;
     background: #dc3545;
     color: white;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: 0.7rem;
-    font-weight: 700;
+    padding: 5px 14px;
+    border-radius: 25px;
+    font-size: 0.8rem;
+    font-weight: 800;
 }
 
 .similar-info {
-    padding: 15px;
+    padding: 18px;
 }
 
 .similar-info h3 {
     font-size: 1rem;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     font-weight: 600;
+    color: #1a1a1a;
 }
 
-.similar-price {
-    display: flex;
-    align-items: baseline;
-    gap: 8px;
+.similar-discount-badge {
+    margin: 10px 0;
 }
 
-.similar-price .old {
-    text-decoration: line-through;
-    color: #999;
+.similar-discount-percent {
+    display: inline-block;
+    background: linear-gradient(135deg, #C5A059, #a8883a);
+    color: white;
+    padding: 4px 14px;
+    border-radius: 20px;
     font-size: 0.75rem;
-}
-
-.similar-price .new {
-    font-size: 1rem;
     font-weight: 700;
-    color: #C5A059;
 }
 
 .similar-code {
@@ -513,10 +614,17 @@
     margin-top: 8px;
 }
 
+.similar-valid {
+    font-size: 0.65rem;
+    color: #28a745;
+    margin-top: 8px;
+}
+
 .no-results {
     text-align: center;
     padding: 60px;
     color: #666;
+    font-size: 1.1rem;
 }
 
 /* Responsive */
@@ -526,7 +634,7 @@
     }
     
     .info-box {
-        padding: 20px;
+        padding: 25px;
     }
 }
 
@@ -545,7 +653,7 @@
     }
     
     .detail-hero {
-        height: 60vh;
+        height: 50vh;
         min-height: 400px;
     }
     
@@ -553,8 +661,8 @@
         font-size: 1.8rem;
     }
     
-    .badge-cat, .badge-discount {
-        padding: 4px 12px;
+    .badge-cat, .badge-discount, .badge-inactive, .badge-expired {
+        padding: 5px 14px;
         font-size: 0.7rem;
     }
     
@@ -583,13 +691,10 @@
         font-size: 1.2rem;
     }
     
-    .price-row {
-        font-size: 0.9rem;
-    }
-    
     .code-value {
         font-size: 0.9rem;
-        padding: 8px 18px;
+        padding: 10px 20px;
+        letter-spacing: 1px;
     }
     
     .similar-section h2 {
@@ -598,5 +703,22 @@
     
     .similar-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .discount-percent-large {
+        font-size: 3rem;
+    }
+    
+    .discount-note {
+        font-size: 0.9rem;
+    }
+    
+    .valid-date-box {
+        width: 100%;
+        padding: 12px 20px;
+    }
+    
+    .info-box {
+        padding: 20px;
     }
 }

@@ -2,11 +2,6 @@
 include '../Shared/config.php';
 include '../Shared/header.php';
 
-// Calculate discounted price
-function getDiscountedPrice($price, $percent) {
-    return $price - ($price * $percent / 100);
-}
-
 // Get filters
 $category = isset($_GET['category']) ? $_GET['category'] : '';
 $search = isset($_GET['search']) ? $_GET['search'] : '';
@@ -26,7 +21,6 @@ $sql .= " ORDER BY id ASC";
 $result = mysqli_query($conn, $sql);
 $offers = [];
 while ($row = mysqli_fetch_assoc($result)) {
-    $row['discounted_price'] = getDiscountedPrice($row['original_price'], $row['discount_percentage']);
     $row['terms'] = json_decode($row['terms'], true);
     $offers[] = $row;
 }
@@ -37,6 +31,12 @@ foreach ($offers as $offer) {
     if (!in_array($offer['category'], $categories)) {
         $categories[] = $offer['category'];
     }
+}
+
+// Function to check if offer is expired
+function isExpired($valid_to) {
+    if (empty($valid_to)) return false;
+    return strtotime($valid_to) < time();
 }
 ?>
 
@@ -93,22 +93,29 @@ foreach ($offers as $offer) {
         <?php else: ?>
             <div class="offers-grid">
                 <?php foreach ($offers as $offer): ?>
+                    <?php $expired = isExpired($offer['valid_to']); ?>
                     <div class="offer-card">
                         <div class="offer-image" style="background-image: url('<?php echo $offer['image']; ?>')">
                             <span class="discount-badge">-<?php echo $offer['discount_percentage']; ?>%</span>
                             <?php if ($offer['is_active'] == 0): ?>
                                 <span class="inactive-badge">Inactive</span>
+                            <?php elseif ($expired): ?>
+                                <span class="expired-badge">Expired</span>
                             <?php endif; ?>
                         </div>
                         <div class="offer-content">
                             <span class="category"><?php echo ucfirst(str_replace('_', ' ', $offer['category'])); ?></span>
                             <h3><?php echo htmlspecialchars($offer['title']); ?></h3>
                             <p><?php echo htmlspecialchars(substr($offer['description'], 0, 100)); ?>...</p>
-                            <div class="price">
-                                <span class="old">RM <?php echo number_format($offer['original_price'], 0); ?></span>
-                                <span class="new">RM <?php echo number_format($offer['discounted_price'], 0); ?></span>
+                            <div class="discount-info">
+                                <span class="discount-percent"><?php echo $offer['discount_percentage']; ?>% OFF</span>
                             </div>
                             <div class="code">Code: <strong><?php echo $offer['code']; ?></strong></div>
+                            <?php if (!empty($offer['valid_to']) && !$expired): ?>
+                                <div class="valid-date">Valid until: <?php echo date('d M Y', strtotime($offer['valid_to'])); ?></div>
+                            <?php elseif (!empty($offer['valid_to']) && $expired): ?>
+                                <div class="valid-date expired-date">Expired on: <?php echo date('d M Y', strtotime($offer['valid_to'])); ?></div>
+                            <?php endif; ?>
                             <a href="offersdetails.php?id=<?php echo $offer['id']; ?>" class="btn-secondary">View Details</a>
                         </div>
                     </div>

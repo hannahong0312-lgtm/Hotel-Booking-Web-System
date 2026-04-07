@@ -2,11 +2,6 @@
 include '../Shared/config.php';
 include '../Shared/header.php';
 
-// Calculate discounted price
-function getDiscountedPrice($price, $percent) {
-    return $price - ($price * $percent / 100);
-}
-
 // Get offer ID
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
 
@@ -25,16 +20,22 @@ if (!$offer) {
     exit;
 }
 
-// Calculate prices
-$discounted = getDiscountedPrice($offer['original_price'], $offer['discount_percentage']);
+// Decode terms
 $terms = json_decode($offer['terms'], true);
+
+// Function to check if offer is expired
+function isExpired($valid_to) {
+    if (empty($valid_to)) return false;
+    return strtotime($valid_to) < time();
+}
+
+$expired = isExpired($offer['valid_to']);
 
 // Get similar offers (same category, different id)
 $similar_sql = "SELECT * FROM hotel_offers WHERE category = '{$offer['category']}' AND id != $id LIMIT 3";
 $similar_result = mysqli_query($conn, $similar_sql);
 $similar = [];
 while ($row = mysqli_fetch_assoc($similar_result)) {
-    $row['discounted_price'] = getDiscountedPrice($row['original_price'], $row['discount_percentage']);
     $similar[] = $row;
 }
 ?>
@@ -56,6 +57,11 @@ while ($row = mysqli_fetch_assoc($similar_result)) {
         <div class="badges">
             <span class="badge-cat"><?php echo ucfirst(str_replace('_', ' ', $offer['category'])); ?></span>
             <span class="badge-discount">Save <?php echo $offer['discount_percentage']; ?>%</span>
+            <?php if ($offer['is_active'] == 0): ?>
+                <span class="badge-inactive">Inactive</span>
+            <?php elseif ($expired): ?>
+                <span class="badge-expired">Expired</span>
+            <?php endif; ?>
         </div>
     </div>
 </section>
@@ -72,26 +78,29 @@ while ($row = mysqli_fetch_assoc($similar_result)) {
                 <p><?php echo nl2br(htmlspecialchars($offer['description'])); ?></p>
             </div>
             
-            <!-- Price Breakdown -->
+            <!-- Discount Info -->
             <div class="info-box">
-                <h2>Price Breakdown</h2>
-                <div class="price-breakdown">
-                    <div class="price-row">
-                        <span>Original Price</span>
-                        <span>RM <?php echo number_format($offer['original_price'], 0); ?></span>
-                    </div>
-                    <div class="price-row">
-                        <span>Discount (<?php echo $offer['discount_percentage']; ?>%)</span>
-                        <span class="discount-amt">- RM <?php echo number_format($offer['original_price'] - $discounted, 0); ?></span>
-                    </div>
-                    <div class="price-row total">
-                        <span>Your Price (after discount)</span>
-                        <span class="final-price">RM <?php echo number_format($discounted, 0); ?></span>
-                    </div>
+                <h2>Discount Details</h2>
+                <div class="discount-info-box">
+                    <div class="discount-percent-large"><?php echo $offer['discount_percentage']; ?>% OFF</div>
+                    <p class="discount-note">Get <?php echo $offer['discount_percentage']; ?>% discount on your booking when you use the redemption code below.</p>
+                    
+                    <?php if (!empty($offer['valid_to']) && !$expired): ?>
+                        <div class="valid-date-box">
+                            <span class="valid-label">Valid until:</span>
+                            <span class="valid-date-value"><?php echo date('l, d F Y', strtotime($offer['valid_to'])); ?></span>
+                        </div>
+                    <?php elseif (!empty($offer['valid_to']) && $expired): ?>
+                        <div class="valid-date-box expired">
+                            <span class="valid-label">Expired on:</span>
+                            <span class="valid-date-value"><?php echo date('l, d F Y', strtotime($offer['valid_to'])); ?></span>
+                        </div>
+                    <?php endif; ?>
                 </div>
+                
                 <div class="code-info">
                     <p><strong>Redemption Code:</strong> <span class="code-value"><?php echo $offer['code']; ?></span></p>
-                    <p class="code-note">Use this code at checkout to claim your discount.</p>
+                    <p class="code-note">Use this code at checkout to claim your <?php echo $offer['discount_percentage']; ?>% discount.</p>
                 </div>
             </div>
             
@@ -122,11 +131,13 @@ while ($row = mysqli_fetch_assoc($similar_result)) {
                         </div>
                         <div class="similar-info">
                             <h3><?php echo htmlspecialchars($item['title']); ?></h3>
-                            <div class="similar-price">
-                                <span class="old">RM <?php echo number_format($item['original_price'], 0); ?></span>
-                                <span class="new">RM <?php echo number_format($item['discounted_price'], 0); ?></span>
+                            <div class="similar-discount-badge">
+                                <span class="similar-discount-percent"><?php echo $item['discount_percentage']; ?>% OFF</span>
                             </div>
                             <div class="similar-code">Code: <?php echo $item['code']; ?></div>
+                            <?php if (!empty($item['valid_to']) && !isExpired($item['valid_to'])): ?>
+                                <div class="similar-valid">Valid until: <?php echo date('d M Y', strtotime($item['valid_to'])); ?></div>
+                            <?php endif; ?>
                         </div>
                     </div>
                 <?php endforeach; ?>
