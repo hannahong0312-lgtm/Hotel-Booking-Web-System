@@ -17,23 +17,30 @@ include '../Shared/header.php';
     <style>
         /* ========== ABOUT US PAGE SPECIFIC CSS ========== */
         .about-hero {
-            background: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.5)), url('https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg?auto=compress&cs=tinysrgb&w=1600') center/cover no-repeat;
-            padding: 160px 0 80px;
+            position: relative;
+            height: 100vh;
+            min-height: 700px;
+            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.3)), url('https://www.swissgarden.com/residences-genting/wp-content/uploads/sites/11/2020/03/Executive-2-bedroom-Master-Room.jpg') center/cover no-repeat;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             text-align: center;
-            color: #FFFFFF;
         }
 
         .about-hero h1 {
-            font-size: 3.2rem;
             font-family: 'Playfair Display', serif;
             margin-bottom: 1rem;
+            max-width: 900px;
+            padding: 0 2rem;
+            color: white;
+            font-size: 3rem;
         }
 
         .about-hero p {
-            font-size: 1.1rem;
-            max-width: 700px;
-            margin: 0 auto;
-            opacity: 0.9;
+            font-size: 1rem;
+            color: rgba(255,255,255,0.85);
+            margin-bottom: 2rem;
+            font-weight: 300;
         }
 
         .about-story {
