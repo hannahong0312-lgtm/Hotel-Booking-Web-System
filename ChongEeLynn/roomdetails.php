@@ -153,7 +153,7 @@ $total_price = $nights * $room['price'];
                             <span class="policy-icon">🔄</span>
                             <div class="policy-text">
                                 <strong>Cancellation Policy</strong>
-                                <p>Free cancellation up to 48 hours before check-in</p>
+                                <p>Free cancellation up to 24 hours before check-in for a full refund.</p>
                             </div>
                         </div>
                         <div class="policy-item">
