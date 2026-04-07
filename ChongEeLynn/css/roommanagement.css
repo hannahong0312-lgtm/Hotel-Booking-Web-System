@@ -1,3 +1,17 @@
+<<<<<<< HEAD
+=======
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: #f4f7fa;
+    padding: 20px;
+}
+>>>>>>> 2ba94ab1984b4909bb44f0c6acd60aee1ac6e07a
 
 .container {
     max-width: 1300px;

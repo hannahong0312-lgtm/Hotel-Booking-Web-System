@@ -17,12 +17,12 @@
                 <div class="footer-section">
                     <h4>Quick Links</h4>
                     <ul>
-                        <li><a href="dining.php">Dining</a></li>
-                        <li><a href="wedding&events.php">Weddings & Events</a></li>
-                        <li><a href="facilities.php">Facilities</a></li>
-                        <li><a href="experiences.php">Experiences</a></li>
-                        <li><a href="offers.php">Offers</a></li>
-                        <li><a href="aboutus.php">About Us</a></li>
+                        <li><a href="../Hannah/dining.php">Dining</a></li>
+                        <li><a href="..ChangJingEn/wedding&events.php">Weddings & Events</a></li>
+                        <li><a href="../ChangJingEn/facilities.php">Facilities</a></li>
+                        <li><a href="../ChongEeLynn/experiences.php">Experiences</a></li>
+                        <li><a href="../ChongEeLynn/offers.php">Offers</a></li>
+                        <li><a href="../Hannah/aboutus.php">About Us</a></li>
                     </ul>
                 </div>
                 <div class="footer-section">

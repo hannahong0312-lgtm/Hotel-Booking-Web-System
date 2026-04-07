@@ -221,8 +221,8 @@ $countries = getCountryList();
 
                 <div class="full-width" style="margin-top: 0.5rem;">
                     <div class="checkbox-group">
-                        <input type="checkbox" id="subscribe" name="subscribe" value="1" <?php echo $subscribe ? 'checked' : ''; ?>>
-                        <label for="subscribe">I would like to receive exclusive offers and travel inspiration via email.</label>
+                    <input type="checkbox" id="subscribe" name="subscribe" value="1" checked>
+                    <label for="subscribe">I would like to receive exclusive offers and travel inspiration via email.</label>
                     </div>
                 </div>
 

@@ -203,16 +203,6 @@ $total_price = $nights * $room['price'];
                             <input type="date" name="depart" class="form-input" id="departInput" value="<?= $depart ?>" required>
                         </div>
                         
-                        <div class="form-group">
-                            <label>NUMBER OF GUESTS</label>
-                            <div class="guest-stepper-detail">
-                                <button type="button" class="guest-btn-detail" onclick="changeGuestsDetail(-1)">−</button>
-                                <span class="guest-value-detail" id="guestValDetail"><?= $guests ?></span>
-                                <input type="hidden" name="guests" id="guestInputDetail" value="<?= $guests ?>">
-                                <button type="button" class="guest-btn-detail" onclick="changeGuestsDetail(1)">+</button>
-                            </div>
-                        </div>
-                        
                         <!-- Total Price Display -->
                         <div class="total-price-display" id="totalPriceDisplay">
                             <div class="total-row">
