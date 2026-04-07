@@ -1,13 +1,14 @@
-/* login.css */
 .header {
     background: rgba(26, 26, 26, 0.95);
     padding: 0.8rem 0;
 }
+
 .login-section {
     padding: 8rem 0 4rem;
     min-height: calc(100vh - 300px);
     background: var(--gray-bg);
 }
+
 .login-container {
     max-width: 800px;
     width: 100%;
@@ -17,10 +18,12 @@
     box-shadow: var(--shadow-md);
     padding: 2.5rem;
 }
+
 .login-header {
     text-align: center;
     margin-bottom: 2rem;
 }
+
 .login-header h2 {
     font-family: 'Playfair Display', serif;
     font-size: 2rem;
@@ -28,25 +31,30 @@
     color: var(--black);
     margin-bottom: 0.5rem;
 }
+
 .login-header p {
     color: var(--gray-text);
     font-size: 0.9rem;
 }
+
 .login-form-wrapper {
     max-width: 100%;
     margin: 0 auto;
 }
-.form-group {
+
+.login-container .form-group {
     margin-bottom: 1.5rem;
 }
-.form-group label {
+
+.login-container .form-group label {
     display: block;
     font-weight: 500;
     margin-bottom: 0.5rem;
     color: var(--black);
     font-size: 0.9rem;
 }
-.form-group input {
+
+.login-container .form-group input {
     width: 100%;
     padding: 0.8rem 1rem;
     border: 1px solid var(--gray-border);
@@ -57,36 +65,43 @@
     background: var(--white);
     box-sizing: border-box;
 }
-.form-group input:focus {
+
+.login-container .form-group input:focus {
     outline: none;
     border-color: var(--gold);
     box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.1);
 }
-.checkbox-group {
+
+.login-container .checkbox-group {
     display: flex;
     align-items: center;
     justify-content: space-between;
     margin-bottom: 1.5rem;
 }
-.checkbox-group .remember {
+
+.login-container .checkbox-group .remember {
     display: flex;
     align-items: center;
     gap: 0.5rem;
 }
-.checkbox-group .remember label {
+
+.login-container .checkbox-group .remember label {
     font-weight: normal;
     font-size: 0.85rem;
     color: var(--gray-text);
     margin: 0;
 }
-.checkbox-group .forgot-password {
+
+.login-container .forgot-password {
     font-size: 0.85rem;
     color: var(--gold);
     text-decoration: none;
 }
-.checkbox-group .forgot-password:hover {
+
+.login-container .forgot-password:hover {
     text-decoration: underline;
 }
+
 .btn-login-submit {
     width: 100%;
     background: var(--gold);
@@ -100,33 +115,40 @@
     transition: var(--transition);
     margin-bottom: 1rem;
 }
+
 .btn-login-submit:hover {
     background: var(--gold-dark);
 }
+
 .register-link {
     text-align: center;
     margin-top: 1rem;
     font-size: 0.9rem;
     color: var(--gray-text);
 }
+
 .register-link a {
     color: var(--gold);
     font-weight: 500;
 }
+
 .register-link a:hover {
     text-decoration: underline;
 }
+
 .alert {
     padding: 1rem;
     border-radius: 12px;
     margin-bottom: 1.5rem;
     font-size: 0.9rem;
 }
+
 .alert-danger {
     background: #f8d7da;
     color: #721c24;
     border: 1px solid #f5c6cb;
 }
+
 .error-message {
     color: var(--gold);
     font-size: 0.75rem;
