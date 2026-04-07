@@ -25,54 +25,44 @@ body {
 
 /* Hero Section */
 .hero {
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-    color: #FFFFFF;
-    padding: 100px 0 110px;
-    border-bottom-left-radius: 48px;
-    border-bottom-right-radius: 48px;
-    margin-bottom: 60px;
     position: relative;
-    overflow: hidden;
-}
-
-.hero::after {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-image: url('https://assets.bucketlistly.blog/sites/5adf778b6eabcc00190b75b1/content_entry5adf77af6eabcc00190b75b6/5c8f2a861b3262001228300e/files/melaka-things-to-do-guide-malaysia-main-image-hd-op.jpg');
-    background-repeat: repeat;
-    opacity: 0.15;
-    pointer-events: none;
+    height: 100vh;
+    min-height: 700px;
+    background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.35)), url('https://images.travelandleisureasia.com/wp-content/uploads/sites/4/2025/01/30160027/attractions-in-melaka-2.jpeg') center/cover no-repeat;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin-bottom: 60px;
 }
 
 .hero-content {
     position: relative;
     z-index: 2;
-    text-align: center;
+    max-width: 800px;
+    padding: 0 20px;
 }
 
 .hero-badge {
     display: inline-block;
     background: rgba(197, 160, 89, 0.2);
     backdrop-filter: blur(4px);
-    padding: 8px 20px;
+    padding: 8px 24px;
     border-radius: 50px;
     font-size: 0.85rem;
     font-weight: 600;
-    letter-spacing: 0.5px;
+    letter-spacing: 1px;
     margin-bottom: 24px;
-    border: 1px solid rgba(197, 160, 89, 0.4);
-    color: #C5A059;
+    border: 1px solid rgba(197, 160, 89, 0.5);
+    color: #ffffff;
 }
 
 .hero h1 {
-    font-size: 3.8rem;
+    font-size: 4rem;
     font-weight: 700;
     margin-bottom: 20px;
     letter-spacing: -0.5px;
+    color: white;
 }
 
 .hero h1 span {
@@ -81,17 +71,20 @@ body {
 
 .hero p {
     font-size: 1.2rem;
-    max-width: 680px;
+    max-width: 600px;
     margin: 0 auto 28px;
     opacity: 0.9;
+    color: rgba(255, 255, 255, 0.9);
 }
 
 .intro-text {
     font-size: 1rem;
-    background: rgba(255, 255, 245, 0.1);
+    background: rgba(255, 255, 245, 0.15);
+    backdrop-filter: blur(4px);
     display: inline-block;
-    padding: 8px 20px;
+    padding: 10px 24px;
     border-radius: 60px;
+    color: white;
 }
 
 /* Section Headings */
@@ -372,7 +365,9 @@ body {
 /* Responsive Design */
 @media (max-width: 768px) {
     .hero {
-        padding: 70px 0 80px;
+        height: 80vh;
+        min-height: 500px;
+        background-attachment: scroll;
     }
     
     .hero h1 {
@@ -381,6 +376,10 @@ body {
     
     .hero p {
         font-size: 1rem;
+    }
+    
+    .hero-badge {
+        font-size: 0.75rem;
     }
     
     .section-head h2 {
