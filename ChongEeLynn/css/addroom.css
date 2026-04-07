@@ -1,18 +1,3 @@
-<<<<<<< HEAD
-=======
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: 'Playfair Display', serif;
-    background: #ecf0f1;
-    padding: 40px 20px;
-}
-
->>>>>>> 2ba94ab1984b4909bb44f0c6acd60aee1ac6e07a
 .form-container {
     max-width: 700px;
     margin: 0 auto;
