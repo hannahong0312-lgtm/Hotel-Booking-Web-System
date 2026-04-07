@@ -139,15 +139,6 @@ include '../Shared/header.php';
 </div>
 
 <script>
-    window.addEventListener('scroll', function() {
-        const header = document.getElementById('header');
-        if (window.scrollY > 50) {
-            header.classList.add('scrolled');
-        } else {
-            header.classList.remove('scrolled');
-        }
-    });
-
     const checkin = document.getElementById('checkin');
     const checkout = document.getElementById('checkout');
     function updateCheckoutMin() {
