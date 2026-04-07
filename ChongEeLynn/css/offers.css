@@ -1,15 +1,4 @@
 /* offers.css */
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: sans-serif;
-    color: #000000;
-    background: #fff;
-}
 
 /* Hero */
 .hero {
@@ -36,9 +25,12 @@ body {
 }
 
 .hero h1 {
-    font-size: 3.5rem;
+    font-size: 4rem;
+    font-weight: 600;
     color: white;
-    margin-bottom: 15px;
+    margin-bottom: 20px;
+    font-family: 'Playfair Display', serif;
+    letter-spacing: -0.5px;
 }
 
 .hero p {
