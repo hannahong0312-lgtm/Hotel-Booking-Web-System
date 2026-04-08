@@ -52,7 +52,6 @@ function isExpired($valid_to) {
 
 <!-- Hero Section -->
 <section class="hero">
-    <div class="hero-overlay"></div>
     <div class="hero-content">
         <h1>Special Offers</h1>
         <p>Exclusive deals for your stay</p>

@@ -35,7 +35,6 @@ if($result && $result->num_rows > 0) {
 
 <!-- Hero -->
 <section class="hero">
-    <div class="hero-overlay"></div>
     <div class="hero-content">
         <h1>Luxury Accommodations</h1>
         <p>Experience unparalleled comfort and elegance in our carefully designed rooms and suites</p>

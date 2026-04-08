@@ -5,7 +5,7 @@
     position: relative;
     height: 100vh;
     min-height: 700px;
-    background: url('https://images.pexels.com/photos/1648776/pexels-photo-1648776.jpeg') center/cover;
+    background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.3)), url('https://images.pexels.com/photos/1648776/pexels-photo-1648776.jpeg') center/cover no-repeat;
     display: flex;
     align-items: center;
     justify-content: center;
