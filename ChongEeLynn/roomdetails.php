@@ -190,7 +190,7 @@ $total_price = $nights * $room['price'];
                         <span class="night">/ night</span>
                     </div>
                     
-                    <form method="GET" action="booking.php" class="booking-form" id="bookingForm">
+                    <form method="GET" action="../Hannah/payment.php" class="booking-form" id="bookingForm">
                         <input type="hidden" name="room_id" value="<?= $room['id'] ?>">
                         
                         <div class="form-group">
@@ -221,7 +221,7 @@ $total_price = $nights * $room['price'];
                     </form>
                     
                     <div class="booking-note">
-                        <p>✓ Free cancellation up to 48 hours before check-in</p>
+                        <p>✓ Free cancellation up to 24 hours before check-in</p>
                         <p>✓ No prepayment required</p>
                         <p>✓ Best price guaranteed</p>
                     </div>
