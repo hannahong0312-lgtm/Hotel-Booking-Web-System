@@ -1,5 +1,5 @@
 <?php
-// dining.php
+// dining.php - Public dining reservations (no login required)
 include '../Shared/header.php';
 
 use PHPMailer\PHPMailer\PHPMailer;
@@ -8,10 +8,10 @@ require_once __DIR__ . '/PHPMailer-master/src/PHPMailer.php';
 require_once __DIR__ . '/PHPMailer-master/src/SMTP.php';
 require_once __DIR__ . '/PHPMailer-master/src/Exception.php';
 
-// ========== EDIT THESE ==========
+// ========== SMTP CREDENTIALS (EDIT THESE) ==========
 define('SMTP_USERNAME', 'your-email@gmail.com');   // Your Gmail
 define('SMTP_PASSWORD', 'your-app-password');      // 16-char App Password
-// ================================
+// ===================================================
 
 $restaurants = [
     'royale' => 'Royale Chinese Restaurant',
@@ -19,6 +19,7 @@ $restaurants = [
     'lobby' => 'Lobby Lounge'
 ];
 
+// Time slots 12:00 - 22:00 (30 min intervals)
 $timeSlots = [];
 $start = strtotime('12:00');
 $end = strtotime('22:00');
@@ -27,8 +28,8 @@ while ($start <= $end) {
     $start = strtotime('+30 minutes', $start);
 }
 
-$toastMessage = '';
-$toastType = ''; // 'success' or 'error'
+$popMessage = '';
+$popType = ''; // 'success' or 'error'
 $formData = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reserve_table'])) {
@@ -45,6 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reserve_table'])) {
 
     $formData = compact('restaurant', 'reservation_date', 'reservation_time', 'guests', 'first_name', 'last_name', 'phone', 'email', 'special_requests');
 
+    // Validation
     $errors = [];
     if (!array_key_exists($restaurant, $restaurants)) $errors[] = "Select a valid restaurant.";
     if (empty($reservation_date)) $errors[] = "Select a reservation date.";
@@ -60,12 +62,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reserve_table'])) {
 
     if (empty($errors)) {
         $reservation_code = 'DINE-' . strtoupper(uniqid());
-        $user_id = $is_logged_in ? $_SESSION['user_id'] : null;
 
-        $sql = "INSERT INTO dining (user_id, restaurant_name, reservation_date, reservation_time, guests, first_name, last_name, phone, email, special_requests, status, reservation_code, created_at) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'confirmed', ?, NOW())";
+        // Insert without user_id (public reservation)
+        $sql = "INSERT INTO dining (restaurant_name, reservation_date, reservation_time, guests, first_name, last_name, phone, email, special_requests, status, reservation_code, created_at) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'confirmed', ?, NOW())";
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("isssissssss", $user_id, $restaurants[$restaurant], $reservation_date, $reservation_time, $guests, $first_name, $last_name, $phone, $email, $special_requests, $reservation_code);
+        $stmt->bind_param("sssissssss", 
+            $restaurants[$restaurant], 
+            $reservation_date, 
+            $reservation_time, 
+            $guests, 
+            $first_name, 
+            $last_name, 
+            $phone, 
+            $email, 
+            $special_requests, 
+            $reservation_code
+        );
         
         if ($stmt->execute()) {
             $emailDetails = [
@@ -78,25 +91,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reserve_table'])) {
             ];
             $emailSent = sendReservationEmail($email, $first_name, $last_name, $emailDetails);
             if ($emailSent) {
-                $toastMessage = "✓ Reservation confirmed! A confirmation email has been sent to $email. Code: $reservation_code";
-                $toastType = 'success';
+                $popMessage = "✓ Reservation confirmed! A confirmation email has been sent to $email. Code: $reservation_code";
+                $popType = 'success';
             } else {
-                $toastMessage = "✓ Reservation saved! (Email could not be sent. Code: $reservation_code)";
-                $toastType = 'success';
+                $popMessage = "✓ Reservation saved! (Email could not be sent. Code: $reservation_code)";
+                $popType = 'success';
             }
             $formData = [];
             $_POST = [];
         } else {
-            $toastMessage = "Database error: Unable to save reservation.";
-            $toastType = 'error';
+            $popMessage = "Database error: Unable to save reservation.";
+            $popType = 'error';
         }
         $stmt->close();
     } else {
-        $toastMessage = implode("<br>", $errors);
-        $toastType = 'error';
+        $popMessage = implode("<br>", $errors);
+        $popType = 'error';
     }
 }
 
+// Email function (unchanged)
 function sendReservationEmail($to, $firstName, $lastName, $details) {
     $mail = new PHPMailer(true);
     try {
@@ -143,23 +157,8 @@ function sendReservationEmail($to, $firstName, $lastName, $details) {
     }
 }
 
-// Pre-fill for logged-in users
-if ($is_logged_in && empty($_POST) && empty($formData)) {
-    $userId = $_SESSION['user_id'];
-    $query = "SELECT name, email, phone FROM users WHERE user_id = ?";
-    $stmt = $conn->prepare($query);
-    $stmt->bind_param("i", $userId);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    if ($userData = $result->fetch_assoc()) {
-        $nameParts = explode(' ', trim($userData['name']), 2);
-        $formData['first_name'] = $nameParts[0] ?? '';
-        $formData['last_name'] = $nameParts[1] ?? '';
-        $formData['email'] = $userData['email'];
-        $formData['phone'] = $userData['phone'] ?? '';
-    }
-    $stmt->close();
-}
+// No pre-fill for logged-in users – everyone uses the form as is.
+// Set default guest count
 if (!isset($formData['guests']) || $formData['guests'] < 1) $formData['guests'] = 2;
 ?>
 
@@ -172,28 +171,27 @@ if (!isset($formData['guests']) || $formData['guests'] < 1) $formData['guests'] 
 </head>
 <body>
 
-<?php if ($toastMessage): ?>
-<div id="toast" class="toast-notification toast-<?php echo $toastType; ?>">
-    <span class="toast-close" onclick="this.parentElement.style.display='none';">&times;</span>
-    <?php echo $toastMessage; ?>
+<?php if ($popMessage): ?>
+<div id="popupMsg" class="pop-notification pop-<?php echo $popType; ?>">
+    <span class="pop-close" onclick="this.parentElement.style.display='none';">&times;</span>
+    <?php echo $popMessage; ?>
 </div>
 <script>
     setTimeout(function() {
-        let toast = document.getElementById('toast');
-        if(toast) toast.style.opacity = '0';
-        setTimeout(() => { if(toast) toast.style.display = 'none'; }, 300);
+        let pop = document.getElementById('popupMsg');
+        if(pop) pop.style.opacity = '0';
+        setTimeout(() => { if(pop) pop.style.display = 'none'; }, 300);
     }, 5000);
 </script>
 <?php endif; ?>
 
 <!-- Hero section with two buttons -->
-<section class="dining-hero" style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.4)), url('https://cafe.hardrock.com/files/5282/EWP2024_HardRockCafe-2995-edited.jpg');">
+<section class="dining-hero">
     <div class="container">
-        <div class="hero-content">
             <h1>Dining Reservations</h1>
             <p>Experience culinary excellence at our signature restaurants. Reserve your table for an unforgettable dining journey.</p>
             <div class="hero-buttons">
-                <a href="#" class="btn-menu">View Special Menu</a>
+                <a href="#restaurants-showcase" class="btn-menu">View Special Menu</a>
                 <a href="#reservation-form" class="btn-book">Book Reservation</a>
             </div>
         </div>
@@ -206,13 +204,13 @@ if (!isset($formData['guests']) || $formData['guests'] < 1) $formData['guests'] 
         <div class="section-header"><h2>Our Signature Restaurants</h2><p>Renowned restaurants and on-site dining experiences</p></div>
         <div class="restaurant-grid">
             <div class="restaurant-card"><div class="restaurant-img"><img src="https://images.pexels.com/photos/260922/pexels-photo-260922.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Royale"></div><div class="restaurant-info"><h3>Royale Chinese Restaurant</h3><p>Authentic Szechuan and Nyonya cuisine.</p><div class="restaurant-meta"><span><i class="fas fa-clock"></i> 11:00 AM - 10:30 PM</span><span><i class="fas fa-utensils"></i> Chinese • Nyonya</span></div></div></div>
-            <div class="restaurant-card"><div class="restaurant-img"><img src="https://images.pexels.com/photos/67468/pexels-photo-67468.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Palette"></div><div class="restaurant-info"><h3>The Palette Cafe</h3><p>Western buffet with live stations.</p><div class="restaurant-meta"><span><i class="fas fa-clock"></i> 9:00 AM - 5:00 PM</span><span><i class="fas fa-utensils"></i> Western • Buffet</span></div></div></div>
+            <div class="restaurant-card"><div class="restaurant-img"><img src="https://images.pexels.com/photos/67468/pexels-photo-67468.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Palette"></div><div class="restaurant-info"><h3>The Palette Cafe</h3><p>International buffet with live stations.</p><div class="restaurant-meta"><span><i class="fas fa-clock"></i> 6:00 AM - 11:00 PM</span><span><i class="fas fa-utensils"></i> International • Buffet</span></div></div></div>
             <div class="restaurant-card"><div class="restaurant-img"><img src="https://images.pexels.com/photos/1183434/pexels-photo-1183434.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Lobby"></div><div class="restaurant-info"><h3>Lobby Lounge</h3><p>Unwind with sports TV and crafted cocktails.</p><div class="restaurant-meta"><span><i class="fas fa-clock"></i> 3:00 PM - 12:00 AM</span><span><i class="fas fa-utensils"></i> Bar • Light Fare</span></div></div></div>
         </div>
     </div>
 </section>
 
-<!-- Reservation Form (added id="reservation-form" for smooth scroll) -->
+<!-- Reservation Form (id added for scroll) -->
 <section class="reservation-section" id="reservation-form">
     <div class="container">
         <div class="reservation-oval-card">
@@ -225,9 +223,9 @@ if (!isset($formData['guests']) || $formData['guests'] < 1) $formData['guests'] 
                     <div class="form-group"><label><i class="fas fa-users"></i> NUMBER OF GUESTS</label><div class="guest-stepper"><button type="button" class="guest-btn" onclick="changeGuests(-1)">−</button><span class="guest-value" id="guestVal"><?php echo $formData['guests'] ?? 2; ?></span><input type="hidden" name="guests" id="guestInput" value="<?php echo $formData['guests'] ?? 2; ?>"><button type="button" class="guest-btn" onclick="changeGuests(1)">+</button></div></div>
                 </div>
                 <div class="form-divider"><span>Contact Details</span></div>
-                <div class="form-row grid-2"><div class="form-group"><label>First Name</label><input type="text" name="first_name" class="form-input" value="<?php echo htmlspecialchars($formData['first_name'] ?? ''); ?>" placeholder="Your first name" required></div><div class="form-group"><label>Last Name</label><input type="text" name="last_name" class="form-input" value="<?php echo htmlspecialchars($formData['last_name'] ?? ''); ?>" placeholder="Your last name" required></div></div>
+                <div class="form-row grid-2"><div class="form-group"><label>First Name</label><input type="text" name="first_name" class="form-input" value="<?php echo htmlspecialchars($formData['first_name'] ?? ''); ?>" placeholder="First name" required></div><div class="form-group"><label>Last Name</label><input type="text" name="last_name" class="form-input" value="<?php echo htmlspecialchars($formData['last_name'] ?? ''); ?>" placeholder="Last name" required></div></div>
                 <div class="form-row grid-2"><div class="form-group"><label>Phone Number</label><input type="tel" name="phone" class="form-input" value="<?php echo htmlspecialchars($formData['phone'] ?? ''); ?>" placeholder="+60 XX XXX XXXX" required></div><div class="form-group"><label>Email Address</label><input type="email" name="email" class="form-input" value="<?php echo htmlspecialchars($formData['email'] ?? ''); ?>" placeholder="your@email.com" required></div></div>
-                <div class="form-group"><label>Special Requests (Optional)</label><textarea name="special_requests" class="form-textarea" rows="3" placeholder="Dietary requirements, allergies, celebration notes, etc."><?php echo htmlspecialchars($formData['special_requests'] ?? ''); ?></textarea></div>
+                <div class="form-group"><label>Special Requests (Optional)</label><textarea name="special_requests" class="form-textarea" rows="3" placeholder="Any special requests?"><?php echo htmlspecialchars($formData['special_requests'] ?? ''); ?></textarea></div>
                 <div class="form-group checkbox-group"><label class="checkbox-label"><input type="checkbox" name="agree_terms" required> <span>I agree to Grand Hotel's <a href="#" class="terms-link">Terms of Use</a> & <a href="#" class="terms-link">Privacy Policy</a></span></label></div>
                 <button type="submit" name="reserve_table" class="btn-reserve">Confirm →</button>
             </form>
