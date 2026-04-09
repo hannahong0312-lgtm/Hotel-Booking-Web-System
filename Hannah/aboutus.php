@@ -73,7 +73,7 @@ include '../Shared/header.php';
                         <i class="fas fa-utensils"></i>
                     </div>
                     <h3>Dining Reservations</h3>
-                    <p>Book tables at The Palette Café, Signature Grill, or private dining experiences.</p>
+                    <p>Book tables at The Palette Café, Royale Chinese Restaurant, or private dining experiences.</p>
                     <div class="contact-detail">
                         <a href="tel:+6062896888"><i class="fas fa-phone-alt"></i> +60 6 289 6886</a>
                     </div>
