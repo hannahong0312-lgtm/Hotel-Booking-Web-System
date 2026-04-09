@@ -2,7 +2,7 @@
             position: relative;
             height: 100vh;
             min-height: 700px;
-            background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.3)), url('https://mediaim.expedia.com/destination/2/1c63bcbfad42a1fccbe89bf7d99f57e8.jpg') center/cover no-repeat;
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.6)), url('https://mediaim.expedia.com/destination/2/1c63bcbfad42a1fccbe89bf7d99f57e8.jpg') center/cover no-repeat;
             display: flex;
             align-items: center;
             justify-content: center;
