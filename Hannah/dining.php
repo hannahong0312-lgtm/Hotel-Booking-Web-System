@@ -2,16 +2,14 @@
 // dining.php - Public dining reservations (no login required)
 include '../Shared/header.php';
 
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\Exception;
-require_once __DIR__ . '/PHPMailer-master/src/PHPMailer.php';
-require_once __DIR__ . '/PHPMailer-master/src/SMTP.php';
-require_once __DIR__ . '/PHPMailer-master/src/Exception.php';
+use PHPMailer\PHPMailer\{PHPMailer, Exception};
+require 'PHPMailer-master/src/Exception.php';
+require 'PHPMailer-master/src/PHPMailer.php';
+require 'PHPMailer-master/src/SMTP.php';
 
-// ========== SMTP CREDENTIALS (EDIT THESE) ==========
-define('SMTP_USERNAME', 'your-email@gmail.com');
-define('SMTP_PASSWORD', 'your-app-password');
-// ===================================================
+// SMTP CREDENTIALS 
+define('SMTP_USERNAME', 'grandhotelreservation67@gmail.com');
+define('SMTP_PASSWORD', 'pcurrscmnzgqnyky');
 
 $restaurants = [
     'royale'   => 'Royale Restaurant',
@@ -23,10 +21,10 @@ $restaurants = [
 $operatingHours = [
     'royale'  => ['open' => 10, 'close' => 16],
     'palette' => ['open' => 10, 'close' => 16],
-    'bar'     => ['open' => 18, 'close' => 26] // 26 means 2 AM next day
+    'bar'     => ['open' => 18, 'close' => 26] // 26 means 2AM 
 ];
 
-// Generate hourly time slots from 00:00 to 23:00 (1-hour intervals)
+// Generate hourly time slots from 00:00 to 23:00 (1-hour distance)
 $allHourlySlots = [];
 for ($hour = 0; $hour < 24; $hour++) {
     $allHourlySlots[] = sprintf("%02d:00:00", $hour);
@@ -56,8 +54,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reserve_table'])) {
     } elseif ($date < date('Y-m-d')) {
         $errors[] = "Date cannot be in the past.";
     }
-    
-    // Time validation
+
+        // Time validation
     if (empty($time)) {
         $errors[] = "Select a reservation time.";
     } else {
@@ -72,7 +70,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reserve_table'])) {
             }
         }
     }
-    
+  
     if ($guests < 1 || $guests > 50) $errors[] = "Guests must be 1-50.";
     if (empty($first_name)) $errors[] = "First name required.";
     if (empty($last_name)) $errors[] = "Last name required.";
@@ -80,6 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reserve_table'])) {
     if (empty($email)) $errors[] = "Email required.";
     elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = "Invalid email.";
     if (!$agree) $errors[] = "You must agree to the Terms.";
+
 
     if (empty($errors)) {
         $reservation_code = 'DINE-' . strtoupper(uniqid());
@@ -92,78 +91,104 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reserve_table'])) {
         $stmt->bind_param("sssissssss", 
             $restaurantName, $date, $time, $guests, $first_name, $last_name, $phone, $email, $special_requests, $reservation_code
         );
-        
-        if ($stmt->execute()) {
-            // Send email (optional)
-            $emailDetails = [
-                'code' => $reservation_code,
-                'name' => $restaurantName,
-                'date' => date('l, F j, Y', strtotime($date)),
-                'time' => date('g:i A', strtotime($time)),
-                'guests' => $guests,
-                'special_requests' => $special_requests ?: 'None'
-            ];
-            sendReservationEmail($email, $first_name, $last_name, $emailDetails);
-            
-            // Redirect to confirmation page
-            $query = http_build_query([
-                'code' => $reservation_code,
-                'restaurant' => $restaurantName,
-                'date' => $date,
-                'time' => $time,
-                'guests' => $guests,
-                'first_name' => $first_name,
-                'last_name' => $last_name
-            ]);
-            header("Location: dining_confirm.php?$query");
-            exit;
-        } else {
-            $errors[] = "Database error: Unable to save reservation.";
+
+            if ($stmt->execute()) {
+                
+                // Send email (optional)
+                $emailDetails = [
+                    'code' => $reservation_code,
+                    'name' => $restaurantName,
+                    'date' => date('j F Y, l', strtotime($date)),
+                    'time' => date('g:i A', strtotime($time)),
+                    'guests' => $guests,
+                    'special_requests' => $special_requests ?: 'None'
+                ];
+                sendReservationEmail($email, $first_name, $last_name, $emailDetails);
+                
+                // Redirect to confirmation page
+                $query = http_build_query([
+                    'code' => $reservation_code,
+                    'restaurant' => $restaurantName,
+                    'date' => $date,
+                    'time' => $time,
+                    'guests' => $guests,
+                    'first_name' => $first_name,
+                    'last_name' => $last_name
+                ]);
+                header("Location: dining_confirm.php?$query");
+                exit;
+
+            } else {
+                // Check if the execution failed (e.g., data too long for a column)
+                $errors[] = "Database Execution Error: " . $stmt->error;
+            }
+            $stmt->close();
         }
-        $stmt->close();
-    }
 }
 
 function sendReservationEmail($to, $firstName, $lastName, $details) {
-    $mail = new PHPMailer(true);
+    // Create a new PHPMailer instance inside the function
+    $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+
     try {
+        // SMTP Server Settings 
         $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';
-        $mail->SMTPAuth = true;
-        $mail->Username = SMTP_USERNAME;
-        $mail->Password = SMTP_PASSWORD;
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port = 587;
-        $mail->setFrom(SMTP_USERNAME, 'Grand Hotel Dining');
+        $mail->Host       = 'smtp.gmail.com'; // Assuming you use Gmail
+        $mail->SMTPAuth   = true;
+        // Use the constants you defined at the top of dining.php
+        $mail->Username   = SMTP_USERNAME; 
+        $mail->Password   = SMTP_PASSWORD; 
+        $mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
+
+        // --- Sender & Recipient ---
+        $mail->setFrom(SMTP_USERNAME, 'Grand Hotel Reservations');
         $mail->addAddress($to, $firstName . ' ' . $lastName);
+
+        // --- Email Content ---
         $mail->isHTML(true);
         $mail->Subject = 'Dining Reservation Confirmation - Grand Hotel';
-        $mail->Body = "<html><head><style>
-            body{font-family:Arial;}.container{max-width:600px;margin:0 auto;padding:20px;border:1px solid #E5E5E5;border-radius:16px;}
-            .header{text-align:center;border-bottom:2px solid #C5A059;}.header h2{color:#C5A059;}
-            .details{background:#F8F8F8;padding:15px;border-radius:12px;margin:15px 0;}
-            .label{font-weight:600;color:#C5A059;}
-        </style></head>
-        <body><div class='container'><div class='header'><h2>Grand Hotel</h2><p>Dining Reservation Confirmation</p></div>
-        <p>Dear <strong>{$firstName} {$lastName}</strong>,</p><p>Your table has been reserved.</p>
-        <div class='details'>
-            <p><span class='label'>Code:</span> {$details['code']}</p>
-            <p><span class='label'>Restaurant:</span> {$details['name']}</p>
-            <p><span class='label'>Date:</span> {$details['date']}</p>
-            <p><span class='label'>Time:</span> {$details['time']}</p>
-            <p><span class='label'>Guests:</span> {$details['guests']}</p>
-            <p><span class='label'>Special Requests:</span> {$details['special_requests']}</p>
-        </div>
-        <p>Please arrive 10 minutes before your reservation time.</p><p>We look forward to welcoming you!</p>
-        </div></body></html>";
+        
+        $message = 
+        "<html>
+            <head>
+                <style>
+                body{font-family:Arial;}
+                .container{max-width:600px;margin:0 auto;padding:20px;border:1px solid #E5E5E5;border-radius:16px;}
+                .header{text-align:center;border-bottom:2px solid #C5A059;}
+                .header h2{color:#C5A059;}
+                .details{background:#F8F8F8;padding:15px;border-radius:12px;margin:15px 0;}
+                .label{font-weight:600;color:#C5A059;}
+                </style>
+            </head>
+            <body>
+            <div class='container'>
+                <div class='header'><h2>Grand Hotel</h2><p>Dining Reservation Confirmation</p></div>
+                    <p>Dear <strong>{$firstName} {$lastName}</strong>,</p>
+                    <p>Your table has been reserved.</p>
+                <div class='details'>
+                    <p><span class='label'>Code:</span> {$details['code']}</p>
+                    <p><span class='label'>Restaurant:</span> {$details['name']}</p>
+                    <p><span class='label'>Date:</span> {$details['date']}</p>
+                    <p><span class='label'>Time:</span> {$details['time']}</p>
+                    <p><span class='label'>Guests:</span> {$details['guests']}</p>
+                    <p><span class='label'>Special Requests:</span> {$details['special_requests']}</p>
+                </div>
+                    <p>Please arrive 10 minutes before your reservation time.</p>
+                    <p>Thank you for choosing <strong>{$details['name']}</strong> @ Grand Hotel !</p>
+                </div>
+            </body>
+        </html>";
+
+        $mail->Body = $message;
         $mail->send();
         return true;
-    } catch (Exception $e) {
-        file_put_contents(__DIR__ . '/mail_error.log', date('Y-m-d H:i:s') . " - " . $mail->ErrorInfo . PHP_EOL, FILE_APPEND);
-        return false;
-    }
-}
-?>
+        
+        } catch (Exception $e) {
+           echo "Message could not be sent. Mailer Error: {$mail->ErrorInfo}";
+           return false;
+        }
+}?>
 
 <!DOCTYPE html>
 <html lang="en">
