@@ -9,8 +9,6 @@ include '../Shared/header.php';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grand Hotel | About Us & Contact Services</title>
-    <!-- Google Fonts & Font Awesome -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/aboutus.css">
 </head>
 <body>
@@ -174,6 +172,17 @@ include '../Shared/header.php';
                     <p>Only service animals are permitted. We recommend contacting us for special arrangements.</p>
                 </div>
             </div>
+        </div>
+    </section>
+
+    <section>
+        <div class="map-placeholder">
+            <img src="img/GrandMap.png" alt="Grand Hotel Map Location">
+        </div>
+        <div class="contact-info">
+            <h3>📍 Grand Hotel Melaka 📍</h3>
+            <p>Kota Laksamana, Melaka, Malaysia</p>
+            <p style="font-size: 0.85rem; color: #777; margin-bottom: 40px;">28, Lorong Hang Jebat, 75200 Melaka</p>
         </div>
     </section>
 </body>
