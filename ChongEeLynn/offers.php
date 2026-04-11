@@ -94,7 +94,7 @@ function isExpired($valid_to) {
                 <?php foreach ($offers as $offer): ?>
                     <?php $expired = isExpired($offer['valid_to']); ?>
                     <div class="offer-card">
-                        <div class="offer-image" style="background-image: url('<?php echo $offer['image']; ?>')">
+                        <div class="offer-image" style="background-image: url('images/<?php echo $offer['image']; ?>')">
                             <span class="discount-badge">-<?php echo $offer['discount_percentage']; ?>%</span>
                             <?php if ($offer['is_active'] == 0): ?>
                                 <span class="inactive-badge">Inactive</span>

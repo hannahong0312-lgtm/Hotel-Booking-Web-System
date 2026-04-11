@@ -51,7 +51,7 @@ while ($row = mysqli_fetch_assoc($similar_result)) {
 <body>
 
 <!-- Hero -->
-<section class="detail-hero" style="background-image: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)), url('<?php echo $offer['image']; ?>')">
+<section class="detail-hero" style="background-image: linear-gradient(rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.35)), url('images/<?php echo $offer['image']; ?>')">
     <div class="hero-content">
         <h1><?php echo htmlspecialchars($offer['title']); ?></h1>
         <div class="badges">
@@ -126,7 +126,7 @@ while ($row = mysqli_fetch_assoc($similar_result)) {
             <div class="similar-grid">
                 <?php foreach ($similar as $item): ?>
                     <div class="similar-card" onclick="location.href='offersdetails.php?id=<?php echo $item['id']; ?>'">
-                        <div class="similar-img" style="background-image: url('<?php echo $item['image']; ?>')">
+                        <div class="similar-img" style="background-image: url('images/<?php echo $item['image']; ?>')">
                             <span>-<?php echo $item['discount_percentage']; ?>%</span>
                         </div>
                         <div class="similar-info">

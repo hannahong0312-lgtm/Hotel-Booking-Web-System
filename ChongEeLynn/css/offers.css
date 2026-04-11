@@ -5,7 +5,7 @@
     position: relative;
     height: 100vh;
     min-height: 700px;
-    background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.3)), url('https://images.pexels.com/photos/1648776/pexels-photo-1648776.jpeg') center/cover no-repeat;
+    background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.3)), url('../images/living.jpeg') center/cover no-repeat;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -275,8 +275,8 @@
 
 /* Detail Page */
 .detail-hero {
-    height: 70vh;
-    min-height: 500px;
+    height: 100vh;
+    min-height: 700px;
     background-size: cover;
     background-position: center;
     display: flex;
