@@ -176,7 +176,7 @@ function sendReservationEmail($to, $firstName, $lastName, $details) {
                 </div>
                     <p>Please arrive 10 minutes before your reservation time.</p>
                     <p>Thank you for choosing <strong>{$details['name']}</strong> @ Grand Hotel !</p>
-                    <p>Keep contacting us for any changes +60 6 289 6886</p>
+                    <p>Contact us<strong>🕻 +606-2896886 </strong>for any changes or inquiries.</p>
                 </div>
             </body>
         </html>";
