@@ -3,7 +3,7 @@
 require_once '../Shared/header.php';
 
 if ($is_logged_in) {
-    redirect('../../ChongEeLynn/accommodation.php');
+    redirect('../profile.php');
 }
 
 // 从 session 中取出可能存在的错误信息和上次输入的邮箱
