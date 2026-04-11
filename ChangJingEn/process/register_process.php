@@ -124,12 +124,21 @@ $stmt = $conn->prepare($query);
 $stmt->bind_param("ssssssssis", $first_name, $last_name, $email, $phone, $country, $hashed_password, $role, $status, $subscribe, $created_at);
 
 if ($stmt->execute()) {
+    // 获取新插入的用户ID
+    $new_user_id = $conn->insert_id;
     $stmt->close();
+
+    // 自动登录：设置会话变量
+    $_SESSION['user_id']   = $new_user_id;
+    $_SESSION['user_role'] = $role;
+    $_SESSION['user_name'] = $first_name . ' ' . $last_name;
+    $_SESSION['user_email'] = $email;
     
-    // Set a success message in session (optional)
-    $_SESSION['registration_success'] = 'Account created successfully. Please log in.';
+    // 可选：设置欢迎消息
+    $_SESSION['welcome_message'] = 'Welcome, ' . $first_name . '! Your account has been created successfully.';
     
-    redirect('../login.php');
+    // 重定向到首页（或用户仪表盘）
+    redirect('../profile.php');
 } else {
     $errors['general']      = 'Registration failed. Please try again later.';
     $_SESSION['reg_errors'] = $errors;

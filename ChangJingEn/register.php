@@ -48,53 +48,7 @@ $countries = getCountryList();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register | Grand Hotel</title>
     <link rel="stylesheet" href="css/register.css">
-    <style>
-        /* 两列密码规则布局 */
-        .rules-list {
-            list-style: none;
-            padding-left: 0;
-            margin: 0;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px 20px;
-        }
-        .rule-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.8rem;
-            line-height: 1.4;
-            color: #333; /* 默认黑色 */
-        }
-        .rule-icon {
-            width: 20px;
-            text-align: center;
-            font-size: 1rem;
-            display: inline-block;
-        }
-        .rule-item.valid {
-            color: #0d9488; /* 满足规则：青色/绿色 */
-        }
-        .rule-item.invalid {
-            color: #e74c3c; /* 不满足规则：红色 */
-        }
-        .confirm-match-status {
-            margin-top: 6px;
-            font-size: 0.8rem;
-        }
-        .match-success { color: #0d9488; }
-        .match-error { color: #e74c3c; }
-        .confirm-password-group { margin-top: 1.5rem; }
-        .country-group { margin-bottom: 2rem; }
-        @media (max-width: 768px) {
-            .rules-list {
-                grid-template-columns: 1fr;
-                gap: 6px;
-            }
-            .confirm-password-group { margin-top: 1.2rem; }
-            .country-group { margin-bottom: 1.5rem; }
-        }
-    </style>
+    <!-- 所有样式均已移至外部 CSS，无内嵌 style -->
 </head>
 <body>
 
@@ -209,19 +163,25 @@ $countries = getCountryList();
                 </div>
 
                 <div class="full-width" style="margin-top: 1.5rem;">
+                    <!-- Terms 复选框 -->
                     <div class="checkbox-group">
-                        <input type="checkbox" id="terms" name="terms" <?php echo isset($old_input['terms']) ? 'checked' : ''; ?>>
+                        <input type="checkbox" id="terms" name="terms" <?php echo (isset($old_input['terms']) && $old_input['terms'] === true) ? 'checked' : ''; ?>>
                         <label for="terms">I agree to the <a href="#" style="color: var(--gold);">Terms & Conditions</a> and <a href="#" style="color: var(--accent);">Privacy Policy</a> *</label>
                     </div>
                     <?php if (isset($errors['terms'])): ?>
                         <div class="error-message"><?php echo htmlspecialchars($errors['terms']); ?></div>
                     <?php endif; ?>
-                </div>
 
-                <div class="full-width" style="margin-top: 0.5rem;">
+                    <!-- Subscribe 复选框 -->
+                    <?php
+                    $subscribe_checked = true;
+                    if (isset($old_input['subscribe'])) {
+                        $subscribe_checked = ($old_input['subscribe'] == 1);
+                    }
+                    ?>
                     <div class="checkbox-group">
-                    <input type="checkbox" id="subscribe" name="subscribe" value="1" checked>
-                    <label for="subscribe">I would like to receive exclusive offers and travel inspiration via email.</label>
+                        <input type="checkbox" id="subscribe" name="subscribe" value="1" <?php echo $subscribe_checked ? 'checked' : ''; ?>>
+                        <label for="subscribe">I would like to receive exclusive offers and travel inspiration via email.</label>
                     </div>
                 </div>
 

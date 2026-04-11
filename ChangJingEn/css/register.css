@@ -138,12 +138,6 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
     line-height: 1.4;
     color: #333;
 }
-.rule-item:first-child {
-    float: right;          /* 无效，grid 子项忽略 float */
-    margin-left: auto;     /* 只在单元格内右对齐，不会交换位置 */
-    position: relative; right: -100%; /* 破坏布局 */
-}
-
 .rule-icon {
     width: 20px;
     text-align: center;
@@ -154,7 +148,6 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
 .rule-item.valid {
     color: #0d9488;
 }
-
 .rule-item.invalid {
     color: #e74c3c;
 }
@@ -173,7 +166,6 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
 .confirm-password-group {
     margin-top: 1.5rem;
 }
-
 .country-group {
     margin-bottom: 2rem;
 }
@@ -194,7 +186,7 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
     font-size: 0.85rem;
 }
 .error-message {
-    color: var(--gold);
+    color: #e74c3c;
     font-size: 0.75rem;
     margin-top: 0.3rem;
 }
@@ -264,8 +256,8 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
         padding: 1.5rem;
     }
     .rules-list {
-        grid-template-columns: 1fr 1fr;
-        gap: 8px 12px;
+        grid-template-columns: 1fr;
+        gap: 6px;
     }
     .confirm-password-group {
         margin-top: 1.2rem;
