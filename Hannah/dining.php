@@ -158,7 +158,7 @@ function sendReservationEmail($to, $firstName, $lastName, $details) {
                 .header{text-align:center;border-bottom:2px solid #C5A059;}
                 .header h2{color:#C5A059;}
                 .details{background:#F8F8F8;padding:15px;border-radius:12px;margin:15px 0;}
-                .label{font-weight:600;color:#C5A059;}
+                .label{font-weight:600;}
                 </style>
             </head>
             <body>
@@ -176,6 +176,7 @@ function sendReservationEmail($to, $firstName, $lastName, $details) {
                 </div>
                     <p>Please arrive 10 minutes before your reservation time.</p>
                     <p>Thank you for choosing <strong>{$details['name']}</strong> @ Grand Hotel !</p>
+                    <p>Keep contacting us for any changes +60 6 289 6886</p>
                 </div>
             </body>
         </html>";
@@ -196,6 +197,7 @@ function sendReservationEmail($to, $firstName, $lastName, $details) {
     <meta charset="UTF-8">
     <title>Dining Reservations | Grand Hotel</title>
     <link rel="stylesheet" href="css/dining.css">
+    <link rel="stylesheet" href="../Shared/main.css">
 </head>
 <body>
 

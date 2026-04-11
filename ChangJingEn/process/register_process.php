@@ -8,7 +8,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // 权限与请求方式检查
 if (isset($_SESSION['user_id']) && isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'customer') {
-    redirect('../profile.php');
+    redirect('../login.php');
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -124,20 +124,12 @@ $stmt = $conn->prepare($query);
 $stmt->bind_param("ssssssssis", $first_name, $last_name, $email, $phone, $country, $hashed_password, $role, $status, $subscribe, $created_at);
 
 if ($stmt->execute()) {
-    $new_user_id = $stmt->insert_id;
-    
-    $_SESSION['user_id']    = $new_user_id;
-    $_SESSION['user_email'] = $email;
-    $_SESSION['user_name']  = $first_name . ' ' . $last_name;
-    $_SESSION['user_role']  = 'customer';
-    
-    $updateStmt = $conn->prepare("UPDATE users SET last_login = NOW() WHERE id = ?");
-    $updateStmt->bind_param("i", $new_user_id);
-    $updateStmt->execute();
-    $updateStmt->close();
     $stmt->close();
     
-    redirect('../profile.php');
+    // Set a success message in session (optional)
+    $_SESSION['registration_success'] = 'Account created successfully. Please log in.';
+    
+    redirect('../login.php');
 } else {
     $errors['general']      = 'Registration failed. Please try again later.';
     $_SESSION['reg_errors'] = $errors;

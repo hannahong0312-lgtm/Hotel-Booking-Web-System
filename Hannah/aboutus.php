@@ -10,6 +10,7 @@ include '../Shared/header.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grand Hotel | About Us & Contact Services</title>
     <link rel="stylesheet" href="css/aboutus.css">
+    <link rel="stylesheet" href="../Shared/main.css">
 </head>
 <body>
     <!-- ========== ABOUT US  ========== -->
@@ -76,10 +77,10 @@ include '../Shared/header.php';
                         <a href="tel:+6062896888"><i class="fas fa-phone-alt"></i> +60 6 289 6886</a>
                     </div>
                     <div class="contact-detail">
-                        <a href="mailto:dining@grandhotel.com"><i class="fas fa-envelope"></i> dining@grandhotel.com</a>
+                        <a href="mailto:grandhotelreservation67@gmail.com"><i class="fas fa-envelope"></i> grandhotelreservation67@gmail.com</a>
                     </div>
                     <div class="service-hours">
-                        <i class="far fa-clock"></i> Daily 7:00 AM - 10:30 PM
+                        <i class="far fa-clock"></i> Daily 10:00 AM - 10:00 PM
                     </div>
                 </div>
 
@@ -94,7 +95,7 @@ include '../Shared/header.php';
                         <a href="tel:+6062896888"><i class="fas fa-phone-alt"></i> +60 6 289 6887</a>
                     </div>
                     <div class="contact-detail">
-                        <a href="mailto:events@grandhotel.com"><i class="fas fa-envelope"></i> events@grandhotel.com</a>
+                        <a href="mailto:grandhotelreservation67@gmail.com"><i class="fas fa-envelope"></i> grandhotelreservation67@gmail.com</a>
                     </div>
                     <div class="service-hours">
                         <i class="far fa-clock"></i> Mon-Sat: 9:00 AM - 7:00 PM

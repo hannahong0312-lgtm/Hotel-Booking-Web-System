@@ -6,7 +6,7 @@ session_start();
 
 // 如果已经登录，直接跳转个人资料页
 if (isset($_SESSION['user_id']) && isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'customer') {
-    redirect('profile.php');
+    redirect('../../ChongEeLynn/accommodation.php');
 }
 
 // 仅接受 POST 请求
@@ -66,7 +66,7 @@ if (empty($errors)) {
                 $tokenStmt->close();
             }
 
-            redirect('../profile.php');
+            redirect('../../ChongEeLynn/accommodation.php');
         }
     } else {
         $errors['general'] = 'Invalid email or password.';

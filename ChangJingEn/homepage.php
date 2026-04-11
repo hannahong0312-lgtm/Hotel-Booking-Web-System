@@ -2,7 +2,7 @@
 // homepage.php - Grand Hotel Homepage
 require_once '../Shared/config.php';
 
-$pageCSS = 'css/homepage.css';   
+$pageCSS = 'css/homepage.css';  
 
 $featured_rooms = [
     [
@@ -50,7 +50,7 @@ include '../Shared/header.php';
         <h2>A Grand Experience Awaits</h2>
         <p>Discover timeless elegance, world-class amenities, and impeccable service in the heart of the city</p>
         <div class="search-widget">
-            <form action="room_booking.php" method="GET" class="search-form">
+            <form action="../ChongEeLynn/accommodation.php" method="GET" class="search-form">
                 <div class="search-group">
                     <label>ARRIVE</label>
                     <input type="date" name="checkin" id="checkin" required value="<?php echo date('Y-m-d'); ?>">

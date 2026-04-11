@@ -119,26 +119,36 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
 
 .password-rules {
     margin-top: 12px;
+    width: 100%;
 }
 .rules-list {
     list-style: none;
     padding-left: 0;
     margin: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 20px;
 }
+
 .rule-item {
     display: flex;
     align-items: center;
     gap: 8px;
     font-size: 0.8rem;
     line-height: 1.4;
-    margin-bottom: 6px;
-    color: #888;  
-    transition: color 0.2s;
+    color: #333;
 }
-.rule-item .rule-icon {
-    font-size: 0.85rem;
-    width: 18px;
+.rule-item:first-child {
+    float: right;          /* 无效，grid 子项忽略 float */
+    margin-left: auto;     /* 只在单元格内右对齐，不会交换位置 */
+    position: relative; right: -100%; /* 破坏布局 */
+}
+
+.rule-icon {
+    width: 20px;
     text-align: center;
+    font-size: 1rem;
+    display: inline-block;
 }
 
 .rule-item.valid {
@@ -238,7 +248,7 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
 
 .password-row {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 1.5rem;
 }
 
@@ -252,6 +262,10 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
     }
     .register-container {
         padding: 1.5rem;
+    }
+    .rules-list {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px 12px;
     }
     .confirm-password-group {
         margin-top: 1.2rem;

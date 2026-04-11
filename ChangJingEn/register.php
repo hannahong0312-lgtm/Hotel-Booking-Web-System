@@ -3,7 +3,7 @@
 require_once '../Shared/header.php';
 
 if (isset($is_logged_in) && $is_logged_in) {
-    redirect('profile.php');
+    redirect('homepage.php');
 }
 
 $errors    = $_SESSION['reg_errors'] ?? [];
@@ -48,7 +48,6 @@ $countries = getCountryList();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register | Grand Hotel</title>
     <link rel="stylesheet" href="css/register.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         /* 两列密码规则布局 */
         .rules-list {
@@ -179,13 +178,13 @@ $countries = getCountryList();
                                     <span class="rule-icon">•</span>
                                     <span class="rule-text">Contain one lowercase letter</span>
                                 </li>
-                                <li id="req-upper" class="rule-item">
-                                    <span class="rule-icon">•</span>
-                                    <span class="rule-text">Contain one uppercase letter</span>
-                                </li>
                                 <li id="req-number" class="rule-item">
                                     <span class="rule-icon">•</span>
                                     <span class="rule-text">One number (0-9) or one special character</span>
+                                </li>
+                                <li id="req-upper" class="rule-item">
+                                    <span class="rule-icon">•</span>
+                                    <span class="rule-text">Contain one uppercase letter</span>
                                 </li>
                             </ul>
                         </div>

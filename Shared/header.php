@@ -60,8 +60,11 @@ if ($is_logged_in && isset($_SESSION['user_name'])) {
                 </nav>
                 <div class="header-actions">
                     <?php if ($is_logged_in): ?>
-                        <a href="profile.php" class="btn-login"><i class="fas fa-user-circle"></i> Hi, <?php echo htmlspecialchars($user_display_name); ?></a>
-                        <a href="logout.php" class="btn-register">Logout</a>
+                        <a href="../ChangJingEn/profile.php" class="btn-login"><i class="fas fa-user-circle"></i> Hi, <?php echo htmlspecialchars($user_display_name); ?></a>
+                        <a href="../Hannah/history.php" title="Booking History">
+                                <i class="fas fa-history" style="color: white; font-size: 1.2em; margin-right: 10px;"></i></a>
+                        <a href="../ChangJingEn/logout.php" title="Logout">
+                             <i class="fas fa-sign-out-alt" style="color: white; font-size: 1.2em;"></i></a>                    
                     <?php else: ?>
                         <a href="../ChangJingEn/login.php" class="btn-login">Sign In</a>
                         <a href="../ChangJingEn/register.php" class="btn-register">Join</a>
