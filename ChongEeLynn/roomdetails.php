@@ -59,7 +59,7 @@ $total_price = $nights * $room['price'];
 <body>
 
 <!-- Hero Section with Room Image -->
-<section class="detail-hero" style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.6)), url('<?= htmlspecialchars($room['image']) ?>');">
+<section class="detail-hero" style="background-image: linear-gradient(rgba(0, 0, 0, 0.09), rgba(49, 48, 48, 0.6)), url('images/<?php echo $room['image']; ?>');">
     <div class="detail-hero-content">
         <div class="breadcrumb">
             <a href="accommodation.php">Accommodations</a> / 
@@ -87,7 +87,45 @@ $total_price = $nights * $room['price'];
                 <div class="info-card">
                     <h2>Room Description</h2>
                     <p class="description"><?= htmlspecialchars($room['description']) ?></p>
+                </div>
+
+                <!-- Photo Gallery Section -->
+                <div class="info-card">
+                    <h2>Room Gallery</h2>
+                    <p class="gallery-subtitle">Take a closer look at what this room has to offer</p>
                     
+                    <div class="gallery-grid">
+                        <div class="gallery-item main-room">
+                            <img src="images/<?php echo $room['image']; ?>" alt="<?= htmlspecialchars($room['name']) ?> - Main Room">
+                            <div class="gallery-caption">
+                                <span class="caption-icon">🛏️</span>
+                                <span>Comfortable <?= htmlspecialchars($room['bed_type']) ?></span>
+                            </div>
+                        </div>
+                        
+                        <div class="gallery-item bathroom">
+                            <img src="images/bathroom-<?= $room['category'] ?>.jpg" 
+                                 alt="Luxury Bathroom" 
+                                 onerror="this.src='images/bathroom-default.jpg'">
+                            <div class="gallery-caption">
+                                <span class="caption-icon">🚿</span>
+                                <span>Luxury Bathroom</span>
+                            </div>
+                        </div>
+                        
+                        <div class="gallery-item amenities-area">
+                            <img src="images/tea-coffee-<?= $room['category'] ?>.jpg" 
+                                 alt="Tea, Coffee & Mini Fridge" 
+                                 onerror="this.src='images/tea-coffee-default.jpg'">
+                            <div class="gallery-caption">
+                                <span class="caption-icon">☕</span>
+                                <span>Tea, Coffee & Mini Fridge</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="info-card">
                     <div class="features-grid">
                         <div class="feature-item">
                             <div class="feature-icon">👥</div>
@@ -335,6 +373,102 @@ function changeGuestsDetail(delta) {
         span.textContent = val;
     }
 }
+
+// Gallery Lightbox Popup Script
+document.addEventListener('DOMContentLoaded', function() {
+    // Create lightbox modal element
+    const lightbox = document.createElement('div');
+    lightbox.id = 'imageLightbox';
+    lightbox.className = 'lightbox-modal';
+    lightbox.innerHTML = `
+        <div class="lightbox-content">
+            <span class="lightbox-close">&times;</span>
+            <img class="lightbox-image" src="" alt="Full size image">
+            <div class="lightbox-caption"></div>
+            <button class="lightbox-prev">❮</button>
+            <button class="lightbox-next">❯</button>
+        </div>
+    `;
+    document.body.appendChild(lightbox);
+    
+    const lightboxModal = document.getElementById('imageLightbox');
+    const lightboxImg = lightboxModal.querySelector('.lightbox-image');
+    const lightboxCaption = lightboxModal.querySelector('.lightbox-caption');
+    const closeBtn = lightboxModal.querySelector('.lightbox-close');
+    const prevBtn = lightboxModal.querySelector('.lightbox-prev');
+    const nextBtn = lightboxModal.querySelector('.lightbox-next');
+    
+    let currentImageIndex = 0;
+    let galleryImages = [];
+    
+    // Function to open lightbox
+    function openLightbox(index) {
+        if (index >= 0 && index < galleryImages.length) {
+            currentImageIndex = index;
+            const img = galleryImages[currentImageIndex];
+            lightboxImg.src = img.src;
+            lightboxCaption.textContent = img.alt || '';
+            lightboxModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+    
+    // Function to close lightbox
+    function closeLightbox() {
+        lightboxModal.classList.remove('active');
+        document.body.style.overflow = '';
+    }
+    
+    // Function to show next image
+    function showNextImage() {
+        if (currentImageIndex < galleryImages.length - 1) {
+            openLightbox(currentImageIndex + 1);
+        }
+    }
+    
+    // Function to show previous image
+    function showPrevImage() {
+        if (currentImageIndex > 0) {
+            openLightbox(currentImageIndex - 1);
+        }
+    }
+    
+    // Get all gallery images
+    galleryImages = document.querySelectorAll('.gallery-item img');
+    
+    // Add click event to each gallery image
+    galleryImages.forEach((img, index) => {
+        img.addEventListener('click', function(e) {
+            e.stopPropagation();
+            openLightbox(index);
+        });
+    });
+    
+    // Event listeners for lightbox controls
+    closeBtn.addEventListener('click', closeLightbox);
+    nextBtn.addEventListener('click', showNextImage);
+    prevBtn.addEventListener('click', showPrevImage);
+    
+    // Close lightbox when clicking outside the image
+    lightboxModal.addEventListener('click', function(e) {
+        if (e.target === lightboxModal) {
+            closeLightbox();
+        }
+    });
+    
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+        if (lightboxModal.classList.contains('active')) {
+            if (e.key === 'Escape') {
+                closeLightbox();
+            } else if (e.key === 'ArrowRight') {
+                showNextImage();
+            } else if (e.key === 'ArrowLeft') {
+                showPrevImage();
+            }
+        }
+    });
+});
 </script>
 
 <?php include '../Shared/footer.php'; ?>
