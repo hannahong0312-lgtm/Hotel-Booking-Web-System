@@ -43,6 +43,8 @@ function redirect($url) {
     exit();
 }
 
+?>
+
 //Hannah part database setup
 CREATE TABLE IF NOT EXISTS payment (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -100,7 +102,3 @@ CREATE TABLE dining (
     code VARCHAR(20) UNIQUE NOT NULL,
     created_at DATETIME NOT NULL
 );
-
-
-?>
-
