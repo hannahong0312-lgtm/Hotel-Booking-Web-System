@@ -119,7 +119,7 @@ CREATE TABLE `users` (
   `id` int(11) NOT NULL,
   `first_name` varchar(50) NOT NULL,
   `last_name` varchar(50) NOT NULL,
-  `email` varchar(100) NOT NULL,
+  `email` varchar(100) NOT NULL UNIQUE,
   `phone` varchar(20) NOT NULL,
   `country` varchar(50) DEFAULT NULL,
   `password` varchar(255) NOT NULL,
@@ -135,8 +135,24 @@ CREATE TABLE `users` (
   `language` varchar(10) DEFAULT 'en'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO `users` (`id`, `first_name`, `last_name`, `email`, `phone`, `country`, `password`, `role`, `status`, `subscribe`, `remember_token`, `token`, `last_login`, `updated_at`, `created_at`, `birthday`, `language`) VALUES
-(1, 'Chang', 'Jing En', 'shilla@gmail.com', '01127665089', 'Malaysia', '$2y$10$tHcdMJdoFUTcHCmlGDZdlu04KLjWB.Z6ahB8zNfLdREQug3d/rS5q', 'customer', 'active', 1, NULL, NULL, '2026-04-12 16:42:58', '2026-04-12 16:42:58', '2026-04-02 13:48:14', NULL, 'en');
+
+CREATE TABLE `admins` (
+  `id` int(11) NOT NULL,
+  `email` varchar(100) NOT NULL UNIQUE,
+  `username` varchar(50) DEFAULT NULL,
+  `password` varchar(255) NOT NULL,
+  `role` tinyint(1) DEFAULT 0,
+  `status` enum('active','inactive','suspended') DEFAULT 'active',
+  `last_login` datetime DEFAULT NULL,
+  `created_by` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+//superadmin role = 1, normal admin role = 0 
+//email:superadmin@grandhotel.com 
+//username: superAdmin
+//password: Admin123!
+
 
 CREATE TABLE REVIEW (
     REV_ID INT AUTO_INCREMENT PRIMARY KEY,
