@@ -119,19 +119,21 @@ CREATE TABLE `users` (
   `id` int(11) NOT NULL,
   `first_name` varchar(50) NOT NULL,
   `last_name` varchar(50) NOT NULL,
-  `email` varchar(100) NOT NULL UNIQUE,
+  `email` varchar(100) NOT NULL,
   `phone` varchar(20) NOT NULL,
-  `country` varchar(50) NOT NULL,
+  `country` varchar(50) DEFAULT NULL,
   `password` varchar(255) NOT NULL,
-  `role` enum('customer','admin') NOT NULL DEFAULT 'customer',
+  `role` enum('customer') NOT NULL DEFAULT 'customer',
   `status` enum('active','inactive') NOT NULL DEFAULT 'active',
-  `subscribe` tinyint(1) DEFAULT 0,
-  `token` varchar(255) DEFAULT NULL,
+  `subscribe` tinyint(1) NOT NULL DEFAULT 0,
+  `remember_token` varchar(255) DEFAULT NULL,
+  `token` varchar(100) DEFAULT NULL,
   `last_login` datetime DEFAULT NULL,
-  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `created_at` datetime DEFAULT CURRENT_TIMESTAMP
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `created_at` datetime DEFAULT current_timestamp(),
+  `birthday` date DEFAULT NULL,
+  `language` varchar(10) DEFAULT 'en'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-INSERT INTO `users` (`id`, `first_name`, `last_name`, `email`, `phone`, `country`, `password`, `role`, `status`, `subscribe`, `token`, `last_login`, `updated_at`, `created_at`) VALUES
-(1, 'Chang', 'Jing En', 'shilla@gmail.com', '01127665089', 'Malaysia', '$2y$10$tHcdMJdoFUTcHCmlGDZdlu04KLjWB.Z6ahB8zNfLdREQug3d/rS5q', 'customer', 'active', 1, NULL, '2026-04-02 21:48:14', '2026-04-02 21:48:14', '2026-04-02 13:48:14');
-?>
+INSERT INTO `users` (`id`, `first_name`, `last_name`, `email`, `phone`, `country`, `password`, `role`, `status`, `subscribe`, `remember_token`, `token`, `last_login`, `updated_at`, `created_at`, `birthday`, `language`) VALUES
+(1, 'Chang', 'Jing En', 'shilla@gmail.com', '01127665089', 'Malaysia', '$2y$10$tHcdMJdoFUTcHCmlGDZdlu04KLjWB.Z6ahB8zNfLdREQug3d/rS5q', 'customer', 'active', 1, NULL, NULL, '2026-04-12 16:42:58', '2026-04-12 16:42:58', '2026-04-02 13:48:14', NULL, 'en');
