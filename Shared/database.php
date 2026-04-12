@@ -126,7 +126,8 @@ CREATE TABLE `users` (
   `role` enum('customer','admin') NOT NULL DEFAULT 'customer',
   `status` enum('active','inactive') NOT NULL DEFAULT 'active',
   `subscribe` tinyint(1) DEFAULT 0,
-  `token` varchar(255) DEFAULT NULL,
+  `remember_token ` varchar(255) DEFAULT NULL,
+  `token` varchar(100) DEFAULT NULL;
   `last_login` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP
