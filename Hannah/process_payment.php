@@ -24,21 +24,38 @@ $nights = (int)$_POST['nights'];
 $subtotal = (float)$_POST['subtotal'];
 $nationality = mysqli_real_escape_string($conn, $_POST['nationality']);
 $discount_amount = (float)$_POST['discount_amount'];
-$tokens_deduction = (float)$_POST['tokens_deduction'];
-$tokens_used = (int)$_POST['tokens_used'];
+$tokens_deduction = isset($_POST['tokens_deduction']) ? (float)$_POST['tokens_deduction'] : 0;
+$tokens_used = isset($_POST['tokens_used']) ? (int)$_POST['tokens_used'] : 0;
 $payment_method = mysqli_real_escape_string($conn, $_POST['payment_method']);
 $special_requests = mysqli_real_escape_string($conn, $_POST['special_requests']);
 $fullname = mysqli_real_escape_string($conn, $_POST['fullname']);
 $email = mysqli_real_escape_string($conn, $_POST['email']);
 $phone = mysqli_real_escape_string($conn, $_POST['phone']);
 
+// Get user's current tokens from database (for fallback)
+$user_token_query = "SELECT token FROM users WHERE id = $user_id";
+$token_res = mysqli_query($conn, $user_token_query);
+$user_tokens = mysqli_fetch_assoc($token_res)['token'];
+
+// Check if the checkbox was checked (use_tokens) – it comes as '1' or null
+$use_tokens_checkbox = isset($_POST['use_tokens']);
+
+// If checkbox is checked but tokens_used is 0, recalculate from available tokens (fallback)
+if ($use_tokens_checkbox && $tokens_used == 0 && $user_tokens > 0) {
+    $after_discount = $subtotal - $discount_amount;
+    if ($after_discount < 0) $after_discount = 0;
+    $max_deduction = min($after_discount, floor($user_tokens / 100));
+    $tokens_deduction = $max_deduction;
+    $tokens_used = $max_deduction * 100;
+}
+
 // For credit card, capture last4 and expiry
 $card_last4 = null;
 $card_expiry = null;
 if ($payment_method == 'credit_card') {
-    $card_number = preg_replace('/\s+/', '', $_POST['card_number']); // remove spaces
+    $card_number = preg_replace('/\s+/', '', $_POST['card_number']);
     $card_last4 = substr($card_number, -4);
-    $card_expiry = mysqli_real_escape_string($conn, $_POST['expiry']);
+    $card_expiry = mysqli_real_escape_string($conn, $_POST['expiry_date']); // note: expiry_date
 }
 
 // Calculate final totals
@@ -54,8 +71,8 @@ $tokens_earned = floor($grand_total * $tokens_per_rm);
 
 $booking_ref = 'BK' . strtoupper(uniqid());
 
-// Insert into booking table
-$insert_booking = "INSERT INTO book(booking_ref, user_id, room_id, room_name, check_in, check_out, guests,
+// Insert into book table (your table name is 'book')
+$insert_booking = "INSERT INTO book (booking_ref, user_id, room_id, room_name, check_in, check_out, guests,
                     subtotal, discount_amount, tokens_used, tokens_deduction_amount, tokens_earned,
                     sst_tax, foreigner_tax, service_fee, grand_total, payment_method, nationality, special_requests, status, created_at)
                     VALUES ('$booking_ref', $user_id, $room_id, '$room_name', '$check_in', '$check_out', $guests,
@@ -64,20 +81,18 @@ $insert_booking = "INSERT INTO book(booking_ref, user_id, room_id, room_name, ch
                     '$special_requests', 'confirmed', NOW())";
 
 if (mysqli_query($conn, $insert_booking)) {
-    $booking_id = mysqli_insert_id($conn);
+    $book_id = mysqli_insert_id($conn);  // this is the auto-increment id from 'book' table
     
     // Generate transaction ID for payment
     $transaction_id = 'TXN' . strtoupper(uniqid());
     
-    // Insert into payment table (using your exact structure)
+    // Insert into payment table (foreign key references book.id)
     $insert_payment = "INSERT INTO payment (book_id, user_id, method, card_no, card_expiry, transaction_id, amount, payment_date)
-                       VALUES ($booking_id, $user_id, '$payment_method', " . ($card_last4 ? "'$card_last4'" : "NULL") . ", " . ($card_expiry ? "'$card_expiry'" : "NULL") . ", '$transaction_id', $grand_total, NOW())";
+                       VALUES ($book_id, $user_id, '$payment_method', " . ($card_last4 ? "'$card_last4'" : "NULL") . ", " . ($card_expiry ? "'$card_expiry'" : "NULL") . ", '$transaction_id', $grand_total, NOW())";
     
     if (mysqli_query($conn, $insert_payment)) {
         // Update user tokens
-        $user_tokens_query = "SELECT token FROM users WHERE id = $user_id";
-        $res = mysqli_query($conn, $user_tokens_query);
-        $current_tokens = mysqli_fetch_assoc($res)['token'];
+        $current_tokens = $user_tokens; // already fetched
         $new_tokens = $current_tokens - $tokens_used + $tokens_earned;
         mysqli_query($conn, "UPDATE users SET token = $new_tokens WHERE id = $user_id");
         
