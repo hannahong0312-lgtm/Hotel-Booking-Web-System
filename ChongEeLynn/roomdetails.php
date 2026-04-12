@@ -59,7 +59,7 @@ $total_price = $nights * $room['price'];
 <body>
 
 <!-- Hero Section with Room Image -->
-<section class="detail-hero" style="background-image: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.6)), url('<?= htmlspecialchars($room['image']) ?>');">
+<section class="detail-hero" style="background-image: linear-gradient(rgba(0, 0, 0, 0.09), rgba(49, 48, 48, 0.6)), url('images/<?php echo $room['image']; ?>');">
     <div class="detail-hero-content">
         <div class="breadcrumb">
             <a href="accommodation.php">Accommodations</a> / 

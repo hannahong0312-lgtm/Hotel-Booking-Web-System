@@ -115,7 +115,7 @@ if($result && $result->num_rows > 0) {
             <?php else: foreach($rooms as $room): ?>
                 <div class="room-card" onclick="window.location.href='roomdetails.php?id=<?= $room['id'] ?>&arrive=<?= urlencode($arrive) ?>&depart=<?= urlencode($depart) ?>&guests=<?= $guests ?: 2 ?>'" style="cursor: pointer;">
                     <div class="room-img">
-                        <img src="<?= $room['image'] ?>" alt="<?= $room['name'] ?>">
+                        <img src="images/<?php echo $room['image']; ?>" alt="<?php echo $room['name']; ?>">
                         <span class="room-badge <?= $room['category'] ?>"><?= ucfirst($room['category']) ?></span>
                         <span class="avail-badge <?= $room['rooms_available'] > 0 ? 'avail' : 'sold' ?>">
                             <?= $room['rooms_available'] > 0 ? $room['rooms_available'] . ' left' : 'Sold Out' ?>
