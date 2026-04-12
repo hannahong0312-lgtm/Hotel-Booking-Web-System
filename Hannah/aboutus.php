@@ -36,7 +36,7 @@ include '../Shared/header.php';
                 </ul>
             </div>
             <div class="story-image">
-                <img src="https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg?auto=compress&cs=tinysrgb&w=800" alt="Grand Hotel Luxury Lobby">
+                <img src="../ChongEeLynn/images/pool.jpeg" alt="Grand Hotel Pool">
             </div>
         </div>
     </section>
