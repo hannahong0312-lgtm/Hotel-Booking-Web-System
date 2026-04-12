@@ -40,7 +40,6 @@ if($result && $result->num_rows > 0) {
         <p>Experience unparalleled comfort and elegance in our carefully designed rooms and suites</p>
         <div class="hero-buttons">
             <a href="#rooms" class="btn-primary">View Rooms</a>
-            <a href="#suites" class="btn-secondary">Explore Suites</a>
         </div>
     </div>
 </section>

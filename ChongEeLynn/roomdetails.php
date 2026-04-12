@@ -281,7 +281,8 @@ $total_price = $nights * $room['price'];
             <?php foreach($similar_rooms as $similar): ?>
                 <div class="similar-card" onclick="window.location.href='roomdetails.php?id=<?= $similar['id'] ?>&arrive=<?= urlencode($arrive) ?>&depart=<?= urlencode($depart) ?>&guests=<?= $guests ?>'">
                     <div class="similar-img">
-                        <img src="<?= htmlspecialchars($similar['image']) ?>" alt="<?= htmlspecialchars($similar['name']) ?>">
+                        <!-- FIX: Add the images folder path here -->
+                        <img src="images/<?= htmlspecialchars($similar['image']) ?>" alt="<?= htmlspecialchars($similar['name']) ?>">
                         <span class="similar-badge"><?= ucfirst($similar['category']) ?></span>
                     </div>
                     <div class="similar-info">
