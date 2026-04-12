@@ -137,3 +137,16 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `first_name`, `last_name`, `email`, `phone`, `country`, `password`, `role`, `status`, `subscribe`, `remember_token`, `token`, `last_login`, `updated_at`, `created_at`, `birthday`, `language`) VALUES
 (1, 'Chang', 'Jing En', 'shilla@gmail.com', '01127665089', 'Malaysia', '$2y$10$tHcdMJdoFUTcHCmlGDZdlu04KLjWB.Z6ahB8zNfLdREQug3d/rS5q', 'customer', 'active', 1, NULL, NULL, '2026-04-12 16:42:58', '2026-04-12 16:42:58', '2026-04-02 13:48:14', NULL, 'en');
+
+CREATE TABLE REVIEW (
+    REV_ID INT AUTO_INCREMENT PRIMARY KEY,
+    USER_ID INT NOT NULL,
+    ROOM_ID INT NOT NULL,
+    R_RATING INT NOT NULL CHECK (R_RATING >= 1 AND R_RATING <= 5),
+    R_COMMENT VARCHAR(255) NOT NULL,
+    CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (USER_ID) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (ROOM_ID) REFERENCES rooms(id) ON DELETE CASCADE,
+    INDEX idx_room_id (ROOM_ID),
+    INDEX idx_user_id (USER_ID)
+);

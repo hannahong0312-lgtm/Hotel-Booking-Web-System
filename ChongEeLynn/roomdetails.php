@@ -46,6 +46,31 @@ if ($arrive && $depart) {
     $nights = $interval->days;
 }
 $total_price = $nights * $room['price'];
+
+// Fetch review statistics for this room
+$review_stats_sql = "SELECT COUNT(*) as total, AVG(R_RATING) as avg_rating FROM REVIEW WHERE ROOM_ID = $room_id";
+$review_stats_result = $conn->query($review_stats_sql);
+$review_stats = $review_stats_result->fetch_assoc();
+$total_reviews = $review_stats['total'] ? $review_stats['total'] : 0;
+$avg_rating = $review_stats['avg_rating'] ? round($review_stats['avg_rating'], 1) : 0;
+
+// Fetch top 2 reviews
+$top_reviews_sql = "SELECT r.REV_ID, r.R_RATING, r.R_COMMENT, r.CREATED_AT,
+                           u.first_name, u.last_name
+                    FROM REVIEW r
+                    JOIN users u ON r.USER_ID = u.id
+                    WHERE r.ROOM_ID = $room_id
+                    ORDER BY r.R_RATING DESC, r.CREATED_AT DESC
+                    LIMIT 2";
+$top_reviews_result = $conn->query($top_reviews_sql);
+$top_reviews = [];
+if ($top_reviews_result && $top_reviews_result->num_rows > 0) {
+    while ($row = $top_reviews_result->fetch_assoc()) {
+        $row['user_name'] = $row['first_name'] . ' ' . $row['last_name'];
+        $row['created_at_formatted'] = date('F j, Y', strtotime($row['CREATED_AT']));
+        $top_reviews[] = $row;
+    }
+}
 ?>
 
 <!DOCTYPE html>
@@ -217,7 +242,61 @@ $total_price = $nights * $room['price'];
                         </div>
                     </div>
                 </div>
-            </div>
+                
+                <!-- Reviews Section - NOW INSIDE THE LEFT COLUMN -->
+                <div class="info-card reviews-section-card">
+                    <div class="reviews-section-header">
+                        <h2>Guest Reviews</h2>
+                        <div class="review-summary">
+                            <div class="review-summary-rating">
+                                <span class="avg-rating-number"><?php echo $avg_rating; ?></span>
+                                <div class="stars-display">
+                                    <?php
+                                    $full_stars = floor($avg_rating);
+                                    for ($i = 0; $i < $full_stars; $i++) echo '★';
+                                    for ($i = $full_stars; $i < 5; $i++) echo '☆';
+                                    ?>
+                                </div>
+                                <span class="review-count">(<?php echo $total_reviews; ?> reviews)</span>
+                            </div>
+                            <a href="review.php?id=<?php echo $room_id; ?>" class="view-all-reviews-btn">View All Reviews →</a>
+                        </div>
+                    </div>
+                    
+                    <?php if (empty($top_reviews)): ?>
+                        <div class="no-reviews-message">
+                            <p>No reviews yet for this room.</p>
+                            <a href="review.php?id=<?php echo $room_id; ?>" class="be-first-btn">Be the first to review →</a>
+                        </div>
+                    <?php else: ?>
+                        <div class="top-reviews-list">
+                            <?php foreach($top_reviews as $review): ?>
+                                <div class="top-review-item">
+                                    <div class="review-header-simple">
+                                        <div class="reviewer-name">
+                                            <span class="reviewer-initial"><?php echo strtoupper(substr($review['user_name'], 0, 1)); ?></span>
+                                            <span class="name"><?php echo htmlspecialchars($review['user_name']); ?></span>
+                                        </div>
+                                        <div class="review-rating-simple">
+                                            <?php
+                                            for ($i = 0; $i < $review['R_RATING']; $i++) echo '★';
+                                            for ($i = $review['R_RATING']; $i < 5; $i++) echo '☆';
+                                            ?>
+                                        </div>
+                                    </div>
+                                    <p class="review-comment-simple"><?php echo nl2br(htmlspecialchars(substr($review['R_COMMENT'], 0, 150))); ?><?php if(strlen($review['R_COMMENT']) > 150) echo '...'; ?></p>
+                                    <div class="review-date-simple"><?php echo $review['created_at_formatted']; ?></div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                        <?php if ($total_reviews > 2): ?>
+                            <div class="more-reviews-link">
+                                <a href="review.php?id=<?php echo $room_id; ?>">Read all <?php echo $total_reviews; ?> reviews →</a>
+                            </div>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                </div>
+            </div> <!-- END OF LEFT COLUMN detail-info -->
             
             <!-- Right Column: Booking Card (STICKY/SCROLLABLE) -->
             <div class="detail-booking">
@@ -281,7 +360,6 @@ $total_price = $nights * $room['price'];
             <?php foreach($similar_rooms as $similar): ?>
                 <div class="similar-card" onclick="window.location.href='roomdetails.php?id=<?= $similar['id'] ?>&arrive=<?= urlencode($arrive) ?>&depart=<?= urlencode($depart) ?>&guests=<?= $guests ?>'">
                     <div class="similar-img">
-                        <!-- FIX: Add the images folder path here -->
                         <img src="images/<?= htmlspecialchars($similar['image']) ?>" alt="<?= htmlspecialchars($similar['name']) ?>">
                         <span class="similar-badge"><?= ucfirst($similar['category']) ?></span>
                     </div>
