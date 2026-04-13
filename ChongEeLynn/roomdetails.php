@@ -55,12 +55,12 @@ $total_reviews = $review_stats['total'] ? $review_stats['total'] : 0;
 $avg_rating = $review_stats['avg_rating'] ? round($review_stats['avg_rating'], 1) : 0;
 
 // Fetch top 2 reviews
-$top_reviews_sql = "SELECT r.REV_ID, r.R_RATING, r.R_COMMENT, r.CREATED_AT,
+$top_reviews_sql = "SELECT r.id, r.r_rating, r.r_comment, r.created_at,
                            u.first_name, u.last_name
                     FROM REVIEW r
-                    JOIN users u ON r.USER_ID = u.id
-                    WHERE r.ROOM_ID = $room_id
-                    ORDER BY r.R_RATING DESC, r.CREATED_AT DESC
+                    JOIN users u ON r.user_id  = u.id
+                    WHERE r.room_id = $room_id
+                    ORDER BY r.r_rating DESC, r.created_at DESC
                     LIMIT 2";
 $top_reviews_result = $conn->query($top_reviews_sql);
 $top_reviews = [];
