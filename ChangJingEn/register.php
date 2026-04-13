@@ -48,7 +48,6 @@ $countries = getCountryList();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register | Grand Hotel</title>
     <link rel="stylesheet" href="css/register.css">
-    <!-- 所有样式均已移至外部 CSS，无内嵌 style -->
 </head>
 <body>
 
