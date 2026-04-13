@@ -27,9 +27,9 @@ CREATE TABLE IF NOT EXISTS book (
     guests INT DEFAULT 1,
     subtotal DECIMAL(10,2),
     discount_amount DECIMAL(10,2) DEFAULT 0,
-    tokens_used INT DEFAULT 0,
-    tokens_deduction_amount DECIMAL(10,2) DEFAULT 0,
-    tokens_earned INT DEFAULT 0,
+    points_used INT DEFAULT 0,
+    points_deduction_amount DECIMAL(10,2) DEFAULT 0,
+    points_earned INT DEFAULT 0,
     sst_tax DECIMAL(10,2),
     foreigner_tax DECIMAL(10,2) DEFAULT 0,
     service_fee DECIMAL(10,2),
@@ -58,6 +58,8 @@ CREATE TABLE dining (
     code VARCHAR(20) UNIQUE NOT NULL,
     created_at DATETIME NOT NULL
 );
+//Gmail: grandhotelreservation67@gmail.com  Password: Grandhotel67
+
 
 --------------------------------
 //ChongEeLynn Part
@@ -127,7 +129,7 @@ CREATE TABLE `users` (
   `status` enum('active','inactive') NOT NULL DEFAULT 'active',
   `subscribe` tinyint(1) NOT NULL DEFAULT 0,
   `remember_token` varchar(255) DEFAULT NULL,
-  `token` varchar(100) DEFAULT NULL,
+  `points` int(11) DEFAULT 0,
   `last_login` datetime DEFAULT NULL,
   `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   `created_at` datetime DEFAULT current_timestamp(),
@@ -155,14 +157,14 @@ CREATE TABLE `admins` (
 
 
 CREATE TABLE REVIEW (
-    REV_ID INT AUTO_INCREMENT PRIMARY KEY,
-    USER_ID INT NOT NULL,
-    ROOM_ID INT NOT NULL,
-    R_RATING INT NOT NULL CHECK (R_RATING >= 1 AND R_RATING <= 5),
-    R_COMMENT VARCHAR(255) NOT NULL,
-    CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (USER_ID) REFERENCES users(id) ON DELETE CASCADE,
-    FOREIGN KEY (ROOM_ID) REFERENCES rooms(id) ON DELETE CASCADE,
-    INDEX idx_room_id (ROOM_ID),
-    INDEX idx_user_id (USER_ID)
-);
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    room_id NOT NULL,
+    r_rating INT DEFAULT NULL CHECK (r_rating >= 1 AND r_rating <= 5),
+    r_comment VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (room_id) REFERENCES rooms(id) ON DELETE CASCADE,
+    INDEX idx_room_id (room_id),
+    INDEX idx_user_id (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
