@@ -1,5 +1,5 @@
 <?php
-// profile.php - Four Tabs (Account, Security, Token Rewards, Recent Bookings)
+// profile.php - Four Tabs (Account, Security, Points Rewards, Recent Bookings)
 // 统一使用 subscribe 字段
 require_once '../Shared/header.php';
 
@@ -12,7 +12,7 @@ $errors = [];
 $success = '';
 
 // 获取用户基本信息（使用 subscribe 字段）
-$stmt = $conn->prepare("SELECT first_name, last_name, email, phone, country, token, created_at, 
+$stmt = $conn->prepare("SELECT first_name, last_name, email, phone, country, points, created_at, 
                                birthday, language, subscribe FROM users WHERE id = ?");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
@@ -24,15 +24,15 @@ if (!$user) redirect('logout.php');
 if (!isset($user['birthday'])) $user['birthday'] = '';
 if (!isset($user['language'])) $user['language'] = 'en';
 if (!isset($user['subscribe'])) $user['subscribe'] = 1;
-// 确保 token 不为 null
-$user['token'] = $user['token'] ?? 0;
+// 确保 points 不为 null
+$user['points'] = $user['points'] ?? 0;
 
 // 统计预订数据
 $total_spent = 0;
 $total_bookings = 0;
-$total_tokens_earned = 0;
+$total_points_earned = 0;
 try {
-    $room_query = "SELECT COUNT(*) as count, COALESCE(SUM(grand_total), 0) as spent, COALESCE(SUM(tokens_earned), 0) as tokens_earned 
+    $room_query = "SELECT COUNT(*) as count, COALESCE(SUM(grand_total), 0) as spent, COALESCE(SUM(points_earned), 0) as points_earned 
                    FROM book WHERE user_id = ? AND status != 'cancelled'";
     $stmt = $conn->prepare($room_query);
     $stmt->bind_param("i", $user_id);
@@ -40,7 +40,7 @@ try {
     $room_stats = $stmt->get_result()->fetch_assoc();
     $total_bookings = $room_stats['count'];
     $total_spent = $room_stats['spent'];
-    $total_tokens_earned = $room_stats['tokens_earned'] ?? 0;
+    $total_points_earned = $room_stats['points_earned'] ?? 0;
     $stmt->close();
 
     $dining_query = "SELECT COUNT(*) as count FROM dining WHERE email = ? AND status != 'cancelled'";
@@ -124,7 +124,7 @@ $all_bookings = [];
 try {
     $room_query = "SELECT 'Room' as type, booking_ref as ref, room_name as name, 
                           check_in as start_date, check_out as end_date, guests, 
-                          grand_total as total, status, tokens_earned, created_at
+                          grand_total as total, status, points_earned, created_at
                    FROM book WHERE user_id = ? ORDER BY created_at DESC LIMIT 20";
     $stmt = $conn->prepare($room_query);
     $stmt->bind_param("i", $user_id);
@@ -134,7 +134,7 @@ try {
     
     $dining_query = "SELECT 'Dining' as type, code as ref, name, 
                             date as start_date, NULL as end_date, guests,
-                            NULL as total, status, NULL as tokens_earned, created_at
+                            NULL as total, status, NULL as points_earned, created_at
                      FROM dining WHERE email = ? ORDER BY created_at DESC LIMIT 10";
     $stmt = $conn->prepare($dining_query);
     $stmt->bind_param("s", $user['email']);
@@ -352,32 +352,32 @@ $languages = [
             color: #8B7A66;
             margin-top: 4px;
         }
-        .profile-container .token-rewards-content {
+        .profile-container .points-rewards-content {
             background: #FFFFFF;
             border-radius: 28px;
             padding: 32px;
             border: 1px solid #EAE6E0;
             text-align: center;
         }
-        .profile-container .token-rewards-content h3 {
+        .profile-container .points-rewards-content h3 {
             font-size: 1.5rem;
             font-weight: 600;
             margin-bottom: 16px;
             font-family: 'Playfair Display', serif;
         }
-        .profile-container .token-badge-large {
+        .profile-container .points-badge-large {
             background: #FDF8F0;
             display: inline-block;
             padding: 20px 40px;
             border-radius: 60px;
             margin: 20px 0;
         }
-        .profile-container .token-badge-large span {
+        .profile-container .points-badge-large span {
             font-size: 2.5rem;
             font-weight: 800;
             color: #D4AF37;
         }
-        .profile-container .token-rules {
+        .profile-container .points-rules {
             text-align: left;
             max-width: 400px;
             margin: 24px auto 0;
@@ -423,7 +423,7 @@ $languages = [
         .profile-container .status-confirmed { background: #E8F0E7; color: #2D6A4F; }
         .profile-container .status-cancelled { background: #FCE9E6; color: #B23C1C; }
         .profile-container .status-pending { background: #FEF4E6; color: #B47C2E; }
-        .profile-container .token-earned {
+        .profile-container .points-earned {
             color: #D4AF37;
             font-weight: 600;
         }
@@ -488,8 +488,8 @@ $languages = [
         </div>
         <div class="stats-group">
             <div class="stat-card">
-                <div class="stat-number"><?php echo number_format($user['token'] ?? 0); ?></div>
-                <div class="stat-label">Tokens</div>
+                <div class="stat-number"><?php echo number_format($user['points'] ?? 0); ?></div>
+                <div class="stat-label">Points</div>
             </div>
             <div class="stat-card">
                 <div class="stat-number"><?php echo $total_bookings; ?></div>
@@ -513,7 +513,7 @@ $languages = [
     <div class="tabs">
         <button class="tab-btn active" data-tab="account"><i class="fas fa-user-circle"></i> Account Details</button>
         <button class="tab-btn" data-tab="security"><i class="fas fa-lock"></i> Security</button>
-        <button class="tab-btn" data-tab="token"><i class="fas fa-coins"></i> Token Rewards</button>
+        <button class="tab-btn" data-tab="points"><i class="fas fa-coins"></i> Points Rewards</button>
         <button class="tab-btn" data-tab="bookings"><i class="fas fa-hotel"></i> Recent Bookings</button>
     </div>
 
@@ -605,17 +605,17 @@ $languages = [
         </div>
     </div>
 
-    <!-- 3. Token Rewards -->
-    <div class="tab-content" id="token-tab">
-        <div class="token-rewards-content">
-            <h3><i class="fas fa-coins"></i> Your Token Rewards</h3>
-            <div class="token-badge-large">
-                <span><?php echo number_format($user['token'] ?? 0); ?></span> available tokens
+    <!-- 3. Points Rewards -->
+    <div class="tab-content" id="points-tab">
+        <div class="points-rewards-content">
+            <h3><i class="fas fa-coins"></i> Your Points Rewards</h3>
+            <div class="points-badge-large">
+                <span><?php echo number_format($user['points'] ?? 0); ?></span> available points
             </div>
-            <div class="token-rules">
-                <p><strong>How to earn:</strong> Earn 10 tokens for every RM1 spent on room bookings.</p>
-                <p><strong>How to redeem:</strong> 100 tokens = RM1 discount on future stays.</p>
-                <p><strong>Lifetime earned:</strong> <?php echo number_format($total_tokens_earned ?? 0); ?> tokens</p>
+            <div class="points-rules">
+                <p><strong>How to earn:</strong> Earn 10 points for every RM1 spent on room bookings.</p>
+                <p><strong>How to redeem:</strong> 100 points = RM1 discount on future stays.</p>
+                <p><strong>Lifetime earned:</strong> <?php echo number_format($total_points_earned ?? 0); ?> points</p>
                 <p><strong>Never expire.</strong> Use them at checkout.</p>
             </div>
         </div>
@@ -634,7 +634,7 @@ $languages = [
                         <th>Guests</th>
                         <th>Total (RM)</th>
                         <th>Status</th>
-                        <th>Tokens</th>
+                        <th>Points</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -653,7 +653,7 @@ $languages = [
                                 <td><?php echo $b['guests']; ?></td>
                                 <td><?php echo $b['total'] ? number_format($b['total'], 2) : '-'; ?></td>
                                 <td><span class="status-badge status-<?php echo strtolower($b['status']); ?>"><?php echo ucfirst($b['status']); ?></span></td>
-                                <td class="token-earned"><?php echo $b['tokens_earned'] ? '+' . number_format($b['tokens_earned']) : '-'; ?></td>
+                                <td class="points-earned"><?php echo $b['points_earned'] ? '+' . number_format($b['points_earned']) : '-'; ?></td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
