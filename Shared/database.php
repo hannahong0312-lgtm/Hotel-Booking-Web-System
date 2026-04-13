@@ -159,7 +159,7 @@ CREATE TABLE `admins` (
 CREATE TABLE REVIEW (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
-    room_id NOT NULL,
+    room_id INT NOT NULL,
     r_rating INT DEFAULT NULL CHECK (r_rating >= 1 AND r_rating <= 5),
     r_comment VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
