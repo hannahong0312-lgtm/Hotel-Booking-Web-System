@@ -24,29 +24,29 @@ $nights = (int)$_POST['nights'];
 $subtotal = (float)$_POST['subtotal'];
 $nationality = mysqli_real_escape_string($conn, $_POST['nationality']);
 $discount_amount = (float)$_POST['discount_amount'];
-$tokens_deduction = isset($_POST['tokens_deduction']) ? (float)$_POST['tokens_deduction'] : 0;
-$tokens_used = isset($_POST['tokens_used']) ? (int)$_POST['tokens_used'] : 0;
+$points_deduction = isset($_POST['points_deduction']) ? (float)$_POST['points_deduction'] : 0;
+$points_used = isset($_POST['points_used']) ? (int)$_POST['points_used'] : 0;
 $payment_method = mysqli_real_escape_string($conn, $_POST['payment_method']);
 $special_requests = mysqli_real_escape_string($conn, $_POST['special_requests']);
 $fullname = mysqli_real_escape_string($conn, $_POST['fullname']);
 $email = mysqli_real_escape_string($conn, $_POST['email']);
 $phone = mysqli_real_escape_string($conn, $_POST['phone']);
 
-// Get user's current tokens from database (for fallback)
-$user_token_query = "SELECT token FROM users WHERE id = $user_id";
-$token_res = mysqli_query($conn, $user_token_query);
-$user_tokens = mysqli_fetch_assoc($token_res)['token'];
+// Get user's current points from database (for fallback)
+$user_point_query = "SELECT points FROM users WHERE id = $user_id";
+$point_res = mysqli_query($conn, $user_point_query);
+$user_points = mysqli_fetch_assoc($point_res)['points'];
 
-// Check if the checkbox was checked (use_tokens) – it comes as '1' or null
-$use_tokens_checkbox = isset($_POST['use_tokens']);
+// Check if the checkbox was checked (use_points) – it comes as '1' or null
+$use_points_checkbox = isset($_POST['use_points']);
 
-// If checkbox is checked but tokens_used is 0, recalculate from available tokens (fallback)
-if ($use_tokens_checkbox && $tokens_used == 0 && $user_tokens > 0) {
+// If checkbox is checked but points_used is 0, recalculate from available points (fallback)
+if ($use_points_checkbox && $points_used == 0 && $user_points > 0) {
     $after_discount = $subtotal - $discount_amount;
     if ($after_discount < 0) $after_discount = 0;
-    $max_deduction = min($after_discount, floor($user_tokens / 100));
-    $tokens_deduction = $max_deduction;
-    $tokens_used = $max_deduction * 100;
+    $max_deduction = min($after_discount, floor($user_points / 100));
+    $points_deduction = $max_deduction;
+    $points_used = $max_deduction * 100;
 }
 
 // For credit card, capture last4 and expiry
@@ -59,24 +59,24 @@ if ($payment_method == 'credit_card') {
 }
 
 // Calculate final totals
-$total_before_tax = $subtotal - $discount_amount - $tokens_deduction;
+$total_before_tax = $subtotal - $discount_amount - $points_deduction;
 if ($total_before_tax < 0) $total_before_tax = 0;
 $sst_tax = $total_before_tax * 0.12;
 $foreigner_tax = ($nationality == 'foreigner') ? $subtotal * 0.10 : 0;
 $service_fee = $total_before_tax * 0.05;
 $grand_total = $total_before_tax + $sst_tax + $foreigner_tax + $service_fee;
 
-$tokens_per_rm = 10;
-$tokens_earned = floor($grand_total * $tokens_per_rm);
+$points_per_rm = 10;
+$points_earned = floor($grand_total * $points_per_rm);
 
 $booking_ref = 'BK' . strtoupper(uniqid());
 
 // Insert into book table (your table name is 'book')
 $insert_booking = "INSERT INTO book (booking_ref, user_id, room_id, room_name, check_in, check_out, guests,
-                    subtotal, discount_amount, tokens_used, tokens_deduction_amount, tokens_earned,
+                    subtotal, discount_amount, points_used, points_deduction_amount, points_earned,
                     sst_tax, foreigner_tax, service_fee, grand_total, payment_method, nationality, special_requests, status, created_at)
                     VALUES ('$booking_ref', $user_id, $room_id, '$room_name', '$check_in', '$check_out', $guests,
-                    $subtotal, $discount_amount, $tokens_used, $tokens_deduction, $tokens_earned,
+                    $subtotal, $discount_amount, $points_used, $points_deduction, $points_earned,
                     $sst_tax, $foreigner_tax, $service_fee, $grand_total, '$payment_method', '$nationality',
                     '$special_requests', 'confirmed', NOW())";
 
@@ -91,10 +91,10 @@ if (mysqli_query($conn, $insert_booking)) {
                        VALUES ($book_id, $user_id, '$payment_method', " . ($card_last4 ? "'$card_last4'" : "NULL") . ", " . ($card_expiry ? "'$card_expiry'" : "NULL") . ", '$transaction_id', $grand_total, NOW())";
     
     if (mysqli_query($conn, $insert_payment)) {
-        // Update user tokens
-        $current_tokens = $user_tokens; // already fetched
-        $new_tokens = $current_tokens - $tokens_used + $tokens_earned;
-        mysqli_query($conn, "UPDATE users SET token = $new_tokens WHERE id = $user_id");
+        // Update user points: deduct used points and add earned points
+        $current_points = $user_points; // already fetched
+        $new_points = $current_points - $points_used + $points_earned;
+        mysqli_query($conn, "UPDATE users SET points = $new_points WHERE id = $user_id");
         
         $_SESSION['last_booking_ref'] = $booking_ref;
         

@@ -5,7 +5,7 @@ session_start();
 include '../Shared/config.php';
 include '../Shared/header.php';
 
-// --- AJAX Handlers (unchanged, they are fine) ---
+// --- AJAX Handlers ---
 if (isset($_GET['action']) && $_GET['action'] == 'validate_voucher' && isset($_GET['code'])) {
     header('Content-Type: application/json');
     $code = mysqli_real_escape_string($conn, $_GET['code']);
@@ -24,28 +24,28 @@ if (isset($_GET['action']) && $_GET['action'] == 'validate_voucher' && isset($_G
     exit();
 }
 
-if (isset($_GET['action']) && $_GET['action'] == 'calculate_tokens' && isset($_GET['use_tokens'])) {
+if (isset($_GET['action']) && $_GET['action'] == 'calculate_points' && isset($_GET['use_points'])) {
     header('Content-Type: application/json');
-    $use_tokens_flag = $_GET['use_tokens'] == 'true';
+    $use_points = $_GET['use_points'] == 'true';
     $current_subtotal = isset($_GET['subtotal']) ? floatval($_GET['subtotal']) : 0;
     $current_discount = isset($_GET['discount']) ? floatval($_GET['discount']) : 0;
-    $user_tokens_available = isset($_GET['user_tokens']) ? intval($_GET['user_tokens']) : 0;
+    $user_points_available = isset($_GET['user_points']) ? intval($_GET['user_points']) : 0;
     
     $after_discount = max(0, $current_subtotal - $current_discount);
-    $tokens_deduction_amount = 0;
-    $tokens_used = 0;
+    $points_deduction_amount = 0;
+    $points_used = 0;
     
-    if ($use_tokens_flag && $user_tokens_available > 0) {
-        $max_deduction = min($after_discount, floor($user_tokens_available / 100));
-        $tokens_deduction_amount = $max_deduction;
-        $tokens_used = $max_deduction * 100;
+    if ($use_points && $user_points_available > 0) {
+        $max_deduction = min($after_discount, floor($user_points_available / 100));
+        $points_deduction_amount = $max_deduction;
+        $points_used = $max_deduction * 100;
     }
     
     echo json_encode([
         'success' => true,
-        'tokens_deduction' => $tokens_deduction_amount,
-        'tokens_used' => $tokens_used,
-        'remaining_tokens' => $user_tokens_available - $tokens_used
+        'points_deduction' => $points_deduction_amount,
+        'points_used' => $points_used,
+        'remaining_points' => $user_points_available - $points_used
     ]);
     exit();
 }
@@ -65,10 +65,10 @@ $user_id = $_SESSION['user_id'];
 $fullname = '';
 $email = '';
 $country = '';
-$nationality = 'malaysian';   // default
-$user_tokens = 0;
+$nationality = 'malaysian';
+$user_points = 0;
 
-$user_query = "SELECT first_name, last_name, email, country, token FROM users WHERE id = $user_id";
+$user_query = "SELECT first_name, last_name, email, country, points FROM users WHERE id = $user_id";
 $user_result = mysqli_query($conn, $user_query);
 if ($user_result && mysqli_num_rows($user_result) > 0) {
     $user = mysqli_fetch_assoc($user_result);
@@ -76,9 +76,8 @@ if ($user_result && mysqli_num_rows($user_result) > 0) {
     $email = $user['email'] ?? '';
     $country = $user['country'] ?? '';
     $nationality = ($country == 'Malaysia') ? 'malaysian' : 'foreigner';
-    $user_tokens = (int)($user['token'] ?? 0);
+    $user_points = (int)($user['points'] ?? 0);
 } else {
-    // Fallback: redirect or show error (but we'll show a friendly message)
     die("<p>Error: User not found. Please log in again.</p><a href='../ChangJingEn/login.php'>Login</a>");
 }
 
@@ -103,9 +102,10 @@ if ($room_result && mysqli_num_rows($room_result) > 0) {
     $room = mysqli_fetch_assoc($room_result);
     $room_name = $room['name'] ?? 'Unknown Room';
     $room_price = (float)($room['price'] ?? 0);
-    $room_image = !empty($room['image']) ? $room['image'] : 'images/room-default.jpg';
+    // Fix image path: ensure 'images/' prefix
+    $img_file = $room['image'] ?? '';
+    $room_image = (!empty($img_file) ? 'images/' . $img_file : 'images/room-default.jpg');
 } else {
-    // Room not found – fallback to a default room (or you can redirect)
     $room_name = 'Standard Room';
     $room_price = 150.00;
     $room_image = 'images/room-default.jpg';
@@ -121,8 +121,8 @@ if ($nights <= 0) $nights = 1;
 
 $subtotal = $room_price * $nights;
 
-$tokens_per_rm = 10;
-$tokens_earned_display = floor($subtotal * $tokens_per_rm);
+$points_per_rm = 10;
+$points_earned_display = floor($subtotal * $points_per_rm);
 
 // Initial totals (no discount yet)
 $sst_tax = $subtotal * 0.12;
@@ -146,7 +146,7 @@ $grand_total = $subtotal + $sst_tax + $foreigner_tax + $service_fee;
         <p>Please review your booking details and complete the payment</p>
     </div>
 
-    <form method="POST" action="process_payment.php" id="bookingForm">
+    <form method="POST" action="process_payment.php" id="bookingForm" onsubmit="return validatePaymentForm()">
         <div class="booking-grid">
             <!-- Left Column - Summary -->
             <div>
@@ -190,9 +190,9 @@ $grand_total = $subtotal + $sst_tax + $foreigner_tax + $service_fee;
                                 <span>Voucher Discount</span>
                                 <span>-RM <span id="discountAmount">0.00</span></span>
                             </div>
-                            <div class="total-item tokens-row" id="tokensRow" style="display:none">
-                                <span>Tokens Deduction</span>
-                                <span>-RM <span id="tokensDeductionAmount">0.00</span></span>
+                            <div class="total-item points-row" id="pointsRow" style="display:none">
+                                <span>Points Deduction</span>
+                                <span>-RM <span id="pointsDeductionAmount">0.00</span></span>
                             </div>
                             <div class="total-item">
                                 <span>SST Tax (12%)</span>
@@ -252,25 +252,25 @@ $grand_total = $subtotal + $sst_tax + $foreigner_tax + $service_fee;
                             <div id="voucherMessage" class="voucher-message"></div>
                         </div>
 
-                        <!-- Tokens Section -->
-                        <div class="form-group tokens-section">
-                            <div class="tokens-header">
-                                <label><i class="fas fa-coins"></i> Your Tokens</label>
-                                <span class="tokens-balance">Available: <strong id="userTokens"><?= number_format($user_tokens) ?></strong></span>
+                        <!-- Points Section -->
+                        <div class="form-group points-section">
+                            <div class="points-header">
+                                <label><i class="fas fa-coins"></i> Your Points</label>
+                                <span class="points-balance">Available: <strong id="userPoints"><?= number_format($user_points) ?></strong></span>
                             </div>
-                            <div class="tokens-toggle-row">
-                                <span class="toggle-label">Use tokens to reduce total</span>
+                            <div class="points-toggle-row">
+                                <span class="toggle-label">Use points to reduce total</span>
                                 <label class="switch">
-                                    <input type="checkbox" id="useTokensToggle" name="use_tokens" value="1">
+                                    <input type="checkbox" id="usePointsToggle" name="use_points" value="1">
                                     <span class="slider round"></span>
                                 </label>
                             </div>
-                            <div class="tokens-info" id="tokensInfo" style="display:none">
-                                <small>100 tokens = RM1 deduction</small>
-                                <div id="tokensDeductionInfo"></div>
+                            <div class="points-info" id="pointsInfo" style="display:none">
+                                <small>100 points = RM1 deduction</small>
+                                <div id="pointsDeductionInfo"></div>
                             </div>
-                            <div class="tokens-earned">
-                                <small>You'll earn <strong id="tokensEarned"><?= number_format($tokens_earned_display) ?></strong> tokens</small>
+                            <div class="points-earned">
+                                <small>You'll earn <strong id="pointsEarned"><?= number_format($points_earned_display) ?></strong> points</small>
                             </div>
                         </div>
 
@@ -291,7 +291,8 @@ $grand_total = $subtotal + $sst_tax + $foreigner_tax + $service_fee;
                             </div>
                         </div>
 
-                        <div class="form-group" id="card_details">
+                        <!-- Credit Card Details (hidden initially for non-credit-card) -->
+                        <div class="form-group" id="card_details" style="display: block;">
                             <label>Card Number</label>
                             <input type="text" class="form-control" id="card_number" name="card_number" placeholder="1234 5678 9012 3456">
                             <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:15px">
@@ -322,8 +323,8 @@ $grand_total = $subtotal + $sst_tax + $foreigner_tax + $service_fee;
                         <input type="hidden" name="subtotal" id="hiddenSubtotal" value="<?= $subtotal ?>">
                         <input type="hidden" name="nationality" id="hiddenNationality" value="<?= $nationality ?>">
                         <input type="hidden" name="discount_amount" id="hiddenDiscountAmount" value="0">
-                        <input type="hidden" name="tokens_deduction" id="hiddenTokensDeduction" value="0">
-                        <input type="hidden" name="tokens_used" id="hiddenTokensUsed" value="0">
+                        <input type="hidden" name="points_deduction" id="hiddenPointsDeduction" value="0">
+                        <input type="hidden" name="points_used" id="hiddenPointsUsed" value="0">
 
                         <div class="button-group">
                             <button type="button" class="btn btn-secondary" onclick="window.history.back()">Back</button>
@@ -338,20 +339,155 @@ $grand_total = $subtotal + $sst_tax + $foreigner_tax + $service_fee;
 </main>
 
 <script>
-// Your existing JavaScript (unchanged, but ensure variables are defined)
+// Global variables for calculations
 let subtotal = <?= json_encode($subtotal) ?>;
-let userTokens = <?= json_encode($user_tokens) ?>;
+let userPoints = <?= json_encode($user_points) ?>;
 let discountAmount = 0;
-let tokensDeduction = 0;
+let pointsDeduction = 0;
 let currentNationality = <?= json_encode($nationality) ?>;
 
-function recalculateTotals() {
-    // Your existing implementation (not shown, but keep as is)
+// Toggle credit card fields based on payment method
+function toggleCreditCardFields() {
+    let selectedMethod = document.querySelector('input[name="payment_method"]:checked').value;
+    let cardDetailsDiv = document.getElementById('card_details');
+    if (selectedMethod === 'credit_card') {
+        cardDetailsDiv.style.display = 'block';
+        // Make card fields required
+        document.getElementById('card_number').setAttribute('required', 'required');
+        document.getElementById('expiry_date').setAttribute('required', 'required');
+        document.getElementById('cvv').setAttribute('required', 'required');
+    } else {
+        cardDetailsDiv.style.display = 'none';
+        // Remove required attribute to avoid validation errors
+        document.getElementById('card_number').removeAttribute('required');
+        document.getElementById('expiry_date').removeAttribute('required');
+        document.getElementById('cvv').removeAttribute('required');
+    }
 }
-function applyVoucher() { /* ... */ }
-function handleTokensToggle() { /* ... */ }
 
-// Event listeners (keep your existing ones)
+// Restrict card number to 16 digits only (numeric)
+function restrictCardNumber() {
+    let cardInput = document.getElementById('card_number');
+    if (cardInput) {
+        cardInput.addEventListener('input', function(e) {
+            // Remove any non-digit characters
+            this.value = this.value.replace(/\D/g, '').slice(0, 16);
+        });
+    }
+}
+
+// Form validation before submit
+// Enhanced form validation with 16-digit check
+function validatePaymentForm() {
+    let selectedMethod = document.querySelector('input[name="payment_method"]:checked').value;
+    if (selectedMethod === 'credit_card') {
+        let cardNum = document.getElementById('card_number').value.trim();
+        let expiry = document.getElementById('expiry_date').value.trim();
+        let cvv = document.getElementById('cvv').value.trim();
+        
+        // Card number must be exactly 16 digits
+        if (cardNum === '') {
+            alert('Please enter card number');
+            return false;
+        }
+        if (!/^\d{16}$/.test(cardNum)) {
+            alert('Credit card number must be exactly 16 digits (no spaces or dashes)');
+            return false;
+        }
+        // Expiry validation (basic MM/YY format)
+        if (expiry === '') {
+            alert('Please enter expiry date (MM/YY)');
+            return false;
+        }
+        if (!/^(0[1-9]|1[0-2])\/\d{2}$/.test(expiry)) {
+            alert('Expiry date must be in MM/YY format (e.g., 12/25)');
+            return false;
+        }
+        // CVV: 3 or 4 digits
+        if (cvv === '') {
+            alert('Please enter CVV');
+            return false;
+        }
+        if (!/^\d{3,4}$/.test(cvv)) {
+            alert('CVV must be 3 or 4 digits');
+            return false;
+        }
+    }
+    // Phone number validation
+    let phone = document.querySelector('input[name="phone"]').value.trim();
+    if (phone === '') {
+        alert('Please enter phone number');
+        return false;
+    }
+    return true;
+}
+
+// Attach event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Payment method radio buttons
+    let radios = document.querySelectorAll('input[name="payment_method"]');
+    radios.forEach(radio => {
+        radio.addEventListener('change', toggleCreditCardFields);
+    });
+    toggleCreditCardFields(); // initial state
+
+    // Voucher apply button (basic - you can expand)
+    document.getElementById('applyVoucherBtn').addEventListener('click', function() {
+        let code = document.getElementById('voucher_code').value;
+        if (!code) {
+            alert('Please enter voucher code');
+            return;
+        }
+        fetch(`?action=validate_voucher&code=${encodeURIComponent(code)}&subtotal=${subtotal}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    discountAmount = data.discount_amount;
+                    document.getElementById('discountAmount').innerText = discountAmount.toFixed(2);
+                    document.getElementById('discountRow').style.display = 'flex';
+                    document.getElementById('hiddenDiscountAmount').value = discountAmount;
+                    document.getElementById('voucherMessage').innerHTML = '<span class="success">Voucher applied! RM' + discountAmount.toFixed(2) + ' off</span>';
+                    recalculateTotals();
+                } else {
+                    document.getElementById('voucherMessage').innerHTML = '<span class="error">' + data.message + '</span>';
+                }
+            });
+    });
+
+    // Points toggle
+    let pointsToggle = document.getElementById('usePointsToggle');
+    pointsToggle.addEventListener('change', function() {
+        let usePoints = this.checked;
+        fetch(`?action=calculate_points&use_points=${usePoints}&subtotal=${subtotal - discountAmount}&discount=${discountAmount}&user_points=${userPoints}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    pointsDeduction = data.points_deduction;
+                    let pointsUsedAmount = data.points_used;
+                    document.getElementById('pointsDeductionAmount').innerText = pointsDeduction.toFixed(2);
+                    document.getElementById('pointsRow').style.display = pointsDeduction > 0 ? 'flex' : 'none';
+                    document.getElementById('hiddenPointsDeduction').value = pointsDeduction;
+                    document.getElementById('hiddenPointsUsed').value = pointsUsedAmount;
+                    document.getElementById('pointsDeductionInfo').innerHTML = `Using ${pointsUsedAmount} points (RM${pointsDeduction.toFixed(2)})`;
+                    document.getElementById('pointsInfo').style.display = pointsDeduction > 0 ? 'block' : 'none';
+                    recalculateTotals();
+                }
+            });
+    });
+
+    function recalculateTotals() {
+        let afterDiscount = subtotal - discountAmount - pointsDeduction;
+        if (afterDiscount < 0) afterDiscount = 0;
+        let sst = afterDiscount * 0.12;
+        let foreignerTax = (currentNationality === 'foreigner') ? subtotal * 0.10 : 0;
+        let serviceFee = afterDiscount * 0.05;
+        let grand = afterDiscount + sst + foreignerTax + serviceFee;
+        document.getElementById('sstTax').innerText = sst.toFixed(2);
+        document.getElementById('foreignerTax').innerText = foreignerTax.toFixed(2);
+        document.getElementById('serviceFee').innerText = serviceFee.toFixed(2);
+        document.getElementById('grandTotal').innerText = grand.toFixed(2);
+    }
+});
 </script>
 
 <?php include '../Shared/footer.php'; ?>

@@ -336,27 +336,27 @@
     color: #dc3545;
 }
 
-/* ========== TOKENS SECTION ========== */
-.tokens-section {
+/* ========== POINTS SECTION ========== */
+.points-section {
     background: #f9f9f9;
     padding: 15px;
     border-radius: 12px;
     margin-bottom: 20px;
 }
 
-.tokens-header {
+.points-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 12px;
 }
 
-.tokens-balance {
+.points-balance {
     font-size: 0.9rem;
     color: var(--gold-dark);
 }
 
-.tokens-toggle-row {
+.points-toggle-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -414,7 +414,7 @@ input:checked + .slider:before {
     transform: translateX(26px);
 }
 
-.tokens-info {
+.points-info {
     margin-top: 10px;
     padding-top: 10px;
     border-top: 1px solid #eee;
@@ -422,7 +422,7 @@ input:checked + .slider:before {
     color: #555;
 }
 
-.tokens-earned {
+.points-earned {
     margin-top: 10px;
     font-size: 0.8rem;
     color: #28a745;
