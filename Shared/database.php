@@ -137,10 +137,9 @@ CREATE TABLE `users` (
   `language` varchar(10) DEFAULT 'en'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-
 CREATE TABLE `admins` (
   `id` int(11) NOT NULL,
-  `email` varchar(100) NOT NULL UNIQUE,
+  `email` varchar(100) NOT NULL,
   `username` varchar(50) DEFAULT NULL,
   `password` varchar(255) NOT NULL,
   `role` tinyint(1) DEFAULT 0,
@@ -150,6 +149,9 @@ CREATE TABLE `admins` (
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `admins` (`id`, `email`, `username`, `password`, `role`, `status`, `last_login`, `created_by`, `created_at`, `updated_at`) VALUES
+(1, 'superadmin@grandhotel.com', 'superadmin', '$2y$10$fCMrYYUPnogML0cG3KdYRehhq01AGYPnywXcBNTjvKIPmcwDSAOzW', 1, 'active', '2026-04-12 20:50:26', NULL, '2026-04-12 12:44:44', '2026-04-12 12:50:26');
 //superadmin role = 1, normal admin role = 0 
 //email:superadmin@grandhotel.com 
 //username: superAdmin
@@ -159,7 +161,7 @@ CREATE TABLE `admins` (
 CREATE TABLE REVIEW (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
-    room_id NOT NULL,
+    room_id INT NOT NULL,
     r_rating INT DEFAULT NULL CHECK (r_rating >= 1 AND r_rating <= 5),
     r_comment VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,

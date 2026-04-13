@@ -10,7 +10,7 @@ $experiences = [
         'feature2' => '🎶 Live music & antiques',
         'gradient_start' => '#ad6b35',
         'gradient_end' => '#e09d5e',
-        'placeholder_img' => 'https://placehold.co/600x400/f0e2d0/8B5A2B?text=Jonker+Walk'
+        'placeholder_img' => 'images/jonker.jpg'
     ],
     [
         'category' => '🏛️ Colonial landmarks',
@@ -20,7 +20,7 @@ $experiences = [
         'feature2' => '🕰️ Open daily 9am-5pm',
         'gradient_start' => '#6d4c2e',
         'gradient_end' => '#b47c48',
-        'placeholder_img' => 'https://placehold.co/600x400/f0e2d0/8B5A2B?text=Stadthuys'
+        'placeholder_img' => 'images/redchurch.jpg'
     ],
     [
         'category' => '⚔️ Fortress legacy',
@@ -30,7 +30,7 @@ $experiences = [
         'feature2' => '📜 Free entry',
         'gradient_start' => '#3b5c4a',
         'gradient_end' => '#6d9e7c',
-        'placeholder_img' => 'https://placehold.co/600x400/f0e2d0/8B5A2B?text=AFamosa'
+        'placeholder_img' => 'images/Afamosa.jpg'
     ],
     [
         'category' => '🚤 Riverside cruise',
@@ -40,7 +40,7 @@ $experiences = [
         'feature2' => '🎨 Instagram-worthy murals',
         'gradient_start' => '#b56542',
         'gradient_end' => '#d98e5c',
-        'placeholder_img' => 'https://placehold.co/600x400/f0e2d0/8B5A2B?text=Melaka+River'
+        'placeholder_img' => 'images/rivercruise.jpg'
     ],
     [
         'category' => '🕯️ Spiritual heritage',
@@ -50,7 +50,7 @@ $experiences = [
         'feature2' => '🙏 Free guided blessings',
         'gradient_start' => '#31625a',
         'gradient_end' => '#509b8c',
-        'placeholder_img' => 'https://placehold.co/600x400/f0e2d0/8B5A2B?text=Cheng+Hoon+Teng'
+        'placeholder_img' => 'images/temple.jpg'
     ],
     [
         'category' => '🍛 Culinary journey',
@@ -60,7 +60,7 @@ $experiences = [
         'feature2' => '🍚 Hands-on workshop',
         'gradient_start' => '#aa7c4a',
         'gradient_end' => '#dcae7a',
-        'placeholder_img' => 'https://placehold.co/600x400/f0e2d0/8B5A2B?text=Nyonya+Cuisine'
+        'placeholder_img' => 'images/nyonyafood.webp'
     ]
 ];
 

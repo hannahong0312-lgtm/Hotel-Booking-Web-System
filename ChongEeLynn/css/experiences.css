@@ -1,9 +1,7 @@
-/* ============================================
-   experiences.css - Melaka Experiences Page
-   Color Scheme: Warm Gold & Beige Accents
-   ============================================ */
 
-/* Reset & Base Styles */
+/*   experiences.css */
+
+/* Base Styles */
 * {
     margin: 0;
     padding: 0;
@@ -22,7 +20,7 @@ body {
     position: relative;
     height: 100vh;
     min-height: 700px;
-    background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.35)), url('https://images.travelandleisureasia.com/wp-content/uploads/sites/4/2025/01/30160027/attractions-in-melaka-2.jpeg') center/cover no-repeat;
+    background: linear-gradient(rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.35)), url('../images/melaka.webp') center/cover no-repeat;
     display: flex;
     align-items: center;
     justify-content: center;
