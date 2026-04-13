@@ -5,7 +5,7 @@
     position: relative;
     height: 100vh;
     min-height: 700px;
-    background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.3)), url('https://familytravelgenie.com/media/wp-uploads/2022/03/Taj-Dubai-King-Style-Bedroom.jpg') ;
+    background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.3)), url('../images/accommodation.jpg') ;
     display: flex;
     align-items: center;
     justify-content: center;
