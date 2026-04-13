@@ -165,20 +165,6 @@ include '../Shared/header.php';
     </div>
 </div>
 
-<footer class="footer">
-    <div class="container footer-inner">
-        <div>
-            <h3>🏮 Melaka · Malaysia</h3>
-            <small>Where the past and present dance by the straits.</small>
-        </div>
-        <div>
-            <small>✨ Curated travel experiences — inspired by heritage, culture, and flavor.<br>© 2025 Melaka Insider Guide</small>
-        </div>
-        <div>
-            <small>📸 #MelakaMemories | <a href="#">Plan your journey</a></small>
-        </div>
-    </div>
-</footer>
 <?php include '../Shared/footer.php'; ?>
 </body>
 </html>
