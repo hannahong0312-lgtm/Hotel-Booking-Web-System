@@ -2,46 +2,41 @@
 -----------------------------
 //Hannah Part
 ----------------------------
-CREATE TABLE IF NOT EXISTS payment (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    book_id INT NOT NULL,
-    user_id INT NOT NULL,
-    method VARCHAR(50) NOT NULL,
-    card_no VARCHAR(4),
-    card_expiry VARCHAR(5),
-    transaction_id VARCHAR(50) UNIQUE,
-    amount DECIMAL(10,2) NOT NULL,
-    payment_date DATETIME,
-    FOREIGN KEY (book_id) REFERENCES book(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id)
-);
+CREATE TABLE `payment` (
+  `id` int(11) NOT NULL,
+  `book_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `method` varchar(50) NOT NULL,
+  `card_no` varchar(4) DEFAULT NULL,
+  `card_expiry` varchar(5) DEFAULT NULL,
+  `transaction_id` varchar(50) DEFAULT NULL,
+  `subtotal` decimal(10,2) DEFAULT NULL,
+  `grand_total` decimal(10,2) NOT NULL,
+  `points_used` int(11) DEFAULT 0,
+  `points_deduction_amount` decimal(10,2) DEFAULT 0.00,
+  `points_earned` int(11) DEFAULT 0,
+  `sst_tax` decimal(10,2) DEFAULT NULL,
+  `foreigner_tax` decimal(10,2) DEFAULT 0.00,
+  `service_fee` decimal(10,2) DEFAULT NULL,
+  `payment_date` date NOT NULL,
+  `status` enum('confirmed','cancelled','completed') DEFAULT 'confirmed'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
-CREATE TABLE IF NOT EXISTS book (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    booking_ref VARCHAR(20) NOT NULL UNIQUE,
-    user_id INT NOT NULL,
-    room_id INT NOT NULL,
-    room_name VARCHAR(100),
-    check_in DATE NOT NULL,
-    check_out DATE NOT NULL,
-    guests INT DEFAULT 1,
-    subtotal DECIMAL(10,2),
-    discount_amount DECIMAL(10,2) DEFAULT 0,
-    points_used INT DEFAULT 0,
-    points_deduction_amount DECIMAL(10,2) DEFAULT 0,
-    points_earned INT DEFAULT 0,
-    sst_tax DECIMAL(10,2),
-    foreigner_tax DECIMAL(10,2) DEFAULT 0,
-    service_fee DECIMAL(10,2),
-    grand_total DECIMAL(10,2),
-    payment_method VARCHAR(50),
-    nationality VARCHAR(20),
-    special_requests TEXT,
-    status ENUM('confirmed', 'cancelled', 'completed') DEFAULT 'confirmed',
-    created_at DATETIME,
-    FOREIGN KEY (user_id) REFERENCES users(id),
-    FOREIGN KEY (room_id) REFERENCES rooms(id)
-);
+CREATE TABLE `book` (
+  `id` int(11) NOT NULL,
+  `booking_ref` varchar(20) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `room_id` int(11) NOT NULL,
+  `payment_id` int(11) DEFAULT NULL,
+  `check_in` date NOT NULL,
+  `check_out` date NOT NULL,
+  `guests` int(11) DEFAULT 1,
+  `grand_total` decimal(10,2) DEFAULT NULL,
+  `nationality` varchar(20) DEFAULT NULL,
+  `special_requests` text DEFAULT NULL,
+  `status` enum('confirmed','cancelled','completed') DEFAULT 'confirmed',
+  `created_at` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE dining (
     id INT AUTO_INCREMENT PRIMARY KEY,
