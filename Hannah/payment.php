@@ -59,9 +59,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 $user_id = $_SESSION['user_id'];
 
-// -------------------------------
 // 1. Fetch user data safely
-// -------------------------------
 $fullname = '';
 $email = '';
 $country = '';
@@ -81,17 +79,13 @@ if ($user_result && mysqli_num_rows($user_result) > 0) {
     die("<p>Error: User not found. Please log in again.</p><a href='../ChangJingEn/login.php'>Login</a>");
 }
 
-// -------------------------------
 // 2. Get booking data from GET
-// -------------------------------
 $room_id   = isset($_GET['room_id']) ? (int)$_GET['room_id'] : 1;
 $check_in  = isset($_GET['arrive']) ? $_GET['arrive'] : date('Y-m-d');
 $check_out = isset($_GET['depart']) ? $_GET['depart'] : date('Y-m-d', strtotime('+2 days'));
 $guests    = isset($_GET['guests']) ? (int)$_GET['guests'] : 2;
 
-// -------------------------------
 // 3. Fetch room data safely
-// -------------------------------
 $room_name = 'Unknown Room';
 $room_price = 0.0;
 $room_image = 'images/room-default.jpg';
@@ -111,9 +105,7 @@ if ($room_result && mysqli_num_rows($room_result) > 0) {
     $room_image = 'images/room-default.jpg';
 }
 
-// -------------------------------
 // 4. Calculate nights & subtotal
-// -------------------------------
 $date1 = new DateTime($check_in);
 $date2 = new DateTime($check_out);
 $nights = $date2->diff($date1)->days;
@@ -314,7 +306,6 @@ $grand_total = $subtotal + $sst_tax + $foreigner_tax + $service_fee;
 
                         <!-- Hidden fields to pass booking data -->
                         <input type="hidden" name="room_id" value="<?= $room_id ?>">
-                        <input type="hidden" name="room_name" value="<?= htmlspecialchars($room_name) ?>">
                         <input type="hidden" name="room_price" value="<?= $room_price ?>">
                         <input type="hidden" name="check_in" value="<?= $check_in ?>">
                         <input type="hidden" name="check_out" value="<?= $check_out ?>">
