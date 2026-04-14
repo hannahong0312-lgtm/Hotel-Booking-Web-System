@@ -29,7 +29,7 @@ $experiences = [
         'feature1' => '🌄 Sunset viewpoint',
         'feature2' => '📜 Free entry',
         'gradient_start' => '#3b5c4a',
-        'gradient_end' => '#6d9e7c',
+        'gradient_end' => '#a4b6a9',
         'placeholder_img' => 'images/Afamosa.jpg'
     ],
     [
@@ -38,8 +38,8 @@ $experiences = [
         'description' => 'Glide along the Melaka River past murals, kampung houses, and colorful bridges. See the city from a different angle — soothing breeze and heritage murals.',
         'feature1' => '⛵ 45-min journey',
         'feature2' => '🎨 Instagram-worthy murals',
-        'gradient_start' => '#b56542',
-        'gradient_end' => '#d98e5c',
+        'gradient_start' => '#728c90',
+        'gradient_end' => '#5e92a5',
         'placeholder_img' => 'images/rivercruise.jpg'
     ],
     [
@@ -64,12 +64,12 @@ $experiences = [
     ]
 ];
 
-// Local favorites data
+// Local favorites data with images instead of emojis
 $localFavorites = [
-    ['emoji' => '🚲', 'title' => 'Trishaw Art Ride', 'desc' => 'Hop onto a flower-decked, karaoke-blasting trishaw — each one uniquely themed, from Disney to local flora.'],
-    ['emoji' => '🍡', 'title' => 'Kampung Morten Walk', 'desc' => 'Traditional Malay village nestled along the river. See authentic stilt houses, friendly locals and try traditional kueh.'],
-    ['emoji' => '🏺', 'title' => 'Melaka Straits Mosque', 'desc' => 'Floating mosque at sunset — golden domes reflect on water, creating a breathtaking spiritual atmosphere.'],
-    ['emoji' => '🖌️', 'title' => 'The Shore Sky Tower', 'desc' => 'Panoramic 360° views of Melaka strait and heritage skyline — especially mesmerizing at golden hour.']
+    ['image' => 'images/trishaw.webp', 'title' => 'Trishaw Art Ride', 'desc' => 'Hop onto a flower-decked, karaoke-blasting trishaw — each one uniquely themed, from Disney to local flora.'],
+    ['image' => 'images/morten.webp', 'title' => 'Kampung Morten Walk', 'desc' => 'Traditional Malay village nestled along the river. See authentic stilt houses, friendly locals and try traditional kueh.'],
+    ['image' => 'images/mosque.jpg', 'title' => 'Melaka Straits Mosque', 'desc' => 'Floating mosque at sunset — golden domes reflect on water, creating a breathtaking spiritual atmosphere.'],
+    ['image' => 'images/skytower.jpg', 'title' => 'The Shore Sky Tower', 'desc' => 'Panoramic 360° views of Melaka strait and heritage skyline — especially mesmerizing at golden hour.']
 ];
 
 include '../Shared/header.php';
@@ -133,7 +133,9 @@ include '../Shared/header.php';
     <div class="local-grid">
         <?php foreach ($localFavorites as $fav): ?>
             <div class="local-card">
-                <div class="local-emoji"><?= htmlspecialchars($fav['emoji']) ?></div>
+                <div class="local-image">
+                    <img src="<?= htmlspecialchars($fav['image']) ?>" alt="<?= htmlspecialchars($fav['title']) ?>">
+                </div>
                 <h3><?= htmlspecialchars($fav['title']) ?></h3>
                 <p><?= htmlspecialchars($fav['desc']) ?></p>
             </div>

@@ -1,5 +1,4 @@
-
-/*   experiences.css */
+/* experiences.css - Complete File */
 
 /* Base Styles */
 * {
@@ -13,6 +12,12 @@ body {
     background: #FAFAFA;
     color: #2c2a29;
     line-height: 1.5;
+}
+
+.container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 24px;
 }
 
 /* Hero Section */
@@ -225,40 +230,49 @@ body {
     font-weight: 500;
 }
 
-/* Local Favorites Grid */
+/* Local Favorites Grid - Updated with images */
 .local-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 28px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 32px;
     margin-bottom: 56px;
 }
 
 .local-card {
     background: white;
     border-radius: 24px;
-    padding: 28px 24px;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    text-align: center;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    text-align: left;
     border: 1px solid #f0ede8;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.03);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
 }
 
 .local-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    transform: translateY(-8px);
+    box-shadow: 0 20px 35px rgba(0, 0, 0, 0.1);
 }
 
-.local-emoji {
-    font-size: 2.5rem;
-    margin-bottom: 16px;
-    display: inline-block;
-    background: #fefcf9;
-    padding: 16px;
-    border-radius: 60px;
+.local-image {
+    width: 100%;
+    height: 220px;
+    overflow: hidden;
+    background-color: #f5f0e8;
+}
+
+.local-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s ease;
+}
+
+.local-card:hover .local-image img {
+    transform: scale(1.05);
 }
 
 .local-card h3 {
-    margin: 12px 0 10px;
+    margin: 20px 20px 10px;
     font-size: 1.35rem;
     color: #1a1a1a;
     font-weight: 600;
@@ -268,6 +282,7 @@ body {
     color: #666666;
     line-height: 1.5;
     font-size: 0.9rem;
+    margin: 0 20px 24px;
 }
 
 /* Info Grid */
@@ -330,6 +345,9 @@ body {
     justify-content: space-between;
     align-items: center;
     gap: 20px;
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 24px;
 }
 
 .footer-inner h3 {
@@ -355,8 +373,41 @@ body {
     opacity: 0.85;
 }
 
+/* Animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(25px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.exp-card, .local-card, .info-item {
+    animation: fadeInUp 0.5s ease forwards;
+    opacity: 0;
+}
+
+.exp-card:nth-child(1) { animation-delay: 0.05s; }
+.exp-card:nth-child(2) { animation-delay: 0.1s; }
+.exp-card:nth-child(3) { animation-delay: 0.15s; }
+.exp-card:nth-child(4) { animation-delay: 0.2s; }
+.exp-card:nth-child(5) { animation-delay: 0.25s; }
+.exp-card:nth-child(6) { animation-delay: 0.3s; }
+
+.local-card:nth-child(1) { animation-delay: 0.1s; }
+.local-card:nth-child(2) { animation-delay: 0.2s; }
+.local-card:nth-child(3) { animation-delay: 0.3s; }
+.local-card:nth-child(4) { animation-delay: 0.4s; }
+
 /* Responsive Design */
 @media (max-width: 768px) {
+    .container {
+        padding: 0 20px;
+    }
+    
     .hero {
         height: 80vh;
         min-height: 500px;
@@ -383,12 +434,44 @@ body {
         gap: 20px;
     }
     
+    .exp-card h3 {
+        font-size: 1.35rem;
+    }
+    
+    .quote-section {
+        padding: 40px 24px;
+    }
+    
     .quote-section blockquote {
         font-size: 1.2rem;
     }
     
-    .container {
-        padding: 0 20px;
+    .local-grid {
+        gap: 24px;
+    }
+    
+    .local-image {
+        height: 200px;
+    }
+    
+    .local-card h3 {
+        font-size: 1.25rem;
+        margin: 16px 16px 8px;
+    }
+    
+    .local-card p {
+        margin: 0 16px 20px;
+        font-size: 0.85rem;
+    }
+    
+    .info-grid {
+        padding: 28px 20px;
+        border-radius: 32px;
+        gap: 16px;
+    }
+    
+    .info-item {
+        min-width: 150px;
     }
     
     .footer-inner {
@@ -396,51 +479,114 @@ body {
         text-align: center;
         gap: 18px;
     }
-    
-    .info-grid {
-        padding: 28px 20px;
-        border-radius: 32px;
-    }
 }
 
 @media (max-width: 480px) {
+    .hero {
+        min-height: 450px;
+    }
+    
     .hero h1 {
         font-size: 1.9rem;
+    }
+    
+    .hero-badge {
+        font-size: 0.7rem;
+        padding: 6px 16px;
+    }
+    
+    .intro-text {
+        font-size: 0.85rem;
     }
     
     .section-head h2 {
         font-size: 1.5rem;
     }
     
-    .exp-card h3 {
-        font-size: 1.35rem;
+    .section-head p {
+        font-size: 0.9rem;
     }
     
-    .local-card {
-        padding: 20px 16px;
+    .cards-grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+    
+    .exp-card h3 {
+        font-size: 1.3rem;
+    }
+    
+    .card-img {
+        height: 200px;
+    }
+    
+    .quote-section {
+        padding: 32px 20px;
+        border-radius: 32px;
+    }
+    
+    .quote-section blockquote {
+        font-size: 1rem;
+    }
+    
+    .local-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .local-image {
+        height: 180px;
+    }
+    
+    .info-grid {
+        flex-direction: column;
+        padding: 24px 20px;
+    }
+    
+    .info-item {
+        text-align: center;
+        padding: 12px;
     }
 }
 
-/* Animations */
-@keyframes fadeInUp {
-    from {
-        opacity: 0;
-        transform: translateY(25px);
+/* Tablet Landscape */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .cards-grid {
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 24px;
     }
-    to {
-        opacity: 1;
-        transform: translateY(0);
+    
+    .local-grid {
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 24px;
+    }
+    
+    .hero h1 {
+        font-size: 3.2rem;
     }
 }
 
-.exp-card, .local-card, .info-item {
-    animation: fadeInUp 0.5s ease forwards;
-    opacity: 0;
+/* Print Styles */
+@media print {
+    .hero {
+        height: auto;
+        background: #f5f0e8;
+        color: #1a1a1a;
+        page-break-inside: avoid;
+    }
+    
+    .hero h1 span {
+        color: #1a1a1a;
+    }
+    
+    .exp-card, .local-card {
+        break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+    
+    .footer {
+        background: #f5f0e8;
+        color: #1a1a1a;
+    }
 }
-
-.exp-card:nth-child(1) { animation-delay: 0.05s; }
-.exp-card:nth-child(2) { animation-delay: 0.1s; }
-.exp-card:nth-child(3) { animation-delay: 0.15s; }
-.exp-card:nth-child(4) { animation-delay: 0.2s; }
-.exp-card:nth-child(5) { animation-delay: 0.25s; }
-.exp-card:nth-child(6) { animation-delay: 0.3s; }
