@@ -23,7 +23,7 @@ include '../Shared/header.php';
         .hero-fullscreen {
             height: 100vh;
             min-height: 700px;
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.4)), url('https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg?auto=compress&cs=tinysrgb&w=1920&h=1080&dpr=2') center/cover no-repeat;
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('images/hero-bg.jpg') center/cover no-repeat;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -109,7 +109,7 @@ include '../Shared/header.php';
             gap: 4rem;
             padding: 4rem 0;
             border-bottom: 1px solid #F0EBE3;
-            scroll-margin-top: 100px; /* 滚动时避免被固定头部遮挡 */
+            scroll-margin-top: 100px;
             transition: background 0.3s;
         }
         .facility-row:last-child {
@@ -225,19 +225,19 @@ include '../Shared/header.php';
             <div class="pill" data-target="facility-skyfitness"><i class="fas fa-dumbbell"></i> Sky Fitness</div>
             <div class="pill" data-target="facility-pool"><i class="fas fa-swimming-pool"></i> Rooftop Infinity Pool</div>
             <div class="pill" data-target="facility-spa"><i class="fas fa-spa"></i> The Spa</div>
-            <div class="pill" data-target="facility-business"><i class="fas fa-briefcase"></i> Business Centre</div>
-            <div class="pill" data-target="facility-kids"><i class="fas fa-child"></i> Rangers Kids Club</div>
+            <div class="pill" data-target="facility-shop"><i class="fas fa-shopping-bag"></i> Retail Shop</div>
+            <div class="pill" data-target="facility-rangers"><i class="fas fa-child"></i> Rangers Club</div>
             <div class="pill" data-target="facility-ev"><i class="fas fa-charging-station"></i> EV Charging Station</div>
         </div>
     </div>
 </section>
 
-<!-- 横向设施列表（带ID，用于跳转） -->
+<!-- 横向设施列表（带ID，用于跳转） - 所有图片已改为本地路径 -->
 <div class="container">
     <!-- 设施 1: 健身房 -->
     <div class="facility-row" id="facility-skyfitness">
         <div class="facility-image">
-            <img src="https://images.pexels.com/photos/1954524/pexels-photo-1954524.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=2" alt="Fitness Centre">
+            <img src="images/sky-fitness.jpg" alt="Fitness Centre">
         </div>
         <div class="facility-content">
             <h2>Sky Fitness</h2>
@@ -257,7 +257,7 @@ include '../Shared/header.php';
     <!-- 设施 2: 屋顶泳池 -->
     <div class="facility-row reverse" id="facility-pool">
         <div class="facility-image">
-            <img src="https://images.pexels.com/photos/261102/pexels-photo-261102.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=2" alt="Rooftop Pool">
+            <img src="images/rooftop-infinity-pool.jpeg" alt="Rooftop Pool">
         </div>
         <div class="facility-content">
             <h2>Rooftop Infinity Pool</h2>
@@ -277,7 +277,7 @@ include '../Shared/header.php';
     <!-- 设施 3: 水疗中心 -->
     <div class="facility-row" id="facility-spa">
         <div class="facility-image">
-            <img src="https://images.pexels.com/photos/1268558/pexels-photo-1268558.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=2" alt="Spa & Wellness">
+            <img src="images/spa.jpeg" alt="Spa & Wellness">
         </div>
         <div class="facility-content">
             <h2>The Spa</h2>
@@ -294,30 +294,30 @@ include '../Shared/header.php';
         </div>
     </div>
 
-    <!-- 设施 4: 商务中心 -->
-    <div class="facility-row reverse" id="facility-business">
+    <!-- 设施 4: 零售店（纪念品商店） -->
+    <div class="facility-row reverse" id="facility-shop">
         <div class="facility-image">
-            <img src="https://images.pexels.com/photos/669615/pexels-photo-669615.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=2" alt="Business Centre">
+            <img src="images/hotel-gift-shop.jpg" alt="Retail Shop">
         </div>
         <div class="facility-content">
-            <h2>Business Centre</h2>
+            <h2>Grand Hotel Retail Shop</h2>
             <div class="facility-meta">
-                <span><i class="fas fa-clock"></i> 24/7</span>
-                <span><i class="fas fa-briefcase"></i> Meeting rooms</span>
+                <span><i class="fas fa-clock"></i> 10:00 AM – 7:00 PM</span>
+                <span><i class="fas fa-shopping-bag"></i> Souvenirs & Apparel</span>
             </div>
-            <p class="facility-desc">Fully equipped workspace with high-speed WiFi, printing, scanning, and private meeting rooms for up to 20 guests. On‑site secretarial support available.</p>
+            <p class="facility-desc">Take home the little touches that make Grand Hotel unique. Discover a curated collection of local handicrafts, resort apparel, signature spa amenities, and exclusive merchandise – every item to relive your Grand Hotel experience.</p>
             <ul class="feature-list">
-                <li><i class="fas fa-check-circle"></i> Complimentary coffee & tea</li>
-                <li><i class="fas fa-check-circle"></i> Video conferencing facilities</li>
-                <li><i class="fas fa-check-circle"></i> Day office packages</li>
+                <li><i class="fas fa-check-circle"></i> Locally crafted souvenirs</li>
+                <li><i class="fas fa-check-circle"></i> Signature bath & body products</li>
+                <li><i class="fas fa-check-circle"></i> Complimentary gift wrapping</li>
             </ul>
         </div>
-    </div>
+        </div>
 
     <!-- 设施 5: 儿童俱乐部 -->
-    <div class="facility-row" id="facility-kids">
+    <div class="facility-row" id="facility-rangers">
         <div class="facility-image">
-            <img src="https://images.pexels.com/photos/366104/pexels-photo-366104.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=2" alt="Kids Club">
+            <img src="images/rangers-club.jpeg" alt="Rangers Club">
         </div>
         <div class="facility-content">
             <h2>Rangers Club</h2>
@@ -337,7 +337,7 @@ include '../Shared/header.php';
     <!-- 设施 6: EV Charging Station -->
     <div class="facility-row reverse" id="facility-ev">
         <div class="facility-image">
-            <img src="https://images.pexels.com/photos/12035698/pexels-photo-12035698.jpeg?auto=compress&cs=tinysrgb&w=800&h=600&dpr=2" alt="EV Charging">
+            <img src="images/ev-charging.png" alt="EV Charging">
         </div>
         <div class="facility-content">
             <h2>EV Charging Station</h2>
@@ -363,12 +363,10 @@ include '../Shared/header.php';
             if (targetId) {
                 const targetElement = document.getElementById(targetId);
                 if (targetElement) {
-                    // 平滑滚动
                     targetElement.scrollIntoView({
                         behavior: 'smooth',
                         block: 'start'
                     });
-                    // 添加短暂高亮效果
                     targetElement.classList.add('highlight');
                     setTimeout(() => {
                         targetElement.classList.remove('highlight');
