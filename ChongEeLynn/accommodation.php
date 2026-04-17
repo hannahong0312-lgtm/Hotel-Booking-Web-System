@@ -1,7 +1,6 @@
 <?php
 // accommodation.php
 include '../Shared/config.php';
-
 include '../Shared/header.php';
 
 $room_type = $_GET['room_type'] ?? '';
@@ -19,7 +18,28 @@ $sql .= " ORDER BY id ASC";
 $result = $conn->query($sql);
 $rooms = [];
 if($result && $result->num_rows > 0) {
-    while($row = $result->fetch_assoc()) $rooms[] = $row;
+    while($row = $result->fetch_assoc()) {
+        // Fetch review stats for each room
+        $room_id = $row['id'];
+        $review_stats_sql = "SELECT COUNT(*) as total, AVG(r_rating) as avg_rating FROM review WHERE room_id = $room_id";
+        $review_stats_result = $conn->query($review_stats_sql);
+        $review_stats = $review_stats_result->fetch_assoc();
+        $row['total_reviews'] = $review_stats['total'] ? $review_stats['total'] : 0;
+        $row['avg_rating'] = $review_stats['avg_rating'] ? round($review_stats['avg_rating'], 1) : 0;
+        $rooms[] = $row;
+    }
+}
+
+// Function to generate star HTML
+function getStars($rating) {
+    $rating = (float)$rating;
+    $fullStars = floor($rating);
+    $hasHalfStar = ($rating - $fullStars) >= 0.5;
+    $stars = '';
+    for ($i = 0; $i < $fullStars; $i++) $stars .= '★';
+    if ($hasHalfStar) $stars .= '½';
+    for ($i = strlen($stars); $i < 5; $i++) $stars .= '☆';
+    return $stars;
 }
 ?>
 
@@ -30,6 +50,43 @@ if($result && $result->num_rows > 0) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Luxury Accommodations</title>
     <link rel="stylesheet" href="css/accommodation.css">
+    <style>
+        /* Additional styles for star ratings */
+        .room-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+        .room-header h3 {
+            margin: 0;
+        }
+        .rating-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .stars {
+            color: #ffc107;
+            font-size: 0.9rem;
+            letter-spacing: 1px;
+        }
+        .rating-value {
+            font-weight: 600;
+            color: #2c3e2f;
+            font-size: 0.85rem;
+        }
+        .review-count {
+            color: #666;
+            font-size: 0.75rem;
+        }
+        .no-reviews {
+            color: #999;
+            font-size: 0.75rem;
+            font-style: italic;
+        }
+    </style>
 </head>
 <body>
 
@@ -121,7 +178,18 @@ if($result && $result->num_rows > 0) {
                         </span>
                     </div>
                     <div class="room-info">
-                        <h3><?= htmlspecialchars($room['name']) ?></h3>
+                        <div class="room-header">
+                            <h3><?= htmlspecialchars($room['name']) ?></h3>
+                            <div class="rating-container">
+                                <?php if($room['total_reviews'] > 0): ?>
+                                    <div class="stars"><?= getStars($room['avg_rating']) ?></div>
+                                    <div class="rating-value"><?= $room['avg_rating'] ?></div>
+                                    <div class="review-count">(<?= $room['total_reviews'] ?>)</div>
+                                <?php else: ?>
+                                    <div class="no-reviews">No reviews yet</div>
+                                <?php endif; ?>
+                            </div>
+                        </div>
                         <p><?= htmlspecialchars($room['description']) ?></p>
                         <div class="room-meta">
                             <span>👥 <?= $room['max_guests'] ?> guests</span>

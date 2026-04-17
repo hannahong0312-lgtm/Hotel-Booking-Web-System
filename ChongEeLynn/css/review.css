@@ -11,18 +11,18 @@ body {
     background: #FAFAFA;
 }
 
-/* Hero Section */
+/* Hero Section - UPDATED to full viewport height */
 .reviews-hero {
     position: relative;
-    padding: 80px 24px;
-    text-align: center;
-    color: white;
+    height: 100vh;
+    min-height: 700px;
     background-size: cover;
     background-position: center;
-    min-height: 300px;
     display: flex;
     align-items: center;
     justify-content: center;
+    text-align: center;
+    color: white;
 }
 
 .reviews-hero-content {
@@ -30,6 +30,7 @@ body {
     z-index: 2;
     max-width: 800px;
     margin: 0 auto;
+    padding: 0 24px;
 }
 
 .breadcrumb {
@@ -556,7 +557,8 @@ body {
     }
     
     .reviews-hero {
-        padding: 50px 20px;
+        height: 80vh;
+        min-height: 500px;
     }
     
     .reviews-hero-content h1 {

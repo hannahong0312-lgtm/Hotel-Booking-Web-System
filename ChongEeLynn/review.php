@@ -1,5 +1,4 @@
 <?php
-session_start();
 include '../Shared/config.php';
 include '../Shared/header.php';
 
@@ -33,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_review'])) {
             $error = 'Comment cannot exceed 255 characters.';
         } else {
             // Check if user already reviewed this room
-            $check_sql = "SELECT rev_id FROM review WHERE user_id = $user_id AND room_id = $room_id";
+            $check_sql = "SELECT user_id FROM review WHERE user_id = $user_id AND room_id = $room_id";
             $check_result = $conn->query($check_sql);
             
             if ($check_result->num_rows > 0) {
@@ -55,10 +54,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['submit_review'])) {
     }
 }
 
-// Handle admin delete
+// Handle admin delete - using user_id since there's no rev_id
 if (isset($_GET['delete']) && isset($_SESSION['role']) && $_SESSION['role'] == 'admin') {
-    $delete_id = intval($_GET['delete']);
-    $conn->query("DELETE FROM review WHERE rev_id = $delete_id AND room_id = $room_id");
+    $delete_user_id = intval($_GET['delete']);
+    $conn->query("DELETE FROM review WHERE user_id = $delete_user_id AND room_id = $room_id");
     header("Location: review.php?id=$room_id");
     exit;
 }
@@ -101,8 +100,8 @@ $count_result = $conn->query("SELECT COUNT(*) as total FROM review r WHERE $wher
 $total_reviews = $count_result->fetch_assoc()['total'];
 $total_pages = ceil($total_reviews / $limit);
 
-// Get reviews
-$sql = "SELECT r.rev_id, r.r_rating, r.r_comment, r.created_at,
+// Get reviews - using user_id as identifier since no rev_id
+$sql = "SELECT r.user_id, r.r_rating, r.r_comment, r.created_at,
                u.first_name, u.last_name
         FROM review r
         JOIN users u ON r.user_id = u.id
@@ -133,15 +132,16 @@ for ($i = 5; $i >= 1; $i--) {
 // Check if user already reviewed
 $has_reviewed = false;
 if (isset($_SESSION['user_id'])) {
-    $check = $conn->query("SELECT rev_id FROM review WHERE user_id = " . $_SESSION['user_id'] . " AND room_id = $room_id");
+    $check = $conn->query("SELECT user_id FROM review WHERE user_id = " . $_SESSION['user_id'] . " AND room_id = $room_id");
     $has_reviewed = $check->num_rows > 0;
 }
 
 // Function to generate star HTML
 function getStars($rating) {
-    $stars = '';
-    for ($i = 0; $i < floor($rating); $i++) $stars .= '★';
-    for ($i = strlen($stars); $i < 5; $i++) $stars .= '☆';
+    $rating = (float)$rating;
+    $fullStars = floor($rating);
+    $stars = str_repeat('★', $fullStars);
+    $stars .= str_repeat('☆', 5 - $fullStars);
     return $stars;
 }
 ?>
@@ -238,7 +238,7 @@ function getStars($rating) {
                                     <div class="review-date">
                                         <?php echo $review['created_at_formatted']; ?>
                                         <?php if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin'): ?>
-                                            <a href="?id=<?php echo $room_id; ?>&delete=<?php echo $review['rev_id']; ?>" class="delete-btn" onclick="return confirm('Delete this review?')">Delete</a>
+                                            <a href="?id=<?php echo $room_id; ?>&delete=<?php echo $review['user_id']; ?>" class="delete-btn" onclick="return confirm('Delete this review?')">Delete</a>
                                         <?php endif; ?>
                                     </div>
                                 </div>
@@ -275,7 +275,9 @@ function getStars($rating) {
                     </div>
                     
                     <?php for ($i = 5; $i >= 1; $i--): ?>
-                        <?php $percent = $total_reviews_count > 0 ? ($distribution[$i] / $total_reviews_count * 100) : 0; ?>
+                        <?php 
+                        $percent = ($total_reviews_count > 0) ? ($distribution[$i] / $total_reviews_count * 100) : 0; 
+                        ?>
                         <div class="rating-bar-item">
                             <div class="rating-label"><?php echo $i; ?> ★</div>
                             <div class="rating-bar-bg"><div class="rating-bar-fill" style="width: <?php echo $percent; ?>%"></div></div>
@@ -338,7 +340,8 @@ function getStars($rating) {
 // Generate star rating HTML
 function getStars(rating) {
     var stars = '';
-    for (var i = 0; i < Math.floor(rating); i++) stars += '★';
+    var fullStars = Math.floor(rating);
+    for (var i = 0; i < fullStars; i++) stars += '★';
     for (var i = stars.length; i < 5; i++) stars += '☆';
     return stars;
 }

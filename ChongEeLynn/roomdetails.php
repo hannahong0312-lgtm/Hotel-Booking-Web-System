@@ -47,19 +47,19 @@ if ($arrive && $depart) {
 }
 $total_price = $nights * $room['price'];
 
-// Fetch review statistics for this room
-$review_stats_sql = "SELECT COUNT(*) as total, AVG(R_RATING) as avg_rating FROM REVIEW WHERE ROOM_ID = $room_id";
+// Fetch review statistics for this room - FIXED: using r_rating
+$review_stats_sql = "SELECT COUNT(*) as total, AVG(r_rating) as avg_rating FROM review WHERE room_id = $room_id";
 $review_stats_result = $conn->query($review_stats_sql);
 $review_stats = $review_stats_result->fetch_assoc();
 $total_reviews = $review_stats['total'] ? $review_stats['total'] : 0;
 $avg_rating = $review_stats['avg_rating'] ? round($review_stats['avg_rating'], 1) : 0;
 
-// Fetch top 2 reviews
+// Fetch top 2 reviews - FIXED: using lowercase column names
 $top_reviews_sql = "SELECT r.id, r.r_rating, r.r_comment, r.created_at,
                            u.first_name, u.last_name
-                    FROM REVIEW r
-                    JOIN users u ON r.user_id  = u.id
-                    WHERE r.room_id = $room_id
+                    FROM review r
+                    JOIN users u ON r.user_id = u.id
+                    WHERE r.room_id = $room_id AND r.r_rating IS NOT NULL
                     ORDER BY r.r_rating DESC, r.created_at DESC
                     LIMIT 2";
 $top_reviews_result = $conn->query($top_reviews_sql);
@@ -67,7 +67,8 @@ $top_reviews = [];
 if ($top_reviews_result && $top_reviews_result->num_rows > 0) {
     while ($row = $top_reviews_result->fetch_assoc()) {
         $row['user_name'] = $row['first_name'] . ' ' . $row['last_name'];
-        $row['created_at_formatted'] = date('F j, Y', strtotime($row['CREATED_AT']));
+        // FIXED: using created_at instead of CREATED_AT
+        $row['created_at_formatted'] = date('F j, Y', strtotime($row['created_at']));
         $top_reviews[] = $row;
     }
 }
@@ -243,7 +244,7 @@ if ($top_reviews_result && $top_reviews_result->num_rows > 0) {
                     </div>
                 </div>
                 
-                <!-- Reviews Section - NOW INSIDE THE LEFT COLUMN -->
+                <!-- Reviews Section - NOW INSIDE THE LEFT COLUMN (FIXED with correct column names) -->
                 <div class="info-card reviews-section-card">
                     <div class="reviews-section-header">
                         <h2>Guest Reviews</h2>
@@ -279,12 +280,18 @@ if ($top_reviews_result && $top_reviews_result->num_rows > 0) {
                                         </div>
                                         <div class="review-rating-simple">
                                             <?php
-                                            for ($i = 0; $i < $review['R_RATING']; $i++) echo '★';
-                                            for ($i = $review['R_RATING']; $i < 5; $i++) echo '☆';
+                                            // FIXED: using r_rating instead of R_RATING
+                                            for ($i = 0; $i < $review['r_rating']; $i++) echo '★';
+                                            for ($i = $review['r_rating']; $i < 5; $i++) echo '☆';
                                             ?>
                                         </div>
                                     </div>
-                                    <p class="review-comment-simple"><?php echo nl2br(htmlspecialchars(substr($review['R_COMMENT'], 0, 150))); ?><?php if(strlen($review['R_COMMENT']) > 150) echo '...'; ?></p>
+                                    <?php 
+                                    // FIXED: using r_comment instead of R_COMMENT
+                                    $comment = $review['r_comment'];
+                                    $comment_preview = strlen($comment) > 150 ? substr($comment, 0, 150) . '...' : $comment;
+                                    ?>
+                                    <p class="review-comment-simple"><?php echo nl2br(htmlspecialchars($comment_preview)); ?></p>
                                     <div class="review-date-simple"><?php echo $review['created_at_formatted']; ?></div>
                                 </div>
                             <?php endforeach; ?>
@@ -296,9 +303,9 @@ if ($top_reviews_result && $top_reviews_result->num_rows > 0) {
                         <?php endif; ?>
                     <?php endif; ?>
                 </div>
-            </div> <!-- END OF LEFT COLUMN detail-info -->
+            </div> 
             
-            <!-- Right Column: Booking Card (STICKY/SCROLLABLE) -->
+            <!-- Booking Card -->
             <div class="detail-booking">
                 <div class="booking-card sticky-card">
                     <h3>Book This Room</h3>
@@ -348,7 +355,7 @@ if ($top_reviews_result && $top_reviews_result->num_rows > 0) {
     </div>
 </section>
 
-<!-- Similar Rooms Section (shows 4 rooms) -->
+<!-- Similar Rooms Section -->
 <?php if (!empty($similar_rooms)): ?>
 <section class="similar-rooms">
     <div class="detail-container">
