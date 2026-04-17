@@ -104,13 +104,13 @@ include '../Shared/header.php';
     </div>
 </section>
 
-<!-- ========== MEETINGS & EVENTS ========== -->
+<!-- ========== WEDDINGS & EVENTS ========== -->
 <section class="events-split-section">
     <div class="events-split-container">
         <div class="events-image-side"></div>
         <div class="events-text-side">
             <div class="events-text-content">
-                <div class="events-subtitle">MEETINGS & EVENTS</div>
+                <div class="events-subtitle">WEDDINGS & EVENTS</div>
                 <h2 class="events-title">ELEVATE YOUR GATHERINGS IN THE HEART OF ELEGANCE</h2>
                 <p class="events-description">
                     From high-profile corporate boardrooms to lavish wedding celebrations, our versatile spaces are designed to inspire. Experience seamless service, state-of-the-art technology, and a refined atmosphere tailored to your every need.
@@ -138,7 +138,7 @@ include '../Shared/header.php';
     </div>
 </section>
 
-<!-- ========== GRAND REWARDS ========== -->
+<!-- ========== JOIN GRAND MEMBER ========== -->
 <section class="member-card-section">
     <div class="member-card">
         <div class="member-grid">
