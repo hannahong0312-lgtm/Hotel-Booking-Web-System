@@ -18,7 +18,7 @@ include '../Shared/header.php';
 </head>
 <body>
 
-/* HERO SECTION */
+<!-- HERO SECTION -->
 <section class="hero">
     <div class="hero-content">
         <h2>A Grand Experience Awaits</h2>
@@ -51,7 +51,7 @@ include '../Shared/header.php';
     </div>
 </section>
 
-/* THREE-PANEL SECTION */
+<!-- THREE-PANEL SECTION -->
 <section class="three-panel-section">
     <div class="section-header">
         <h2>Discover Grand Hotel</h2>
@@ -61,7 +61,7 @@ include '../Shared/header.php';
         </div>
     </div>
     <div class="three-panel-container">
-        //ROOMS & SUITES PART
+        <!-- ROOMS & SUITES PART -->
         <div class="panel-card">
             <div class="panel-bg" style="background-image: url('images/accommodation.webp');"></div>
             <div class="panel-overlay"></div>
@@ -71,7 +71,7 @@ include '../Shared/header.php';
                 <a href="../ChongEeLynn/accommodation.php" class="panel-btn">VIEW ROOMS</a>
             </div>
         </div>
-        //FACILITIES PART
+        <!-- FACILITIES PART -->
         <div class="panel-card">
             <div class="panel-bg" style="background-image: url('images/sky-fitness.jpeg');"></div>
             <div class="panel-overlay"></div>
@@ -81,7 +81,7 @@ include '../Shared/header.php';
                 <a href="../ChangJingEn/facilities.php" class="panel-btn">VIEW FACILITIES</a>
             </div>
         </div>
-        // DINING PART
+        <!-- DINING PART -->
         <div class="panel-card">
             <div class="panel-bg" style="background-image: url('images/dining.jpeg');"></div>
             <div class="panel-overlay"></div>
@@ -94,7 +94,7 @@ include '../Shared/header.php';
     </div>
 </section>
 
-/* LIMITED TIME OFFERS SECTION */
+<!-- LIMITED TIME OFFERS SECTION -->
 <section class="limited-offers-fullwidth">
     <div class="limited-offers-container">
         <h2>LIMITED TIME OFFERS</h2>
@@ -104,7 +104,7 @@ include '../Shared/header.php';
     </div>
 </section>
 
-/* EVENTS & MEETINGS SECTION */
+<!-- EVENTS & MEETINGS SECTION -->
 <section class="events-split-section">
     <div class="events-split-container">
         <div class="events-image-side"></div>
@@ -121,7 +121,7 @@ include '../Shared/header.php';
     </div>
 </section>
 
-/* LOCAL EXPERIENCES SECTION */
+<!-- LOCAL EXPERIENCES SECTION -->
 <section class="experiences-section">
     <div class="experiences-container">
         <div class="experiences-image"></div>
@@ -138,7 +138,7 @@ include '../Shared/header.php';
     </div>
 </section>
 
-/* MEMBER CARD SECTION */
+<!-- MEMBER CARD SECTION -->
 <section class="member-card-section">
     <div class="member-card">
         <div class="member-grid">
@@ -177,7 +177,7 @@ include '../Shared/header.php';
     const homeDepart = document.getElementById('home_depart');
     function updateHomeCheckoutMin() {
         if (homeArrive.value) {
-            //Don't let users pick checkout date earlier than check-in.
+            //Don't let users pick checkout date earlier than check-in date
             homeDepart.min = homeArrive.value;
             if (homeDepart.value && homeDepart.value <= homeArrive.value) {
                 let newCheckout = new Date(homeArrive.value);
