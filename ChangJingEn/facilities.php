@@ -22,8 +22,7 @@ include '../Shared/header.php';
         /* 英雄区 - 全屏 */
         .hero-fullscreen {
             height: 100vh;
-            min-height: 700px;
-            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('images/hero-bg.jpg') center/cover no-repeat;
+            background: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('images/facilities-hero-bg.jpg') center/cover no-repeat;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -237,7 +236,7 @@ include '../Shared/header.php';
     <!-- 设施 1: 健身房 -->
     <div class="facility-row" id="facility-skyfitness">
         <div class="facility-image">
-            <img src="images/sky-fitness.jpg" alt="Fitness Centre">
+            <img src="images/sky-fitness.jpeg" alt="Fitness Centre">
         </div>
         <div class="facility-content">
             <h2>Sky Fitness</h2>
