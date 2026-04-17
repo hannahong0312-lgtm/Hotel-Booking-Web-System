@@ -1,43 +1,6 @@
 <?php
-// homepage.php - Grand Hotel Homepage
+// homepage.php - Grand Hotel Melaka 
 require_once '../Shared/config.php';
-
-$pageCSS = 'css/homepage.css';  
-
-$featured_rooms = [
-    [
-        'id' => 1,
-        'room_name' => 'Grand Deluxe Suite',
-        'room_type' => 'Suite',
-        'price_per_night' => 450.00,
-        'description' => 'Spacious suite with separate living area, panoramic city views, and marble bathroom.',
-        'image_url' => 'https://images.pexels.com/photos/1648777/pexels-photo-1648777.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&dpr=2'
-    ],
-    [
-        'id' => 2,
-        'room_name' => 'Premier Ocean View',
-        'room_type' => 'Double',
-        'price_per_night' => 320.00,
-        'description' => 'King-size bed, floor-to-ceiling windows overlooking the ocean, and a private balcony.',
-        'image_url' => 'https://images.pexels.com/photos/258154/pexels-photo-258154.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&dpr=2'
-    ],
-    [
-        'id' => 3,
-        'room_name' => 'Executive Club Room',
-        'room_type' => 'Single',
-        'price_per_night' => 280.00,
-        'description' => 'Access to executive lounge, complimentary breakfast, and high-speed Wi-Fi.',
-        'image_url' => 'https://images.pexels.com/photos/271618/pexels-photo-271618.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&dpr=2'
-    ],
-    [
-        'id' => 4,
-        'room_name' => 'Family Garden View',
-        'room_type' => 'Family',
-        'price_per_night' => 380.00,
-        'description' => 'Two connecting rooms, garden terrace, and kid-friendly amenities.',
-        'image_url' => 'https://images.pexels.com/photos/189296/pexels-photo-189296.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&dpr=2'
-    ]
-];
 
 $user_role = isset($_SESSION['user_role']) ? $_SESSION['user_role'] : null;
 $is_logged_in = isLoggedIn();
@@ -45,116 +8,202 @@ $is_logged_in = isLoggedIn();
 include '../Shared/header.php';
 ?>
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grand Hotel Melaka | Timeless Elegance</title>
+    <link rel="stylesheet" href="css/homepage.css">
+</head>
+<body>
+
+<!-- ========== HERO SECTION ========== -->
 <section class="hero">
     <div class="hero-content">
         <h2>A Grand Experience Awaits</h2>
-        <p>Discover timeless elegance, world-class amenities, and impeccable service in the heart of the city</p>
-        <div class="search-widget">
-            <form action="../ChongEeLynn/accommodation.php" method="GET" class="search-form">
-                <div class="search-group">
-                    <label>ARRIVE</label>
-                    <input type="date" name="checkin" id="checkin" required value="<?php echo date('Y-m-d'); ?>">
-                </div>
-                <div class="search-group">
-                    <label>DEPART</label>
-                    <input type="date" name="checkout" id="checkout" required value="<?php echo date('Y-m-d', strtotime('+1 day')); ?>">
-                </div>
-                <div class="search-group">
-                    <label>GUESTS</label>
-                    <select name="guests">
-                        <option value="1">1 Adult</option>
-                        <option value="2" selected>2 Adults</option>
-                        <option value="3">3 Adults</option>
-                        <option value="4">4 Adults</option>
-                    </select>
-                </div>
-                <div class="search-group">
-                    <button type="submit" class="search-btn">CHECK AVAILABILITY</button>
-                </div>
-            </form>
+        <p>Discover timeless elegance, world-class amenities, and impeccable service in the heart of Melaka</p>
+        
+        <div class="hero-search-wrapper">
+            <div class="search-oval-card">
+                <form action="../ChongEeLynn/accommodation.php" method="GET" class="search-form-horizontal">
+                    <div class="search-group-compact">
+                        <label>ARRIVE</label>
+                        <input type="date" name="arrive" id="home_arrive" required value="<?php echo date('Y-m-d'); ?>">
+                    </div>
+                    <div class="search-group-compact">
+                        <label>DEPART</label>
+                        <input type="date" name="depart" id="home_depart" required value="<?php echo date('Y-m-d', strtotime('+1 day')); ?>">
+                    </div>
+                    <div class="search-group-compact">
+                        <label>GUESTS</label>
+                        <div class="guest-stepper-compact">
+                            <button type="button" class="guest-btn-compact" onclick="changeHomeGuests(-1)">−</button>
+                            <span class="guest-value-compact" id="homeGuestVal">2</span>
+                            <input type="hidden" name="guests" id="homeGuestInput" value="2">
+                            <button type="button" class="guest-btn-compact" onclick="changeHomeGuests(1)">+</button>
+                        </div>
+                    </div>
+                    <button type="submit" class="search-btn-oval-home">CHECK AVAILABILITY</button>
+                </form>
+            </div>
         </div>
     </div>
 </section>
 
-<div class="section">
-    <div class="container">
-        <h2 class="section-title">Unmatched Experiences</h2>
-        <p class="section-subtitle">Indulge in world-class facilities designed for your comfort</p>
-        <div class="amenities-grid">
-            <div class="amenity-item">
-                <i class="fas fa-swimming-pool"></i>
-                <h4>Infinity Pool</h4>
-                <p>Panoramic city views</p>
+<!-- ========== DISCOVER GRAND HOTEL ========== -->
+<section class="three-panel-section">
+    <div class="section-header">
+        <h2>Discover Grand Hotel</h2>
+        <div class="hotel-intro">
+            <strong>Relax in Elegance at Grand Hotel Melaka</strong><br>
+            Grand Hotel Melaka sits along the historic Straits, where old-world charm meets modern luxury. Step into a lobby that whispers the past, then retreat to warm, spacious rooms. Start your morning in our outdoor pool, enjoy Peranakan-inspired dishes, and unwind with a cocktail at sunset. Whether exploring the old town or hosting a gathering, every moment here is effortlessly memorable.
+        </div>
+    </div>
+    <div class="three-panel-container">
+        <!-- ROOMS & SUITES -->
+        <div class="panel-card">
+            <div class="panel-bg" style="background-image: url('images/accommodation.webp');"></div>
+            <div class="panel-overlay"></div>
+            <div class="panel-content">
+                <h3>ROOMS & SUITES</h3>
+                <h2>REST EASY,<br>YOUR WAY</h2>
+                <a href="../ChongEeLynn/accommodation.php" class="panel-btn">VIEW ROOMS</a>
             </div>
-            <div class="amenity-item">
-                <i class="fas fa-dumbbell"></i>
-                <h4>Fitness Center</h4>
-                <p>State-of-the-art equipment</p>
+        </div>
+        <!-- FACILITIES -->
+        <div class="panel-card">
+            <div class="panel-bg" style="background-image: url('images/sky-fitness.jpeg');"></div>
+            <div class="panel-overlay"></div>
+            <div class="panel-content">
+                <h3>FACILITIES</h3>
+                <h2>LIVE IT UP,<br>YOUR STAY</h2>
+                <a href="../ChangJingEn/facilities.php" class="panel-btn">VIEW FACILITIES</a>
             </div>
-            <div class="amenity-item">
-                <i class="fas fa-utensils"></i>
-                <h4>Gourmet Dining</h4>
-                <p>Michelin-starred chefs</p>
-            </div>
-            <div class="amenity-item">
-                <i class="fas fa-spa"></i>
-                <h4>Spa & Wellness</h4>
-                <p>Rejuvenating treatments</p>
+        </div>
+        <!-- EAT & DRINK -->
+        <div class="panel-card">
+            <div class="panel-bg" style="background-image: url('images/dining.jpeg');"></div>
+            <div class="panel-overlay"></div>
+            <div class="panel-content">
+                <h3>EAT & DRINK</h3>
+                <h2>TASTE THE BEST</h2>
+                <a href="../Hannah/dining.php" class="panel-btn">DISCOVER MORE</a>
             </div>
         </div>
     </div>
-</div>
+</section>
 
-<div class="section" style="background: var(--gray-bg);">
-    <div class="container">
-        <h2 class="section-title">Featured Suites</h2>
-        <p class="section-subtitle">Discover our most sought-after accommodations</p>
-        <?php if (count($featured_rooms) > 0): ?>
-            <div class="rooms-grid">
-                <?php foreach ($featured_rooms as $room): ?>
-                    <div class="room-card">
-                        <div class="room-img" style="background-image: url('<?php echo !empty($room['image_url']) ? htmlspecialchars($room['image_url']) : 'https://images.pexels.com/photos/1648777/pexels-photo-1648777.jpeg?auto=compress&cs=tinysrgb&w=600&h=400&dpr=2'; ?>');"></div>
-                        <div class="room-info">
-                            <span class="room-type"><?php echo htmlspecialchars($room['room_type']); ?></span>
-                            <h3><?php echo htmlspecialchars($room['room_name']); ?></h3>
-                            <div class="room-price">$<?php echo number_format($room['price_per_night'], 2); ?><small> / night</small></div>
-                            <p><?php echo htmlspecialchars(substr($room['description'], 0, 90)); ?>...</p>
-                            <a href="room_details.php?id=<?php echo $room['id']; ?>" class="btn-details">View Details →</a>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
+<!-- ========== LIMITED TIME OFFERS ========== -->
+<section class="limited-offers-fullwidth">
+    <div class="limited-offers-container">
+        <h2>LIMITED TIME OFFERS</h2>
+        <div class="subhead">ELEVATE YOUR ESCAPE</div>
+        <p>From the moment you book, get ready for a stay you'll never forget. Our exclusive packages and special offers are made to make your experience extra special. Whether you want a relaxing holiday, a business trip, or a short escape near the historic straits, we have the right deal for you. Don't miss these limited offers to upgrade your stay.</p>
+        <a href="../ChongEeLynn/offers.php" class="btn-limited">VIEW OFFERS ></a>
+    </div>
+</section>
+
+<!-- ========== MEETINGS & EVENTS ========== -->
+<section class="events-split-section">
+    <div class="events-split-container">
+        <div class="events-image-side"></div>
+        <div class="events-text-side">
+            <div class="events-text-content">
+                <div class="events-subtitle">MEETINGS & EVENTS</div>
+                <h2 class="events-title">ELEVATE YOUR GATHERINGS IN THE HEART OF ELEGANCE</h2>
+                <p class="events-description">
+                    From high-profile corporate boardrooms to lavish wedding celebrations, our versatile spaces are designed to inspire. Experience seamless service, state-of-the-art technology, and a refined atmosphere tailored to your every need.
+                </p>
+                <a href="../ChangJingEn/events.php" class="events-explore-btn">EXPLORE SPACES →</a>
             </div>
-        <?php else: ?>
-            <p style="text-align:center;">No featured rooms available. Please check back later.</p>
-        <?php endif; ?>
+        </div>
     </div>
-</div>
+</section>
 
-<div class="container">
-    <div class="cta">
-        <h3>Amplify Your Stay</h3>
-        <p>Book now and enjoy exclusive benefits: daily breakfast, RM50 dining credit, and 20% off spa treatments.</p>
-        <a href="offers.php" class="btn-cta">Explore Offers</a>
+<!-- ========== LOCAL EXPERIENCES ========== -->
+<section class="experiences-section">
+    <div class="experiences-container">
+        <div class="experiences-image"></div>
+        <div class="experiences-text-side">
+            <div class="experiences-text-content">
+                <div class="experiences-subtitle">LOCAL EXPERIENCES</div>
+                <h2 class="experiences-title">UNLOCK THE MAGIC OF MELAKA</h2>
+                <p class="experiences-description">
+                   Step outside into a living museum. From the red Stadthuys and Christ Church to Jonker Walk night market. Enjoy a quiet river cruise past old shophouses, taste authentic Nyonya laksa, discover hidden boutiques, and catch a traditional Portuguese folk performance. Whether it's your first visit or your fiftieth, you'll find an experience that feels like home, yet full of wonder.
+                </p>
+                <a href="../ChongEeLynn/experiences.php" class="experiences-btn">EXPLORE MORE →</a>
+            </div>
+        </div>
     </div>
-</div>
+</section>
+
+<!-- ========== GRAND REWARDS ========== -->
+<section class="member-card-section">
+    <div class="member-card">
+        <div class="member-grid">
+            <div class="member-content">
+                <h2>The Best Rates Are Always Here</h2>
+                <p>Get the best prices plus free Wi-Fi when you become a Grand member.</p>
+                <div class="member-buttons">
+                    <a href="../ChangJingEn/register.php" class="btn-member-primary">Join for Free</a>
+                    <a href="../ChangJingEn/login.php" class="btn-member-secondary">Sign In</a>
+                </div>
+            </div>
+            <div class="member-features">
+                <div class="member-feature-item">
+                    <i class="fas fa-tag"></i>
+                    <h4>BEST RATE GUARANTEE</h4>
+                    <p>Lowest price when booking direct</p>
+                </div>
+                <div class="member-feature-item">
+                    <i class="fas fa-moon"></i>
+                    <h4>EARN FREE NIGHTS</h4>
+                    <p>Redeem points for stays</p>
+                </div>
+                <div class="member-feature-item">
+                    <i class="fas fa-wifi"></i>
+                    <h4>FREE PREMIUM WI-FI</h4>
+                    <p>High-speed internet access</p>
+                </div>
+                <div class="member-feature-item">
+                    <i class="fas fa-gift"></i>
+                    <h4>EARN POINTS</h4>
+                    <p>Every stay earns points</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 <script>
-    const checkin = document.getElementById('checkin');
-    const checkout = document.getElementById('checkout');
-    function updateCheckoutMin() {
-        if (checkin.value) {
-            checkout.min = checkin.value;
-            if (checkout.value <= checkin.value) {
-                let newCheckout = new Date(checkin.value);
+    const homeArrive = document.getElementById('home_arrive');
+    const homeDepart = document.getElementById('home_depart');
+    function updateHomeCheckoutMin() {
+        if (homeArrive.value) {
+            homeDepart.min = homeArrive.value;
+            if (homeDepart.value && homeDepart.value <= homeArrive.value) {
+                let newCheckout = new Date(homeArrive.value);
                 newCheckout.setDate(newCheckout.getDate() + 1);
-                checkout.value = newCheckout.toISOString().split('T')[0];
+                homeDepart.value = newCheckout.toISOString().split('T')[0];
             }
         }
     }
-    checkin.addEventListener('change', updateCheckoutMin);
-    updateCheckoutMin();
+    if (homeArrive) {
+        homeArrive.addEventListener('change', updateHomeCheckoutMin);
+        updateHomeCheckoutMin();
+    }
+    function changeHomeGuests(delta) {
+        let input = document.getElementById('homeGuestInput');
+        let span = document.getElementById('homeGuestVal');
+        let val = parseInt(input.value) + delta;
+        if(val >= 1 && val <= 8) {
+            input.value = val;
+            span.textContent = val;
+        }
+    }
 </script>
 
-<?php
-include '../Shared/footer.php';
-?>
+<?php include '../Shared/footer.php'; ?>
+</body>
+</html>
