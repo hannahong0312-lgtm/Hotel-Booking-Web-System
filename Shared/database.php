@@ -165,3 +165,18 @@ CREATE TABLE REVIEW (
     INDEX idx_room_id (room_id),
     INDEX idx_user_id (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE experiences (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    type ENUM('main', 'favorite') DEFAULT 'main',
+    category VARCHAR(100),
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    feature1 VARCHAR(255),
+    feature2 VARCHAR(255),
+    image_path VARCHAR(500),
+    display_order INT DEFAULT 0,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);

@@ -323,7 +323,7 @@ function getStars($rating) {
                 <?php elseif (!isset($_SESSION['user_id'])): ?>
                     <div class="sidebar-card write-review-card">
                         <h3>Write a Review</h3>
-                        <p>Please <a href="../login.php" class="login-link">login</a> to submit a review.</p>
+                        <p>Please <a href="../ChangJingEn/login.php" class="login-link">login</a> to submit a review.</p>
                     </div>
                 <?php elseif ($has_reviewed): ?>
                     <div class="sidebar-card write-review-card">

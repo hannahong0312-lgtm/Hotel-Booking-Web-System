@@ -1,76 +1,21 @@
 <?php
+include '../Shared/config.php';
 
-// experiences.php
-$experiences = [
-    [
-        'category' => '🏮 Heritage walk',
-        'title' => 'Jonker Walk Night Market',
-        'description' => 'Every weekend, Jonker Street transforms into a kaleidoscope of street food, antiques, and live performances. Savor chicken rice balls, cendol, and nyonya kuih under vintage lanterns.',
-        'feature1' => '🌙 Fri & Sat evenings',
-        'feature2' => '🎶 Live music & antiques',
-        'gradient_start' => '#ad6b35',
-        'gradient_end' => '#e09d5e',
-        'placeholder_img' => 'images/jonker.jpg'
-    ],
-    [
-        'category' => '🏛️ Colonial landmarks',
-        'title' => 'Stadthuys & Christ Church',
-        'description' => 'The iconic salmon-red Dutch administrative building & 18th-century Christ Church. Explore the History & Ethnography Museum inside — uncover Melaka\'s maritime glory.',
-        'feature1' => '📸 Dutch Square vibes',
-        'feature2' => '🕰️ Open daily 9am-5pm',
-        'gradient_start' => '#6d4c2e',
-        'gradient_end' => '#b47c48',
-        'placeholder_img' => 'images/redchurch.jpg'
-    ],
-    [
-        'category' => '⚔️ Fortress legacy',
-        'title' => 'A\'Famosa Fort & St. Paul\'s Hill',
-        'description' => 'One of the oldest surviving European architectural remains in Asia. Climb St. Paul\'s Hill for panoramic views and read weathered tombstones.',
-        'feature1' => '🌄 Sunset viewpoint',
-        'feature2' => '📜 Free entry',
-        'gradient_start' => '#3b5c4a',
-        'gradient_end' => '#a4b6a9',
-        'placeholder_img' => 'images/Afamosa.jpg'
-    ],
-    [
-        'category' => '🚤 Riverside cruise',
-        'title' => 'Melaka River Cruise',
-        'description' => 'Glide along the Melaka River past murals, kampung houses, and colorful bridges. See the city from a different angle — soothing breeze and heritage murals.',
-        'feature1' => '⛵ 45-min journey',
-        'feature2' => '🎨 Instagram-worthy murals',
-        'gradient_start' => '#728c90',
-        'gradient_end' => '#5e92a5',
-        'placeholder_img' => 'images/rivercruise.jpg'
-    ],
-    [
-        'category' => '🕯️ Spiritual heritage',
-        'title' => 'Cheng Hoon Teng Temple',
-        'description' => 'Malaysia\'s oldest functioning Chinese temple, adorned with intricate carvings and lacquer work. A serene escape showcasing Buddhist and Taoist elements.',
-        'feature1' => '🏮 Built in 1645',
-        'feature2' => '🙏 Free guided blessings',
-        'gradient_start' => '#31625a',
-        'gradient_end' => '#509b8c',
-        'placeholder_img' => 'images/temple.jpg'
-    ],
-    [
-        'category' => '🍛 Culinary journey',
-        'title' => 'Baba Nyonya Heritage Dinner',
-        'description' => 'Experience authentic Peranakan cuisine: ayam pongteh, itek tim, and spicy devil curry. Join a cooking class or dine at a classic nyonya restaurant.',
-        'feature1' => '🥢 Signature dishes',
-        'feature2' => '🍚 Hands-on workshop',
-        'gradient_start' => '#aa7c4a',
-        'gradient_end' => '#dcae7a',
-        'placeholder_img' => 'images/nyonyafood.webp'
-    ]
-];
+// Fetch main experiences
+$main_query = "SELECT * FROM experiences WHERE type = 'main' AND is_active = 1 ORDER BY display_order";
+$main_result = $conn->query($main_query);
+$experiences = [];
+while ($row = $main_result->fetch_assoc()) {
+    $experiences[] = $row;
+}
 
-// Local favorites data with images instead of emojis
-$localFavorites = [
-    ['image' => 'images/trishaw.webp', 'title' => 'Trishaw Art Ride', 'desc' => 'Hop onto a flower-decked, karaoke-blasting trishaw — each one uniquely themed, from Disney to local flora.'],
-    ['image' => 'images/morten.webp', 'title' => 'Kampung Morten Walk', 'desc' => 'Traditional Malay village nestled along the river. See authentic stilt houses, friendly locals and try traditional kueh.'],
-    ['image' => 'images/mosque.jpg', 'title' => 'Melaka Straits Mosque', 'desc' => 'Floating mosque at sunset — golden domes reflect on water, creating a breathtaking spiritual atmosphere.'],
-    ['image' => 'images/skytower.jpg', 'title' => 'The Shore Sky Tower', 'desc' => 'Panoramic 360° views of Melaka strait and heritage skyline — especially mesmerizing at golden hour.']
-];
+// Fetch local favorites
+$fav_query = "SELECT * FROM experiences WHERE type = 'favorite' AND is_active = 1 ORDER BY display_order";
+$fav_result = $conn->query($fav_query);
+$localFavorites = [];
+while ($row = $fav_result->fetch_assoc()) {
+    $localFavorites[] = $row;
+}
 
 include '../Shared/header.php';
 ?>
@@ -104,14 +49,18 @@ include '../Shared/header.php';
     <div class="cards-grid">
         <?php foreach ($experiences as $exp): ?>
             <div class="exp-card">
-                <div class="card-img" style="background-image: linear-gradient(125deg, <?= htmlspecialchars($exp['gradient_start']) ?>, <?= htmlspecialchars($exp['gradient_end']) ?>), url('<?= htmlspecialchars($exp['placeholder_img']) ?>'); background-blend-mode: overlay; background-size: cover; background-position: center;"></div>
+                <div class="card-img" style="background-image: url('<?= htmlspecialchars($exp['image_path']) ?>'); background-size: cover; background-position: center;"></div>
                 <div class="card-content">
                     <span class="card-category"><?= htmlspecialchars($exp['category']) ?></span>
                     <h3><?= htmlspecialchars($exp['title']) ?></h3>
                     <p><?= htmlspecialchars($exp['description']) ?></p>
                     <div class="exp-feature">
-                        <span><?= htmlspecialchars($exp['feature1']) ?></span>
-                        <span><?= htmlspecialchars($exp['feature2']) ?></span>
+                        <?php if (!empty($exp['feature1'])): ?>
+                            <span><?= htmlspecialchars($exp['feature1']) ?></span>
+                        <?php endif; ?>
+                        <?php if (!empty($exp['feature2'])): ?>
+                            <span><?= htmlspecialchars($exp['feature2']) ?></span>
+                        <?php endif; ?>
                     </div>
                 </div>
             </div>
@@ -134,10 +83,10 @@ include '../Shared/header.php';
         <?php foreach ($localFavorites as $fav): ?>
             <div class="local-card">
                 <div class="local-image">
-                    <img src="<?= htmlspecialchars($fav['image']) ?>" alt="<?= htmlspecialchars($fav['title']) ?>">
+                    <img src="<?= htmlspecialchars($fav['image_path']) ?>" alt="<?= htmlspecialchars($fav['title']) ?>">
                 </div>
                 <h3><?= htmlspecialchars($fav['title']) ?></h3>
-                <p><?= htmlspecialchars($fav['desc']) ?></p>
+                <p><?= htmlspecialchars($fav['description']) ?></p>
             </div>
         <?php endforeach; ?>
     </div>
@@ -147,7 +96,7 @@ include '../Shared/header.php';
         <div class="info-item">
             <div class="info-icon">📅</div>
             <h4>Best time to visit</h4>
-            <p>May–August (dry season) & year-end festive vibes. Avoid Nov–Dec heavy rains.</p>
+            <p>May–August (dry season) & year-end festive vibes.</p>
         </div>
         <div class="info-item">
             <div class="info-icon">🚆</div>

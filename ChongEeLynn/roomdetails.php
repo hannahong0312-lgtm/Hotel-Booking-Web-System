@@ -116,40 +116,43 @@ if ($top_reviews_result && $top_reviews_result->num_rows > 0) {
                 </div>
 
                 <!-- Photo Gallery Section -->
-                <div class="info-card">
-                    <h2>Room Gallery</h2>
-                    <p class="gallery-subtitle">Take a closer look at what this room has to offer</p>
-                    
-                    <div class="gallery-grid">
-                        <div class="gallery-item main-room">
-                            <img src="images/<?php echo $room['image']; ?>" alt="<?= htmlspecialchars($room['name']) ?> - Main Room">
-                            <div class="gallery-caption">
-                                <span class="caption-icon">🛏️</span>
-                                <span>Comfortable <?= htmlspecialchars($room['bed_type']) ?></span>
-                            </div>
-                        </div>
-                        
-                        <div class="gallery-item bathroom">
-                            <img src="images/bathroom-<?= $room['category'] ?>.jpg" 
-                                 alt="Luxury Bathroom" 
-                                 onerror="this.src='images/bathroom-default.jpg'">
-                            <div class="gallery-caption">
-                                <span class="caption-icon">🚿</span>
-                                <span>Luxury Bathroom</span>
-                            </div>
-                        </div>
-                        
-                        <div class="gallery-item amenities-area">
-                            <img src="images/tea-coffee-<?= $room['category'] ?>.jpg" 
-                                 alt="Tea, Coffee & Mini Fridge" 
-                                 onerror="this.src='images/tea-coffee-default.jpg'">
-                            <div class="gallery-caption">
-                                <span class="caption-icon">☕</span>
-                                <span>Tea, Coffee & Mini Fridge</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<div class="info-card">
+    <h2>Room Gallery</h2>
+    <p class="gallery-subtitle">Take a closer look at what this room has to offer</p>
+    
+    <div class="gallery-grid">
+        <!-- Main Room Image  -->
+        <div class="gallery-item main-room">
+            <img src="images/<?php echo $room['image']; ?>" alt="<?= htmlspecialchars($room['name']) ?> - Main Room">
+            <div class="gallery-caption">
+                <span class="caption-icon">🛏️</span>
+                <span>Comfortable <?= htmlspecialchars($room['bed_type']) ?></span>
+            </div>
+        </div>
+        
+        <!-- Bathroom Image -->
+        <div class="gallery-item bathroom">
+            <img src="images/<?php echo $room['bathroom_image']; ?>" 
+                 alt="Luxury Bathroom" 
+                 onerror="this.src='images/bathroom-default.jpg'">
+            <div class="gallery-caption">
+                <span class="caption-icon">🚿</span>
+                <span>Luxury Bathroom</span>
+            </div>
+        </div>
+        
+        <!-- Amenities Image -->
+        <div class="gallery-item amenities-area">
+            <img src="images/<?php echo $room['amenities_image']; ?>" 
+                 alt="Tea, Coffee & Mini Fridge" 
+                 onerror="this.src='images/amenities-default.jpg'">
+            <div class="gallery-caption">
+                <span class="caption-icon">☕</span>
+                <span>Tea, Coffee & Mini Fridge</span>
+            </div>
+        </div>
+    </div>
+</div>
                 
                 <div class="info-card">
                     <div class="features-grid">
@@ -244,7 +247,7 @@ if ($top_reviews_result && $top_reviews_result->num_rows > 0) {
                     </div>
                 </div>
                 
-                <!-- Reviews Section - NOW INSIDE THE LEFT COLUMN (FIXED with correct column names) -->
+                <!-- Reviews Section -->
                 <div class="info-card reviews-section-card">
                     <div class="reviews-section-header">
                         <h2>Guest Reviews</h2>
