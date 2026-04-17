@@ -154,22 +154,18 @@ include '../Shared/header.php';
                 <div class="member-feature-item">
                     <i class="fas fa-tag"></i>
                     <h4>BEST RATE GUARANTEE</h4>
-                    <p>Lowest price when booking direct</p>
                 </div>
                 <div class="member-feature-item">
                     <i class="fas fa-moon"></i>
                     <h4>EARN FREE NIGHTS</h4>
-                    <p>Redeem points for stays</p>
                 </div>
                 <div class="member-feature-item">
                     <i class="fas fa-wifi"></i>
                     <h4>FREE PREMIUM WI-FI</h4>
-                    <p>High-speed internet access</p>
                 </div>
                 <div class="member-feature-item">
                     <i class="fas fa-gift"></i>
                     <h4>EARN POINTS</h4>
-                    <p>Every stay earns points</p>
                 </div>
             </div>
         </div>
