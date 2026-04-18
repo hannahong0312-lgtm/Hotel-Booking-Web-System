@@ -24,34 +24,40 @@ if (!$user) redirect('logout.php');
 if (!isset($user['birthday'])) $user['birthday'] = '';
 if (!isset($user['language'])) $user['language'] = 'en';
 if (!isset($user['subscribe'])) $user['subscribe'] = 1;
-// 确保 points 不为 null
 $user['points'] = $user['points'] ?? 0;
 
-// 统计预订数据
-$total_spent = 0;
+// 统计预订数量（房间+餐饮）
 $total_bookings = 0;
 $total_points_earned = 0;
 try {
-    $room_query = "SELECT COUNT(*) as count, COALESCE(SUM(grand_total), 0) as spent, COALESCE(SUM(points_earned), 0) as points_earned 
-                   FROM book WHERE user_id = ? AND status != 'cancelled'";
+    // 房间预订数量
+    $room_query = "SELECT COUNT(*) as count FROM book WHERE user_id = ? AND status != 'cancelled'";
     $stmt = $conn->prepare($room_query);
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
-    $room_stats = $stmt->get_result()->fetch_assoc();
-    $total_bookings = $room_stats['count'];
-    $total_spent = $room_stats['spent'];
-    $total_points_earned = $room_stats['points_earned'] ?? 0;
+    $total_bookings = $stmt->get_result()->fetch_assoc()['count'];
     $stmt->close();
 
+    // 餐饮预订数量
     $dining_query = "SELECT COUNT(*) as count FROM dining WHERE email = ? AND status != 'cancelled'";
     $stmt = $conn->prepare($dining_query);
     $stmt->bind_param("s", $user['email']);
     $stmt->execute();
     $total_bookings += $stmt->get_result()->fetch_assoc()['count'];
     $stmt->close();
-} catch (mysqli_sql_exception $e) {}
+    
+    // 从 payment 表获取生命周期总赚取积分
+    $points_earned_query = "SELECT COALESCE(SUM(points_earned), 0) as total_earned 
+                            FROM payment WHERE user_id = ?";
+    $stmt = $conn->prepare($points_earned_query);
+    $stmt->bind_param("i", $user_id);
+    $stmt->execute();
+    $total_points_earned = $stmt->get_result()->fetch_assoc()['total_earned'];
+    $stmt->close();
+} catch (mysqli_sql_exception $e) {
+    error_log("Profile stats error: " . $e->getMessage());
+}
 
-$member_number = 'M' . str_pad($user_id, 7, '0', STR_PAD_LEFT);
 $join_date = date('F Y', strtotime($user['created_at'] ?? 'now'));
 
 // 处理个人信息更新（使用 subscribe）
@@ -119,23 +125,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
     }
 }
 
-// 获取所有预订（房间+餐饮）用于表格
+// 获取所有预订（房间+餐饮）用于表格 - 修复房间名称查询，并关联 payment 获取 points_earned
 $all_bookings = [];
 try {
-    $room_query = "SELECT 'Room' as type, booking_ref as ref, room_name as name, 
-                          check_in as start_date, check_out as end_date, guests, 
-                          grand_total as total, status, points_earned, created_at
-                   FROM book WHERE user_id = ? ORDER BY created_at DESC LIMIT 20";
+    // 房间预订：通过 JOIN rooms 获取 room name，LEFT JOIN payment 获取 points_earned
+    $room_query = "SELECT 'Room' as type, r.name as name, 
+                          b.check_in as start_date, b.check_out as end_date, b.guests, 
+                          b.status, p.points_earned, b.created_at
+                   FROM book b
+                   JOIN rooms r ON b.room_id = r.id
+                   LEFT JOIN payment p ON b.payment_id = p.id
+                   WHERE b.user_id = ? AND b.status != 'cancelled'
+                   ORDER BY b.created_at DESC LIMIT 20";
     $stmt = $conn->prepare($room_query);
     $stmt->bind_param("i", $user_id);
     $stmt->execute();
     $room_bookings = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
     
-    $dining_query = "SELECT 'Dining' as type, code as ref, name, 
-                            date as start_date, NULL as end_date, guests,
-                            NULL as total, status, NULL as points_earned, created_at
-                     FROM dining WHERE email = ? ORDER BY created_at DESC LIMIT 10";
+    // 餐饮预订（没有积分赚取，直接显示 NULL）
+    $dining_query = "SELECT 'Dining' as type, name, date as start_date, 
+                            NULL as end_date, guests, status, NULL as points_earned, created_at
+                     FROM dining WHERE email = ? AND status != 'cancelled'
+                     ORDER BY created_at DESC LIMIT 10";
     $stmt = $conn->prepare($dining_query);
     $stmt->bind_param("s", $user['email']);
     $stmt->execute();
@@ -146,7 +158,9 @@ try {
     usort($all_bookings, function($a, $b) {
         return strtotime($b['created_at']) - strtotime($a['created_at']);
     });
-} catch (mysqli_sql_exception $e) {}
+} catch (mysqli_sql_exception $e) {
+    error_log("Booking fetch error: " . $e->getMessage());
+}
 
 $countries = [
     'Malaysia', 'Singapore', 'Thailand', 'Indonesia', 'Vietnam', 'Philippines',
@@ -172,8 +186,8 @@ $languages = [
     <style>
         /* 所有样式限定在 .profile-container 内，避免影响 footer */
         .header {
-        background: rgba(26, 26, 26, 0.95);
-        padding: 0.8rem 0;
+            background: rgba(26, 26, 26, 0.95);
+            padding: 0.8rem 0;
         }
         
         .profile-container {
@@ -480,11 +494,11 @@ $languages = [
 <body>
 
 <div class="profile-container">
-    <!-- 顶部欢迎 + 统计 -->
+    <!-- 顶部欢迎 + 统计（移除了 Spent 和 Member ID） -->
     <div class="hero-section">
         <div class="hero-text">
             <h1>Hello, <?php echo htmlspecialchars($user['first_name']); ?>!</h1>
-            <p>Member since <?php echo $join_date; ?> · Member ID <?php echo $member_number; ?></p>
+            <p>Member since <?php echo $join_date; ?></p>
         </div>
         <div class="stats-group">
             <div class="stat-card">
@@ -494,10 +508,6 @@ $languages = [
             <div class="stat-card">
                 <div class="stat-number"><?php echo $total_bookings; ?></div>
                 <div class="stat-label">Bookings</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">RM <?php echo number_format($total_spent ?? 0, 0); ?></div>
-                <div class="stat-label">Spent</div>
             </div>
         </div>
     </div>
@@ -513,7 +523,7 @@ $languages = [
     <div class="tabs">
         <button class="tab-btn active" data-tab="account"><i class="fas fa-user-circle"></i> Account Details</button>
         <button class="tab-btn" data-tab="security"><i class="fas fa-lock"></i> Security</button>
-        <button class="tab-btn" data-tab="points"><i class="fas fa-coins"></i> Points Rewards</button>
+        <button class="tab-btn" data-tab="points"><i class="fas fa-coins"></i> Points</button>
         <button class="tab-btn" data-tab="bookings"><i class="fas fa-hotel"></i> Recent Bookings</button>
     </div>
 
@@ -608,31 +618,29 @@ $languages = [
     <!-- 3. Points Rewards -->
     <div class="tab-content" id="points-tab">
         <div class="points-rewards-content">
-            <h3><i class="fas fa-coins"></i> Your Points Rewards</h3>
+            <h3><i class="fas fa-coins"></i> Your Points</h3>
             <div class="points-badge-large">
                 <span><?php echo number_format($user['points'] ?? 0); ?></span> available points
             </div>
             <div class="points-rules">
                 <p><strong>How to earn:</strong> Earn 10 points for every RM1 spent on room bookings.</p>
                 <p><strong>How to redeem:</strong> 100 points = RM1 discount on future stays.</p>
-                <p><strong>Lifetime earned:</strong> <?php echo number_format($total_points_earned ?? 0); ?> points</p>
+                <p><strong>Lifetime earned:</strong> <?php echo number_format($total_points_earned); ?> points</p>
                 <p><strong>Never expire.</strong> Use them at checkout.</p>
             </div>
         </div>
     </div>
 
-    <!-- 4. Recent Bookings -->
+    <!-- 4. Recent Bookings（Points 列现在会显示真实赚取的积分） -->
     <div class="tab-content" id="bookings-tab">
         <div class="table-wrapper">
             <table class="bookings-table">
                 <thead>
                     <tr>
                         <th>Type</th>
-                        <th>Reference</th>
                         <th>Name</th>
                         <th>Dates</th>
                         <th>Guests</th>
-                        <th>Total (RM)</th>
                         <th>Status</th>
                         <th>Points</th>
                     </tr>
@@ -642,7 +650,6 @@ $languages = [
                         <?php foreach ($all_bookings as $b): ?>
                             <tr>
                                 <td><?php echo $b['type']; ?></td>
-                                <td><?php echo htmlspecialchars($b['ref']); ?></td>
                                 <td><?php echo htmlspecialchars($b['name']); ?></td>
                                 <td>
                                     <?php 
@@ -651,14 +658,21 @@ $languages = [
                                     ?>
                                 </td>
                                 <td><?php echo $b['guests']; ?></td>
-                                <td><?php echo $b['total'] ? number_format($b['total'], 2) : '-'; ?></td>
                                 <td><span class="status-badge status-<?php echo strtolower($b['status']); ?>"><?php echo ucfirst($b['status']); ?></span></td>
-                                <td class="points-earned"><?php echo $b['points_earned'] ? '+' . number_format($b['points_earned']) : '-'; ?></td>
+                                <td class="points-earned">
+                                    <?php 
+                                    if ($b['points_earned'] > 0) {
+                                        echo '+' . number_format($b['points_earned']);
+                                    } else {
+                                        echo '-';
+                                    }
+                                    ?>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="8" class="empty-state">No bookings yet. <a href="../ChongEeLynn/accommodation.php" style="color: #D4AF37;">Explore our rooms</a></td>
+                            <td colspan="6" class="empty-state">No bookings yet. <a href="../ChongEeLynn/accommodation.php" style="color: #D4AF37;">Explore our rooms</a></td>
                         </tr>
                     <?php endif; ?>
                 </tbody>

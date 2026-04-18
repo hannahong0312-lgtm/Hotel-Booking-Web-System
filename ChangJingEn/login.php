@@ -1,5 +1,5 @@
 <?php
-// login.php - Customer Login Page
+// login.php - Grand Hotel Melaka 
 require_once '../Shared/header.php';
 
 if ($is_logged_in) {
@@ -24,7 +24,6 @@ unset($_SESSION['registration_success']);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | Grand Hotel</title>
-    <!-- 引入外部 login.css (与 login.php 同级目录下的 css 文件夹) -->
     <link rel="stylesheet" href="css/login.css">
 </head>
 <body>
