@@ -104,7 +104,7 @@ include '../Shared/header.php';
     </div>
 </section>
 
-<!-- EVENTS & MEETINGS SECTION -->
+<!-- WEDDINGS & EVENTS SECTION -->
 <section class="events-split-section">
     <div class="events-split-container">
         <div class="events-image-side"></div>
