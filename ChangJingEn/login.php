@@ -2,21 +2,19 @@
 // login.php - Grand Hotel Melaka 
 require_once '../Shared/header.php';
 
+// Redirect if user is already logged in
 if ($is_logged_in) {
     redirect('../profile.php');
 }
 
-// 从 session 中取出可能存在的错误信息和上次输入的邮箱
 $errors = $_SESSION['login_errors'] ?? [];
 $old_email = $_SESSION['login_email'] ?? '';
-// 清除 session 中的临时数据，避免刷新页面重复显示
 unset($_SESSION['login_errors'], $_SESSION['login_email']);
 
-// 注册成功消息（如果有）
+// success message after registration
 $success_message = $_SESSION['registration_success'] ?? '';
 unset($_SESSION['registration_success']);
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">

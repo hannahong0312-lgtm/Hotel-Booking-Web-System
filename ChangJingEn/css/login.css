@@ -72,6 +72,7 @@
     box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.1);
 }
 
+/* Checkbox – remember me and forgot password link */
 .login-container .checkbox-group {
     display: flex;
     align-items: center;
@@ -102,6 +103,7 @@
     text-decoration: underline;
 }
 
+/* Submit button */
 .btn-login-submit {
     width: 100%;
     background: var(--gold);

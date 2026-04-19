@@ -10,7 +10,6 @@ include '../Shared/header.php';
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Facilities | Grand Hotel</title>
     <link rel="stylesheet" href="../Shared/main.css">
-    <!-- Separate CSS file for facilities page – keeps styles modular -->
     <link rel="stylesheet" href="css/facilities.css">
 </head>
 <body>
@@ -39,7 +38,7 @@ include '../Shared/header.php';
     </div>
 </section>
 
-<!-- FACILITY CARDS  -->
+<!-- FACILITY CARDS -->
 <div class="container">
     <!-- 1. Sky Fitness -->
     <div class="facility-row" id="facility-skyfitness">
@@ -48,36 +47,46 @@ include '../Shared/header.php';
         </div>
         <div class="facility-content">
             <h2>Sky Fitness</h2>
-            <div class="facility-meta">
-                <span><i class="fas fa-clock"></i> 24 hours</span>
-                <span><i class="fas fa-dumbbell"></i> State-of-the-art equipment</span>
-            </div>
             <p class="facility-desc">Maintain your peak performance with panoramic city views, premium cardio machines, free weights, and personal training sessions available upon request.</p>
-            <ul class="feature-list">
-                <li><i class="fas fa-check-circle"></i> 24/7 keycard access</li>
-                <li><i class="fas fa-check-circle"></i> Complimentary towels & water</li>
-                <li><i class="fas fa-check-circle"></i> Yoga studio & mats</li>
-            </ul>
+            <div class="facility-details">
+                <div class="detail-block">
+                    <div class="detail-label">OPERATING HOURS</div>
+                    <div class="detail-value">24 hours, daily</div>
+                </div>
+                <div class="detail-block">
+                    <div class="detail-label">EQUIPMENT</div>
+                    <div class="detail-value">State-of-the-art machines & free weights</div>
+                </div>
+                <div class="detail-block">
+                    <div class="detail-label">INCLUDED</div>
+                    <div class="detail-value">Complimentary towels and water provided. Yoga studio access included for all guests.</div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- 2. Rooftop Infinity Pool -->
+    <!-- 2. Rooftop Infinity Pool (reverse) -->
     <div class="facility-row reverse" id="facility-pool">
         <div class="facility-image">
             <img src="images/rooftop-infinity-pool.jpeg" alt="Rooftop Pool">
         </div>
         <div class="facility-content">
             <h2>Rooftop Infinity Pool</h2>
-            <div class="facility-meta">
-                <span><i class="fas fa-clock"></i> 7:00 AM – 10:00 PM</span>
-                <span><i class="fas fa-cocktail"></i> Poolside bar</span>
-            </div>
             <p class="facility-desc">Take a dip above the city skyline. Our heated infinity pool offers breathtaking sunset views, sun loungers, and refreshing cocktails delivered to your side.</p>
-            <ul class="feature-list">
-                <li><i class="fas fa-check-circle"></i> Towel service included</li>
-                <li><i class="fas fa-check-circle"></i> Private cabanas available</li>
-                <li><i class="fas fa-check-circle"></i> Underwater music system</li>
-            </ul>
+            <div class="facility-details">
+                <div class="detail-block">
+                    <div class="detail-label">OPERATING HOURS</div>
+                    <div class="detail-value">7:00 AM – 10:00 PM, daily</div>
+                </div>
+                <div class="detail-block">
+                    <div class="detail-label">POOLSIDE BAR</div>
+                    <div class="detail-value">Signature cocktails & light bites</div>
+                </div>
+                <div class="detail-block">
+                    <div class="detail-label">GUEST PERKS</div>
+                    <div class="detail-value">Towel service included. Private cabanas available for hotel guests.</div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -88,16 +97,21 @@ include '../Shared/header.php';
         </div>
         <div class="facility-content">
             <h2>The Spa</h2>
-            <div class="facility-meta">
-                <span><i class="fas fa-clock"></i> 10:00 AM – 8:00 PM</span>
-                <span><i class="fas fa-spa"></i> Signature treatments</span>
-            </div>
             <p class="facility-desc">Escape into pure relaxation with aromatherapy massages, organic facials, and traditional Malay therapies. Our expert therapists will tailor each experience.</p>
-            <ul class="feature-list">
-                <li><i class="fas fa-check-circle"></i> Couples suite & jacuzzi</li>
-                <li><i class="fas fa-check-circle"></i> Steam room & sauna</li>
-                <li><i class="fas fa-check-circle"></i> Herbal tea lounge</li>
-            </ul>
+            <div class="facility-details">
+                <div class="detail-block">
+                    <div class="detail-label">OPERATING HOURS</div>
+                    <div class="detail-value">10:00 AM – 8:00 PM, daily</div>
+                </div>
+                <div class="detail-block">
+                    <div class="detail-label">SIGNATURE TREATMENTS</div>
+                    <div class="detail-value">Aromatherapy • Hot stone • Malay massage</div>
+                </div>
+                <div class="detail-block">
+                    <div class="detail-label">COMPLIMENTARY ACCESS</div>
+                    <div class="detail-value">Enjoy complimentary access to steam room, sauna, and herbal tea lounge with any treatment.</div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -108,16 +122,17 @@ include '../Shared/header.php';
         </div>
         <div class="facility-content">
             <h2>Grand Hotel Retail Shop</h2>
-            <div class="facility-meta">
-                <span><i class="fas fa-clock"></i> 10:00 AM – 7:00 PM</span>
-                <span><i class="fas fa-shopping-bag"></i> Souvenirs & Apparel</span>
+            <p class="facility-desc">Take home the little touches that make Grand Hotel unique. Discover a curated collection of local handicrafts, resort apparel, signature spa amenities, and exclusive merchandise.</p>
+            <div class="facility-details">
+                <div class="detail-block">
+                    <div class="detail-label">OPERATING HOURS</div>
+                    <div class="detail-value">10:00 AM – 7:00 PM, daily</div>
+                </div>
+                <div class="detail-block">
+                    <div class="detail-label">PRODUCTS</div>
+                    <div class="detail-value">Souvenirs • Apparel • Spa products</div>
+                </div>
             </div>
-            <p class="facility-desc">Take home the little touches that make Grand Hotel unique. Discover a curated collection of local handicrafts, resort apparel, signature spa amenities, and exclusive merchandise – every item to relive your Grand Hotel experience.</p>
-            <ul class="feature-list">
-                <li><i class="fas fa-check-circle"></i> Locally crafted souvenirs</li>
-                <li><i class="fas fa-check-circle"></i> Signature bath & body products</li>
-                <li><i class="fas fa-check-circle"></i> Complimentary gift wrapping</li>
-            </ul>
         </div>
     </div>
 
@@ -128,58 +143,57 @@ include '../Shared/header.php';
         </div>
         <div class="facility-content">
             <h2>Rangers Club</h2>
-            <div class="facility-meta">
-                <span><i class="fas fa-clock"></i> 2:00 PM – 5:00 PM</span>
-                <span><i class="fas fa-child"></i> Ages 4–12</span>
-            </div>
             <p class="facility-desc">A safe, supervised space where little ones can play, create, and explore. Packed with games, arts & crafts, and movie screenings.</p>
-            <ul class="feature-list">
-                <li><i class="fas fa-check-circle"></i> Professional childcare staff</li>
-                <li><i class="fas fa-check-circle"></i> Healthy snacks included</li>
-                <li><i class="fas fa-check-circle"></i> Outdoor playground</li>
-            </ul>
+            <div class="facility-details">
+                <div class="detail-block">
+                    <div class="detail-label">OPERATING HOURS</div>
+                    <div class="detail-value">2:00 PM – 5:00 PM, daily</div>
+                </div>
+                <div class="detail-block">
+                    <div class="detail-label">AGE GROUP</div>
+                    <div class="detail-value">Ages 4–12</div>
+                </div>
+                <div class="detail-block">
+                    <div class="detail-label">INCLUDED</div>
+                    <div class="detail-value">Healthy snacks included. Parental supervision required.</div>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- 6. EV Charging Station -->
+    <!-- 6. EV Charging Station (reverse) -->
     <div class="facility-row reverse" id="facility-ev">
         <div class="facility-image">
             <img src="images/ev-charging.png" alt="EV Charging">
         </div>
         <div class="facility-content">
             <h2>EV Charging Station</h2>
-            <div class="facility-meta">
-                <span><i class="fas fa-plug"></i> 24/7 access</span>
-                <span><i class="fas fa-leaf"></i> Sustainable luxury</span>
+            <p class="facility-desc">As part of our commitment to eco-friendly hospitality, we offer EV charging facilities for in‑house guests. Two stations available in basement B1, accessible with your room key.</p>
+            <div class="facility-details">
+                <div class="detail-block">
+                    <div class="detail-label">ACCESS</div>
+                    <div class="detail-value">24/7, self-service</div>
+                </div>
+                <div class="detail-block">
+                    <div class="detail-label">POWER</div>
+                    <div class="detail-value">22kW AC (Type 2 & CCS)</div>
+                </div>
             </div>
-            <p class="facility-desc">As part of our commitment to eco-friendly hospitality, we offer complimentary EV charging for in‑house guests. Two stations available in basement B1, accessible with your room key.</p>
-            <ul class="feature-list">
-                <li><i class="fas fa-check-circle"></i> Connectors: Type 2 & CCS</li>
-                <li><i class="fas fa-check-circle"></i> Power: 22kW AC</li>
-                <li><i class="fas fa-check-circle"></i> First come, first served</li>
-            </ul>
         </div>
     </div>
 </div>
 
 <script>
-    // Attach click event to each pill button
+    // Smooth scroll and highlight for pill buttons
     document.querySelectorAll('.pill').forEach(pill => {
         pill.addEventListener('click', function() {
             const targetId = this.getAttribute('data-target');
             if (targetId) {
                 const targetElement = document.getElementById(targetId);
                 if (targetElement) {
-                    // Smooth scroll to the target facility card
-                    targetElement.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                    // Add temporary highlight class for visual feedback
+                    targetElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     targetElement.classList.add('highlight');
-                    setTimeout(() => {
-                        targetElement.classList.remove('highlight');
-                    }, 1000);
+                    setTimeout(() => targetElement.classList.remove('highlight'), 1000);
                 }
             }
         });

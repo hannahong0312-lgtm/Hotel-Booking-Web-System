@@ -1,12 +1,12 @@
 <?php
-// register_process.php - 处理顾客注册请求
+// register_process.php 
 require_once '../../Shared/config.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// 权限与请求方式检查
+// Prevent already logged in customers from accessing the registration page
 if (isset($_SESSION['user_id']) && isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'customer') {
     redirect('../login.php');
 }
@@ -16,7 +16,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit('Access denied.');
 }
 
-// 获取并清理输入
 $first_name = cleanInput($_POST['first_name'] ?? '');
 $last_name  = cleanInput($_POST['last_name']  ?? '');
 $email      = cleanInput($_POST['email']      ?? '');
@@ -39,7 +38,7 @@ $input_data = [
 
 $errors = [];
 
-// 姓名验证
+// Name validation
 if (empty($first_name)) {
     $errors['first_name'] = 'First name is required.';
 } elseif (strlen($first_name) < 2) {
@@ -52,7 +51,7 @@ if (empty($last_name)) {
     $errors['last_name'] = 'Last name must be at least 2 characters.';
 }
 
-// 邮箱验证
+// Email validation
 if (empty($email)) {
     $errors['email'] = 'Email address is required.';
 } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
@@ -68,23 +67,23 @@ if (empty($email)) {
     $stmt->close();
 }
 
-// 手机号验证
+// Phone validation
 if (empty($phone)) {
     $errors['phone'] = 'Phone number is required.';
 } elseif (!preg_match('/^[0-9+\-\s]+$/', $phone)) {
     $errors['phone'] = 'Please enter a valid phone number.';
 }
 
-// 国家验证
+// Country selection
 if (empty($country)) {
     $errors['country'] = 'Please select your country/region.';
 }
 
-// ========== 新密码规则验证（与前端规则清单一致）==========
+// Password strength validation
 if (empty($password)) {
     $errors['password'] = 'Password is required.';
 } else {
-    if (strlen($password) < 8 || strlen($password) > 32) {
+    if (strlen($password) < 8 || strlen($password) > 16) {
         $errors['password'] = 'Password must be 8–32 characters.';
     } elseif (!preg_match('/[A-Z]/', $password)) {
         $errors['password'] = 'Password must contain at least one uppercase letter.';
@@ -94,24 +93,24 @@ if (empty($password)) {
         $errors['password'] = 'Password must contain at least one number or special character.';
     }
 }
-// ========== 密码规则验证结束 ==========
 
+// Password confirmation
 if ($password !== $confirm) {
     $errors['confirm_password'] = 'Passwords do not match.';
 }
 
+// Terms agreement
 if (!$terms) {
     $errors['terms'] = 'You must agree to the Terms & Conditions.';
 }
 
-// 错误处理
 if (!empty($errors)) {
     $_SESSION['reg_errors'] = $errors;
     $_SESSION['reg_old']    = $input_data;
     redirect('../register.php');
 }
 
-// 数据库插入
+// Insert new user into database
 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
 $role       = 'customer';
 $status     = 'active';
@@ -124,20 +123,16 @@ $stmt = $conn->prepare($query);
 $stmt->bind_param("ssssssssis", $first_name, $last_name, $email, $phone, $country, $hashed_password, $role, $status, $subscribe, $created_at);
 
 if ($stmt->execute()) {
-    // 获取新插入的用户ID
     $new_user_id = $conn->insert_id;
     $stmt->close();
 
-    // 自动登录：设置会话变量
+     // Auto login after user successful register
     $_SESSION['user_id']   = $new_user_id;
     $_SESSION['user_role'] = $role;
     $_SESSION['user_name'] = $first_name . ' ' . $last_name;
     $_SESSION['user_email'] = $email;
-    
-    // 可选：设置欢迎消息
     $_SESSION['welcome_message'] = 'Welcome, ' . $first_name . '! Your account has been created successfully.';
     
-    // 重定向到首页（或用户仪表盘）
     redirect('../profile.php');
 } else {
     $errors['general']      = 'Registration failed. Please try again later.';

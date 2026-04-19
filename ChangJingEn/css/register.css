@@ -79,6 +79,7 @@
     box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.1);
 }
 
+/* Hide browser's built-in password reveal button */
 input[type="password"]::-ms-reveal,
 input[type="password"]::-ms-clear,
 input[type="password"]::-webkit-contacts-auto-fill-button
@@ -96,7 +97,7 @@ input[type="password"]::-webkit-credentials-auto-fill-button {
     align-items: center;
 }
 .password-wrapper input {
-    padding-right: 45px !important;
+    padding-right: 45px ;
 }
 .toggle-password {
     position: absolute;

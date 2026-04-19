@@ -1,5 +1,5 @@
 <?php
-// admin_login.php - Admin Login (Grand Hotel Management)
+// admin_login.php - Grand Hotel Melaka
 session_start();
 
 if (isset($_SESSION['admin_id'])) {

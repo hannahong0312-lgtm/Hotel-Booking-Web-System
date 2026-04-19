@@ -8,12 +8,12 @@ body {
     background: #FFFFFF;
 }
 
-/* HERO SECTION  */
+/* HERO SECTION */
 .hero-fullscreen {
     position: relative;
     height: 100vh;
     min-height: 700px;
-    background: linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.3)),
+    background: linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.35)),
                 url('../images/facilities-hero-bg.jpg') center/cover no-repeat;
     display: flex;
     align-items: center;
@@ -26,7 +26,8 @@ body {
     font-family: 'Playfair Display', serif;
     font-size: 4rem;
     font-weight: 500;
-    margin-bottom: 0.8rem;
+    margin-bottom: 1rem;
+    letter-spacing: -0.5px;
 }
 
 .hero-fullscreen p {
@@ -34,12 +35,13 @@ body {
     max-width: 700px;
     margin: 0 auto;
     opacity: 0.9;
+    font-weight: 300;
 }
 
-/* FEATURE LUXURY (click to each facility card) */
+/* FEATURE LUXURY (PILLS) */
 .feature-luxury {
     background: #FDFCF8;
-    padding: 2.5rem 2rem;
+    padding: 2rem 2rem;
     border-bottom: 1px solid #F0EBE3;
     text-align: center;
 }
@@ -53,7 +55,7 @@ body {
     font-family: 'Playfair Display', serif;
     font-size: 2.2rem;
     font-weight: 500;
-    color: #D4AF37;         
+    color: #D4AF37;
     letter-spacing: 1px;
     margin-bottom: 1.2rem;
 }
@@ -71,7 +73,7 @@ body {
 /* Flex container for pill‑style buttons */
 .facility-pills {
     display: flex;
-    flex-wrap: wrap; /* wraps on mobile */
+    flex-wrap: wrap;
     justify-content: center;
     gap: 1rem;
     margin-top: 0.5rem;
@@ -80,11 +82,11 @@ body {
 .pill {
     background: #FFFFFF;
     border-radius: 60px;
-    padding: 0.6rem 1.5rem;
+    padding: 0.7rem 1.8rem;
     font-size: 0.9rem;
     font-weight: 500;
     color: #2C2C2C;
-    transition: all 0.2s ease;
+    transition: all 0.25s ease;
     border: 1px solid #EAE6E0;
     cursor: pointer;
 }
@@ -95,30 +97,36 @@ body {
 }
 
 .pill:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    background: #D4AF37;
+    color: #1A1A1A;
+    transform: translateY(-3px);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.05);
     border-color: #D4AF37;
 }
 
-/* Container for all facility cards */
-.container {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 0 2rem;
+.pill:hover i {
+    color: #1A1A1A;
 }
 
+.facilities.container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 2rem 4rem 2rem;
+}
+
+/*  FACILITY ROWS */
 .facility-row {
     display: flex;
     align-items: center;
     gap: 4rem;
-    padding: 4rem 0;
-    border-bottom: 1px solid #F0EBE3;
+    padding: 5rem 0;
+    border-bottom: 1px solid #F0EBE3;   
     scroll-margin-top: 100px;
     transition: background 0.3s;
 }
 
 .facility-row:last-child {
-    border-bottom: none;
+    border-bottom: none;  
 }
 
 .facility-row.reverse {
@@ -126,16 +134,21 @@ body {
 }
 
 .facility-row.highlight {
-    background: rgba(212, 175, 55, 0.05);
-    border-radius: 28px;
+    background: rgba(212, 175, 55, 0.04);
+    border-radius: 32px;
 }
 
-/* Image container */
+/*  IMAGE CONTAINER */
 .facility-image {
     flex: 1;
     border-radius: 24px;
     overflow: hidden;
-    box-shadow: 0 20px 30px -10px rgba(0,0,0,0.08);
+    box-shadow: 0 25px 35px -12px rgba(0,0,0,0.1);
+    transition: transform 0.4s ease;
+}
+
+.facility-image:hover {
+    transform: translateY(-4px);
 }
 
 .facility-image img {
@@ -143,7 +156,7 @@ body {
     height: 380px;
     object-fit: cover;
     display: block;
-    transition: transform 0.4s;
+    transition: transform 0.5s;
 }
 
 .facility-image:hover img {
@@ -157,52 +170,58 @@ body {
 
 .facility-content h2 {
     font-family: 'Playfair Display', serif;
-    font-size: 1.8rem;
+    font-size: 2rem;
     font-weight: 500;
-    margin-bottom: 1rem;
-    color: #1A1A1A;
-}
-
-/* Information row (display opening hours, type) */
-.facility-meta {
-    display: flex;
-    gap: 1.5rem;
     margin-bottom: 1.2rem;
-    font-size: 0.85rem;
-    color: #D4AF37;
+    color: #1A1A1A;
+    letter-spacing: -0.3px;
+    position: relative;
+    display: inline-block;
 }
 
-.facility-meta i {
-    margin-right: 5px;
+/* Gold underline below the heading */
+.facility-content h2::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    width: 50px;
+    height: 2px;
+    background: #D4AF37;
 }
 
 .facility-desc {
     color: #5A5A5A;
-    line-height: 1.6;
-    margin-bottom: 1.5rem;
+    line-height: 1.7;
+    margin-bottom: 1.8rem;
     font-size: 0.95rem;
 }
 
-.feature-list {
-    list-style: none;
-    margin-top: 1rem;
-}
-
-.feature-list li {
-    margin-bottom: 0.6rem;
+/* FACILITY DETAILS */
+.facility-details {
     display: flex;
-    align-items: center;
-    gap: 10px;
+    flex-direction: column;
+    gap: 1.2rem;
+    margin: 1.5rem 0;
+}
+
+.detail-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #C5A059;
+    margin-bottom: 0.3rem;
+}
+
+.detail-value {
     font-size: 0.9rem;
-    color: #2C2C2C;
+    color: #1A1A1A;
+    line-height: 1.4;
+    font-weight: 500;
 }
 
-.feature-list i {
-    color: #D4AF37;
-    width: 20px;
-}
-
-@media (max-width: 900px) {
+@media (max-width: 992px) {
     .facility-row,
     .facility-row.reverse {
         flex-direction: column;
@@ -210,10 +229,10 @@ body {
         padding: 3rem 0;
     }
     .facility-image img {
-        height: 280px;
+        height: 320px;
     }
     .hero-fullscreen h1 {
-        font-size: 2.2rem;
+        font-size: 2.8rem;
     }
     .hero-fullscreen p {
         font-size: 1rem;
@@ -231,5 +250,14 @@ body {
     .hero-fullscreen {
         height: 70vh;
         min-height: 500px;
+    }
+    .facility-content h2 {
+        font-size: 1.6rem;
+    }
+    .facility-desc {
+        font-size: 0.9rem;
+    }
+    .detail-value {
+        font-size: 0.85rem;
     }
 }

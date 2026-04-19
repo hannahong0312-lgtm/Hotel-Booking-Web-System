@@ -136,14 +136,13 @@ body {
     display: none;
 }
 
-/* 隐藏一些浏览器自带的密码图标 */
+/* Hide browsers built-in password reveal button */
 input[type="password"]::-ms-reveal,
 input[type="password"]::-ms-clear,
 input[type="password"]::-webkit-credentials-auto-fill-button {
     display: none;
 }
 
-/* 响应式适配 */
 @media (max-width: 500px) {
     .login-card { max-width: 95%; }
     .login-body { padding: 24px; }

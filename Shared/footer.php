@@ -18,7 +18,7 @@
                     <h4>Quick Links</h4>
                     <ul>
                         <li><a href="../Hannah/dining.php">Dining</a></li>
-                        <li><a href="..ChangJingEn/wedding&events.php">Weddings & Events</a></li>
+                        <li><a href="../ChangJingEn/events.php">Weddings & Events</a></li>
                         <li><a href="../ChangJingEn/facilities.php">Facilities</a></li>
                         <li><a href="../ChongEeLynn/experiences.php">Experiences</a></li>
                         <li><a href="../ChongEeLynn/offers.php">Offers</a></li>

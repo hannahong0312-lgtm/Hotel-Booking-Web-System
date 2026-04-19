@@ -1,5 +1,5 @@
 <?php
-// register.php - Customer Registration
+// register.php - Grand Hotel Melaka 
 require_once '../Shared/header.php';
 
 if (isset($is_logged_in) && $is_logged_in) {
@@ -17,6 +17,7 @@ $phone      = $old_input['phone']      ?? '';
 $country    = $old_input['country']    ?? '';
 $subscribe  = $old_input['subscribe']  ?? 0;
 
+/* Load country list from JSON file */
 function getCountryList() {
     $jsonFile = __DIR__ . '/countries.json';
     if (file_exists($jsonFile)) {
@@ -62,7 +63,7 @@ $countries = getCountryList();
             <?php if (!empty($errors['general'])): ?>
                 <div class="alert alert-danger"><?php echo htmlspecialchars($errors['general']); ?></div>
             <?php endif; ?>
-
+            <!-- Registration form -->
             <form method="POST" action="process/register_process.php" novalidate>
                 <div class="form-grid">
                     <div class="form-group">
@@ -111,7 +112,7 @@ $countries = getCountryList();
                     </div>
                 </div>
 
-                <!-- 密码区域 -->
+                <!-- Password section -->
                 <div class="password-section">
                     <div class="form-group">
                         <label for="password">Password *</label>
@@ -125,7 +126,7 @@ $countries = getCountryList();
                             <ul class="rules-list">
                                 <li id="req-length" class="rule-item">
                                     <span class="rule-icon">•</span>
-                                    <span class="rule-text">Must be between 8 and 32 characters</span>
+                                    <span class="rule-text">Must be between 8 and 16 characters</span>
                                 </li>
                                 <li id="req-lower" class="rule-item">
                                     <span class="rule-icon">•</span>
@@ -161,8 +162,8 @@ $countries = getCountryList();
                     </div>
                 </div>
 
+                <!-- Terms and subscribe checkboxes -->
                 <div class="full-width" style="margin-top: 1.5rem;">
-                    <!-- Terms 复选框 -->
                     <div class="checkbox-group">
                         <input type="checkbox" id="terms" name="terms" <?php echo (isset($old_input['terms']) && $old_input['terms'] === true) ? 'checked' : ''; ?>>
                         <label for="terms">I agree to the <a href="#" style="color: var(--gold);">Terms & Conditions</a> and <a href="#" style="color: var(--accent);">Privacy Policy</a> *</label>
@@ -171,7 +172,6 @@ $countries = getCountryList();
                         <div class="error-message"><?php echo htmlspecialchars($errors['terms']); ?></div>
                     <?php endif; ?>
 
-                    <!-- Subscribe 复选框 -->
                     <?php
                     $subscribe_checked = true;
                     if (isset($old_input['subscribe'])) {
@@ -254,7 +254,7 @@ $countries = getCountryList();
 
     passwordInput.addEventListener('input', validatePassword);
 
-    // 确认密码匹配
+    // Confirm password matching check
     const confirmInput = document.getElementById('confirm_password');
     const matchStatus = document.getElementById('passwordMatch');
 
@@ -273,7 +273,7 @@ $countries = getCountryList();
     passwordInput.addEventListener('input', validateConfirm);
     confirmInput.addEventListener('input', validateConfirm);
 
-    // 初始化
+    // Initial validation calls
     validatePassword();
     validateConfirm();
 </script>

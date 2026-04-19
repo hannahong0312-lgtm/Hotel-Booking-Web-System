@@ -10,6 +10,7 @@ if (!$is_logged_in || $user_role !== 'customer') {
 $user_id = $_SESSION['user_id'];
 $errors = [];
 $success = '';
+$active_tab = 'account'; // 默认显示 Account Details 标签页
 
 // 获取用户基本信息（使用 subscribe 字段）
 $stmt = $conn->prepare("SELECT first_name, last_name, email, phone, country, points, created_at, 
@@ -95,10 +96,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
         } else $errors['general'] = 'Update failed.';
         $updateStmt->close();
     }
+    // 保持当前标签页为 account
+    $active_tab = 'account';
 }
 
-// 修改密码（不变）
+// 修改密码（已更新规则，与注册页面一致：8-16字符，含大小写、数字或特殊字符）
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
+    $active_tab = 'security'; // 无论成功或失败，都停留在 Security 标签页
     $current = $_POST['current_password'] ?? '';
     $new     = $_POST['new_password'] ?? '';
     $confirm = $_POST['confirm_password'] ?? '';
@@ -111,16 +115,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
 
     if (!$pwdResult || !password_verify($current, $pwdResult['password']))
         $errors['current_password'] = 'Current password is incorrect.';
-    elseif (strlen($new) < 6)
-        $errors['new_password'] = 'Password must be at least 6 characters.';
+    elseif (strlen($new) < 8)
+        $errors['new_password'] = 'Password must be at least 8 characters.';
+    elseif (strlen($new) > 16)
+        $errors['new_password'] = 'Password must not exceed 16 characters.';
+    elseif (!preg_match('/[A-Z]/', $new))
+        $errors['new_password'] = 'Password must contain at least one uppercase letter.';
+    elseif (!preg_match('/[a-z]/', $new))
+        $errors['new_password'] = 'Password must contain at least one lowercase letter.';
+    elseif (!preg_match('/[0-9!@#$%^&*()_+\-=\[\]{};:\'"\\|,.<>\/?]/', $new))
+        $errors['new_password'] = 'Password must contain at least one number or special character.';
     elseif ($new !== $confirm)
         $errors['confirm_password'] = 'Passwords do not match.';
     else {
         $hashed = password_hash($new, PASSWORD_DEFAULT);
         $update = $conn->prepare("UPDATE users SET password=?, updated_at=NOW() WHERE id=?");
         $update->bind_param("si", $hashed, $user_id);
-        if ($update->execute()) $success = 'Password changed. Please log in again.';
-        else $errors['general'] = 'Failed to change password.';
+        if ($update->execute()) {
+            // 修改成功，设置成功消息并准备跳转
+            $success = 'Password changed successfully. You will be redirected to the login page in 3 seconds.';
+            // 可选：立即销毁会话，但保留消息显示
+            session_destroy();
+            // 使用 JavaScript 延迟跳转
+            echo '<script>
+                    setTimeout(function() {
+                        window.location.href = "login.php";
+                    }, 3000);
+                  </script>';
+            // 停止继续输出页面内容（可选，但为了显示消息，让页面继续渲染）
+            // 注意：不能在此 exit，否则消息不会显示
+        } else $errors['general'] = 'Failed to change password.';
         $update->close();
     }
 }
@@ -521,14 +545,14 @@ $languages = [
 
     <!-- 四个标签页 -->
     <div class="tabs">
-        <button class="tab-btn active" data-tab="account"><i class="fas fa-user-circle"></i> Account Details</button>
-        <button class="tab-btn" data-tab="security"><i class="fas fa-lock"></i> Security</button>
-        <button class="tab-btn" data-tab="points"><i class="fas fa-coins"></i> Points</button>
-        <button class="tab-btn" data-tab="bookings"><i class="fas fa-hotel"></i> Recent Bookings</button>
+        <button class="tab-btn <?php echo $active_tab === 'account' ? 'active' : ''; ?>" data-tab="account"><i class="fas fa-user-circle"></i> Account Details</button>
+        <button class="tab-btn <?php echo $active_tab === 'security' ? 'active' : ''; ?>" data-tab="security"><i class="fas fa-lock"></i> Security</button>
+        <button class="tab-btn <?php echo $active_tab === 'points' ? 'active' : ''; ?>" data-tab="points"><i class="fas fa-coins"></i> Points</button>
+        <button class="tab-btn <?php echo $active_tab === 'bookings' ? 'active' : ''; ?>" data-tab="bookings"><i class="fas fa-hotel"></i> Recent Bookings</button>
     </div>
 
     <!-- 1. Account Details -->
-    <div class="tab-content active" id="account-tab">
+    <div class="tab-content <?php echo $active_tab === 'account' ? 'active' : ''; ?>" id="account-tab">
         <div class="form-card">
             <form method="POST" action="">
                 <div class="two-col">
@@ -590,7 +614,7 @@ $languages = [
     </div>
 
     <!-- 2. Security -->
-    <div class="tab-content" id="security-tab">
+    <div class="tab-content <?php echo $active_tab === 'security' ? 'active' : ''; ?>" id="security-tab">
         <div class="form-card">
             <form method="POST" action="">
                 <div class="form-group">
@@ -616,7 +640,7 @@ $languages = [
     </div>
 
     <!-- 3. Points Rewards -->
-    <div class="tab-content" id="points-tab">
+    <div class="tab-content <?php echo $active_tab === 'points' ? 'active' : ''; ?>" id="points-tab">
         <div class="points-rewards-content">
             <h3><i class="fas fa-coins"></i> Your Points</h3>
             <div class="points-badge-large">
@@ -631,8 +655,8 @@ $languages = [
         </div>
     </div>
 
-    <!-- 4. Recent Bookings（Points 列现在会显示真实赚取的积分） -->
-    <div class="tab-content" id="bookings-tab">
+    <!-- 4. Recent Bookings -->
+    <div class="tab-content <?php echo $active_tab === 'bookings' ? 'active' : ''; ?>" id="bookings-tab">
         <div class="table-wrapper">
             <table class="bookings-table">
                 <thead>
