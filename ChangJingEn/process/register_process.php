@@ -39,16 +39,22 @@ $input_data = [
 $errors = [];
 
 // Name validation
+$name_pattern = '/^[A-Za-z\s\-\'\.]+$/';
+
 if (empty($first_name)) {
     $errors['first_name'] = 'First name is required.';
 } elseif (strlen($first_name) < 2) {
     $errors['first_name'] = 'First name must be at least 2 characters.';
+} elseif (!preg_match($name_pattern, $first_name)) {
+    $errors['first_name'] = 'First name can only contain letters, spaces, hyphens, dots, and apostrophes.';
 }
 
 if (empty($last_name)) {
     $errors['last_name'] = 'Last name is required.';
 } elseif (strlen($last_name) < 2) {
     $errors['last_name'] = 'Last name must be at least 2 characters.';
+} elseif (!preg_match($name_pattern, $last_name)) {
+    $errors['last_name'] = 'Last name can only contain letters, spaces, hyphens, dots, and apostrophes.';
 }
 
 // Email validation

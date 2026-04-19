@@ -68,14 +68,14 @@ $countries = getCountryList();
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="first_name">First Name *</label>
-                        <input type="text" id="first_name" name="first_name" value="<?php echo htmlspecialchars($first_name); ?>" required>
+                        <input type="text" id="first_name" name="first_name" value="<?php echo htmlspecialchars($first_name); ?>" pattern="[A-Za-z\s\-'\.]+" title="Only letters, spaces, hyphens, dots, and apostrophes allowed" required>
                         <?php if (isset($errors['first_name'])): ?>
                             <div class="error-message"><?php echo htmlspecialchars($errors['first_name']); ?></div>
                         <?php endif; ?>
                     </div>
                     <div class="form-group">
                         <label for="last_name">Last Name *</label>
-                        <input type="text" id="last_name" name="last_name" value="<?php echo htmlspecialchars($last_name); ?>" required>
+                        <input type="text" id="last_name" name="last_name" value="<?php echo htmlspecialchars($last_name); ?>" pattern="[A-Za-z\s\-'\.]+" title="Only letters, spaces, hyphens, dots, and apostrophes allowed" required>
                         <?php if (isset($errors['last_name'])): ?>
                             <div class="error-message"><?php echo htmlspecialchars($errors['last_name']); ?></div>
                         <?php endif; ?>
