@@ -215,7 +215,7 @@ function changeGuests(delta) {
     let input = document.getElementById('guestInput');
     let span = document.getElementById('guestVal');
     let val = parseInt(input.value) + delta;
-    if(val >= 1 && val <= 8) {
+    if(val >= 1 && val <= 6) {
         input.value = val;
         span.textContent = val;
     }
