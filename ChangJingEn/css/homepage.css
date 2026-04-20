@@ -202,7 +202,7 @@ body {
 
 .panel-card {
     position: relative;
-    border-radius: 0px;
+    border-radius: 12px;
     overflow: hidden;
     min-height: 520px;
     display: flex;
