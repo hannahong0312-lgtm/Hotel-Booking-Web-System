@@ -50,43 +50,6 @@ function getStars($rating) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Luxury Accommodations</title>
     <link rel="stylesheet" href="css/accommodation.css">
-    <style>
-        /* Additional styles for star ratings */
-        .room-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            margin-bottom: 10px;
-        }
-        .room-header h3 {
-            margin: 0;
-        }
-        .rating-container {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .stars {
-            color: #ffc107;
-            font-size: 0.9rem;
-            letter-spacing: 1px;
-        }
-        .rating-value {
-            font-weight: 600;
-            color: #2c3e2f;
-            font-size: 0.85rem;
-        }
-        .review-count {
-            color: #666;
-            font-size: 0.75rem;
-        }
-        .no-reviews {
-            color: #999;
-            font-size: 0.75rem;
-            font-style: italic;
-        }
-    </style>
 </head>
 <body>
 
