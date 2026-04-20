@@ -195,7 +195,7 @@ include '../Shared/header.php';
         let input = document.getElementById('homeGuestInput');
         let span = document.getElementById('homeGuestVal');
         let val = parseInt(input.value) + delta;
-        if(val >= 1 && val <= 8) {
+        if(val >= 1 && val <= 6) {
             input.value = val;
             span.textContent = val;
         }
