@@ -15,7 +15,6 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['confirm_booking'])) 
 
 // Retrieve all form data
 $room_id = (int)$_POST['room_id'];
-$room_name = mysqli_real_escape_string($conn, $_POST['room_name']); // only for display later
 $room_price = (float)$_POST['room_price'];
 $check_in = mysqli_real_escape_string($conn, $_POST['check_in']);
 $check_out = mysqli_real_escape_string($conn, $_POST['check_out']);
