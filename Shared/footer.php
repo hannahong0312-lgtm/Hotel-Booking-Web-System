@@ -30,7 +30,7 @@
                     <ul class="contact-info">
                         <li><i class="fas fa-map-marker-alt"></i> Kota Laksamana, Melaka, Malaysia</li>
                         <li><i class="fas fa-phone-alt"></i> +607-666-8888</li>
-                        <li><i class="fas fa-envelope"></i> info@grandhotel.com</li>
+                        <li><i class="fas fa-envelope"></i> info.grandhotel@gmail.com</li>
                     </ul>
                 </div>
                 <div class="footer-section newsletter">
