@@ -52,7 +52,7 @@ if (empty($errors)) {
             $_SESSION['user_id'] = $row['id'];
             $_SESSION['user_email'] = $row['email'];
             $_SESSION['user_name'] = $row['first_name'] . ' ' . $row['last_name'];
-            $_SESSION['user_role'] = $row['role'];  // 实际总是 customer
+            $_SESSION['user_role'] = $row['role'];  
             
             // Remember me (generate token)
             if ($remember) {
@@ -75,7 +75,7 @@ if (empty($errors)) {
 // if error, redirect back to login page
 if (!empty($errors)) {
     $_SESSION['login_errors'] = $errors;
-    $_SESSION['login_email'] = $email;  // 保留用户输入的邮箱
+    $_SESSION['login_email'] = $email;  
     redirect('../login.php');
 }
 ?>
