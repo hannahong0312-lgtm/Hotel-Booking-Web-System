@@ -246,7 +246,7 @@ $countries = getCountryList();
         const val = passwordInput.value;
         const hasValue = val.length > 0;
 
-        updateRule(reqLength, val.length >= 8 && val.length <= 32, hasValue);
+        updateRule(reqLength, val.length >= 8 && val.length <= 16, hasValue);
         updateRule(reqLower, /[a-z]/.test(val), hasValue);
         updateRule(reqUpper, /[A-Z]/.test(val), hasValue);
         updateRule(reqNumber, /[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val), hasValue);
