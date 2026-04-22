@@ -211,10 +211,6 @@ $current_page = basename($_SERVER['PHP_SELF']);
             background: rgba(197, 160, 89, 0.1);
             color: var(--gold);
         }
-        .nav-link.active {
-            background: rgba(197, 160, 89, 0.15);
-            color: var(--gold);
-        }
         .dropdown-btn {
             cursor: pointer;
             justify-content: space-between;
