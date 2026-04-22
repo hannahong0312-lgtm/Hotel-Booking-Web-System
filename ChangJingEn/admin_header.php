@@ -164,6 +164,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             color: #ffa2a2;
         }
 
+        /* 侧边栏 */
         .main-sidebar {
             position: fixed;
             top: var(--header-height);
@@ -236,6 +237,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
         .show { display: block; }
         .rotate { transform: rotate(180deg); }
 
+        /* 主内容区 */
         .content-wrapper {
             margin-left: 280px;
             margin-top: var(--header-height);
@@ -300,7 +302,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <div class="menu-header">MANAGEMENT</div>
         <ul style="list-style: none;">
             <?php if ($admin_role === 'superadmin'): ?>
-            <li class="nav-item"><a href="admin_manage_admins.php" class="nav-link"><i class="fas fa-user-shield"></i>Admins</a></li>
+            <li class="nav-item"><a href="admin_manage_admins.php" class="nav-link <?php echo $current_page == 'admin_manage_admins.php' ? 'active' : ''; ?>"><i class="fas fa-user-shield"></i> Admins</a></li>
             <?php endif; ?>
             <li class="nav-item"><a href="admin_users.php" class="nav-link"><i class="fas fa-users"></i> Users</a></li>
             <li class="nav-item"><a href="admin_rooms.php" class="nav-link"><i class="fas fa-bed"></i> Rooms</a></li>
@@ -309,7 +311,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <li class="nav-item"><a href="admin_reviews.php" class="nav-link"><i class="fas fa-star"></i> Reviews</a></li>
         </ul>
 
-        <div class="menu-header">Explore</div>
+        <div class="menu-header">EXPLORE</div>
         <ul style="list-style: none;">
             <li class="nav-item"><a href="admin_facilities.php" class="nav-link"><i class="fas fa-building"></i> Facilities</a></li>
             <li class="nav-item"><a href="admin_experience.php" class="nav-link"><i class="fas fa-map-marked-alt"></i> Experience</a></li>

@@ -1,5 +1,5 @@
 <?php
-// admin_dashboard.php - Grand Hotel Melaka
+// admin_dashboard.php - Grand Hotel Melaka 
 require_once 'admin_header.php';
 
 $sql_users = "SELECT COUNT(*) AS total FROM users";
@@ -189,11 +189,17 @@ $recent_bookings = $conn->query($sql_recent);
                     </tr>
                     <?php endwhile; ?>
                 <?php else: ?>
-                    <td><td colspan="9" style="text-align: center; padding: 48px;">No bookings found.<?php echo ' '; ?></td></tr>
+                    <tr><td colspan="9" style="text-align: center; padding: 48px;">No bookings found.<?php echo ' '; ?></td></tr>
                 <?php endif; ?>
             </tbody>
         </table>
     </div>
+</div>
+
+<?php
+// 关闭 main-content, content-wrapper, body, html
+?>
+    </main>
 </div>
 
 <script>
@@ -257,11 +263,5 @@ $recent_bookings = $conn->query($sql_recent);
         }
     }
 </script>
-
-<?php
-// 关闭 main-content 和 content-wrapper 以及 body 标签
-?>
-    </main>
-</div>
 </body>
 </html>
