@@ -316,6 +316,7 @@ $recent_bookings = $conn->query($sql_recent);
         <p>Management System</p>
     </div>
     <ul class="nav-menu">
+        <!-- 现有菜单 -->
         <li class="nav-item">
             <a href="admin_dashboard.php" class="nav-link active">
                 <i class="fas fa-tachometer-alt"></i> Dashboard
@@ -344,6 +345,22 @@ $recent_bookings = $conn->query($sql_recent);
         <li class="nav-item">
             <a href="admin_reports.php" class="nav-link">
                 <i class="fas fa-chart-line"></i> Reports
+            </a>
+        </li>
+        <!-- 新增的三个菜单项（页面暂未创建，使用 # 占位） -->
+        <li class="nav-item">
+            <a href="#" class="nav-link" onclick="return false;">
+                <i class="fas fa-user-cog"></i> Profile
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="#" class="nav-link" onclick="return false;">
+                <i class="fas fa-utensils"></i> Dining
+            </a>
+        </li>
+        <li class="nav-item">
+            <a href="#" class="nav-link" onclick="return false;">
+                <i class="fas fa-ring"></i> Events
             </a>
         </li>
     </ul>
