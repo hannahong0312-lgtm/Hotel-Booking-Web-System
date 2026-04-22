@@ -190,7 +190,7 @@ include '../Shared/header.php';
         homeArrive.addEventListener('change', updateHomeCheckoutMin);
         updateHomeCheckoutMin();
     }
-    // Function to handle the guest number stepper (Min: 1, Max: 8)
+    // Function to handle the guest number stepper (Min: 1, Max: 6)
     function changeHomeGuests(delta) {
         let input = document.getElementById('homeGuestInput');
         let span = document.getElementById('homeGuestVal');

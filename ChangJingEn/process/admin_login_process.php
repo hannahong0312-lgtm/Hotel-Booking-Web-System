@@ -26,7 +26,7 @@ if (empty($password)) {
 $_SESSION['admin_login_email'] = $email;
 
 // check admin by email
-$stmt = $conn->prepare("SELECT id, email, username, password, is_superadmin, status FROM admins WHERE email = ?");
+$stmt = $conn->prepare("SELECT id, email, username, password, role, status FROM admins WHERE email = ?");
 $stmt->bind_param("s", $email);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -44,7 +44,7 @@ if ($result && $result->num_rows > 0) {
         $_SESSION['admin_id'] = $admin['id'];
         $_SESSION['admin_email'] = $admin['email'];
         $_SESSION['admin_username'] = $admin['username'] ?? $admin['email'];
-        $_SESSION['admin_role'] = $admin['is_superadmin'] == 1 ? 'superadmin' : 'admin';
+        $_SESSION['admin_role'] = $admin['role'] == 1 ? 'superadmin' : 'admin';
         
         //update last login time
         $updateStmt = $conn->prepare("UPDATE admins SET last_login = NOW() WHERE id = ?");

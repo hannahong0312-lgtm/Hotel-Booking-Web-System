@@ -47,14 +47,14 @@ if ($arrive && $depart) {
 }
 $total_price = $nights * $room['price'];
 
-// Fetch review statistics for this room - FIXED: using r_rating
+// Fetch review statistics for this room 
 $review_stats_sql = "SELECT COUNT(*) as total, AVG(r_rating) as avg_rating FROM review WHERE room_id = $room_id";
 $review_stats_result = $conn->query($review_stats_sql);
 $review_stats = $review_stats_result->fetch_assoc();
 $total_reviews = $review_stats['total'] ? $review_stats['total'] : 0;
 $avg_rating = $review_stats['avg_rating'] ? round($review_stats['avg_rating'], 1) : 0;
 
-// Fetch top 2 reviews - FIXED: using lowercase column names
+// Fetch top 2 reviews 
 $top_reviews_sql = "SELECT r.id, r.r_rating, r.r_comment, r.created_at,
                            u.first_name, u.last_name
                     FROM review r
@@ -102,7 +102,7 @@ if ($top_reviews_result && $top_reviews_result->num_rows > 0) {
 <!-- Room Details Main Content -->
 <section class="detail-main">
     <div class="detail-container">
-        <!-- Back Button - ABOVE room description -->
+        <!-- Back Button -->
         <div class="back-section-top">
             <a href="accommodation.php" class="back-btn">← Back to All Rooms</a>
         </div>
@@ -283,14 +283,12 @@ if ($top_reviews_result && $top_reviews_result->num_rows > 0) {
                                         </div>
                                         <div class="review-rating-simple">
                                             <?php
-                                            // FIXED: using r_rating instead of R_RATING
                                             for ($i = 0; $i < $review['r_rating']; $i++) echo '★';
                                             for ($i = $review['r_rating']; $i < 5; $i++) echo '☆';
                                             ?>
                                         </div>
                                     </div>
                                     <?php 
-                                    // FIXED: using r_comment instead of R_COMMENT
                                     $comment = $review['r_comment'];
                                     $comment_preview = strlen($comment) > 150 ? substr($comment, 0, 150) . '...' : $comment;
                                     ?>
