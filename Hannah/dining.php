@@ -43,7 +43,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reserve_table'])) {
     $phone = cleanInput($_POST['phone'] ?? '');
     $email = cleanInput($_POST['email'] ?? '');
     $special_requests = cleanInput($_POST['special_requests'] ?? '');
-    $agree = isset($_POST['agree_terms']);
 
     // Validation
     if (!array_key_exists($restaurantKey, $restaurants)) {
@@ -77,7 +76,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reserve_table'])) {
     if (empty($phone)) $errors[] = "Phone number required.";
     if (empty($email)) $errors[] = "Email required.";
     elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = "Invalid email.";
-    if (!$agree) $errors[] = "You must agree to the Terms.";
 
 
     if (empty($errors)) {
@@ -259,7 +257,6 @@ function sendReservationEmail($to, $firstName, $lastName, $details) {
             <div class="form-row grid-2"><div class="form-group"><label>First Name</label><input type="text" name="first_name" class="form-input" value="<?php echo htmlspecialchars($_POST['first_name'] ?? ''); ?>" placeholder="First name" required></div><div class="form-group"><label>Last Name</label><input type="text" name="last_name" class="form-input" value="<?php echo htmlspecialchars($_POST['last_name'] ?? ''); ?>" placeholder="Last name" required></div></div>
             <div class="form-row grid-2"><div class="form-group"><label>Phone Number</label><input type="tel" name="phone" class="form-input" value="<?php echo htmlspecialchars($_POST['phone'] ?? ''); ?>" placeholder="+60 XX XXX XXXX" required></div><div class="form-group"><label>Email Address</label><input type="email" name="email" class="form-input" value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>" placeholder="your@email.com" required></div></div>
             <div class="form-group"><label>Special Requests (Optional)</label><textarea name="special_requests" class="form-textarea" rows="3" placeholder="Any special requests?"><?php echo htmlspecialchars($_POST['special_requests'] ?? ''); ?></textarea></div>
-            <div class="form-group checkbox-group"><label class="checkbox-label"><input type="checkbox" name="agree_terms" required> <span>I agree to Grand Hotel's Terms of Use and Privacy Policy</span></label></div>
             <button type="submit" name="reserve_table" class="btn-reserve">Confirm Reserve →</button>
         </form>
     </div>
