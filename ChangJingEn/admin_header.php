@@ -48,17 +48,17 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         [data-theme="dark"] {
-            --bg-body: #0a0a0a;
-            --bg-sidebar: #121212;
-            --bg-header: #121212;
-            --text-primary: #e8e8e8;
-            --text-secondary: #a0a0a0;
-            --border-light: #2a2a2a;
-            --gold: #d4af6a;
-            --gold-light: #e2c28b;
-            --gold-hover: #c5a059;
-            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
-            --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.3);
+            --bg-body: #0a0a0a;         
+            --bg-sidebar: #121212;       
+            --bg-header: #121212;        
+            --text-primary: #E2E8F0;     
+            --text-secondary: #94A3B8;   
+            --border-light: #2a2a2a;    
+            --gold: #fbbf24;            
+            --gold-light: #fcd34d;
+            --gold-hover: #f59e0b;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.4);
         }
 
         body {
