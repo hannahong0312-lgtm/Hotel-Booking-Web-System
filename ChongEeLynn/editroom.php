@@ -1,5 +1,6 @@
 <?php
-include '../Shared/config.php';
+// editroom.php - Grand Hotel Melaka
+require_once __DIR__ . '/../ChangJingEn/admin_header.php';
 
 $id = (int)$_GET['id'];
 $result = $conn->query("SELECT * FROM rooms WHERE id = $id");
@@ -53,37 +54,31 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Edit Room</title>
+    <title>Edit Room - Grand Hotel Admin</title>
     <link rel="stylesheet" href="css/editroom.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
-<!-- Back Button at the very top -->
-<div class="top-bar">
-    <a href="roommanagement.php" class="top-back-btn"><i class="fas fa-arrow-left"></i> Back to Room Management</a>
-</div>
 
 <div class="form-container">
     <div class="form-header">
-        <h2><i class="fas fa-edit"></i> Edit Room</h2>
+        <h2>Edit Room</h2>
         <p>Editing: <strong><?= htmlspecialchars($room['name']) ?></strong></p>
     </div>
     
     <?php if($message): ?>
-        <div class="message <?= $messageType ?>"><i class="fas <?= $messageType == 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle' ?>"></i> <?= $message ?></div>
+        <div class="message <?= $messageType ?>"><?= $message ?></div>
     <?php endif; ?>
     
     <form method="POST" class="room-form">
-        <!-- Basic Information -->
         <div class="form-section">
-            <h3><i class="fas fa-info-circle"></i> Basic Information</h3>
+            <h3>Basic Information</h3>
             <div class="form-row">
                 <div class="form-group">
-                    <label><i class="fas fa-tag"></i> Room Name <span class="required">*</span></label>
+                    <label>Room Name <span class="required">*</span></label>
                     <input type="text" name="name" value="<?= htmlspecialchars($room['name']) ?>" required>
                 </div>
                 <div class="form-group">
-                    <label><i class="fas fa-layer-group"></i> Category <span class="required">*</span></label>
+                    <label>Category <span class="required">*</span></label>
                     <select name="category" required>
                         <option value="standard" <?= $room['category'] == 'standard' ? 'selected' : '' ?>>Standard</option>
                         <option value="deluxe" <?= $room['category'] == 'deluxe' ? 'selected' : '' ?>>Deluxe</option>
@@ -94,92 +89,87 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             </div>
             
             <div class="form-group">
-                <label><i class="fas fa-align-left"></i> Description <span class="required">*</span></label>
+                <label>Description <span class="required">*</span></label>
                 <textarea name="description" rows="4" required><?= htmlspecialchars($room['description']) ?></textarea>
             </div>
         </div>
         
-        <!-- Pricing & Capacity -->
         <div class="form-section">
-            <h3><i class="fas fa-chart-line"></i> Pricing & Capacity</h3>
+            <h3>Pricing & Capacity</h3>
             <div class="form-row">
                 <div class="form-group">
-                    <label><i class="fas fa-dollar-sign"></i> Price per Night <span class="required">*</span></label>
+                    <label>Price per Night <span class="required">*</span></label>
                     <input type="number" step="0.01" name="price" value="<?= $room['price'] ?>" required>
                 </div>
                 <div class="form-group">
-                    <label><i class="fas fa-users"></i> Max Guests <span class="required">*</span></label>
+                    <label>Max Guests <span class="required">*</span></label>
                     <input type="number" name="max_guests" value="<?= $room['max_guests'] ?>" required>
                 </div>
             </div>
             <div class="form-row">
                 <div class="form-group">
-                    <label><i class="fas fa-bed"></i> Bed Type <span class="required">*</span></label>
+                    <label>Bed Type <span class="required">*</span></label>
                     <input type="text" name="bed_type" value="<?= htmlspecialchars($room['bed_type']) ?>" required>
                 </div>
                 <div class="form-group">
-                    <label><i class="fas fa-ruler-combined"></i> Size (sq ft) <span class="required">*</span></label>
+                    <label>Size (sq ft) <span class="required">*</span></label>
                     <input type="number" name="size" value="<?= $room['size'] ?>" required>
                 </div>
             </div>
             <div class="form-group">
-                <label><i class="fas fa-door-open"></i> Rooms Available <span class="required">*</span></label>
+                <label>Rooms Available <span class="required">*</span></label>
                 <input type="number" name="rooms_available" value="<?= $room['rooms_available'] ?>" required>
             </div>
         </div>
         
-        <!-- Images (ALL REQUIRED) -->
         <div class="form-section">
-            <h3><i class="fas fa-images"></i> Room Images <span class="required">*</span></h3>
+            <h3>Room Images</h3>
             <div class="form-row">
                 <div class="form-group">
-                    <label><i class="fas fa-image"></i> Main Room Image <span class="required">*</span></label>
+                    <label>Main Room Image <span class="required">*</span></label>
                     <input type="text" name="image" value="<?= htmlspecialchars($room['image']) ?>" required>
                     <div class="image-preview">
-                        <img src="images/<?= htmlspecialchars($room['image']) ?>" alt="Current room image">
+                        <img src="images/<?= htmlspecialchars($room['image']) ?>" alt="Current room image" onerror="this.src='images/default-room.jpg'">
                         <span class="image-name"><?= htmlspecialchars($room['image']) ?></span>
                     </div>
-                    <small class="hint">Place image in the "images" folder - REQUIRED</small>
+                    <small class="hint">Place image in the "images" folder</small>
                 </div>
                 <div class="form-group">
-                    <label><i class="fas fa-bath"></i> Bathroom Image <span class="required">*</span></label>
+                    <label>Bathroom Image <span class="required">*</span></label>
                     <input type="text" name="bathroom_image" value="<?= htmlspecialchars($room['bathroom_image']) ?>" required>
                     <div class="image-preview">
-                        <img src="images/<?= htmlspecialchars($room['bathroom_image']) ?>" alt="Current bathroom image">
+                        <img src="images/<?= htmlspecialchars($room['bathroom_image']) ?>" alt="Current bathroom image" onerror="this.src='images/bathroom-default.jpg'">
                         <span class="image-name"><?= htmlspecialchars($room['bathroom_image']) ?></span>
                     </div>
-                    <small class="hint">Place image in the "images" folder - REQUIRED</small>
+                    <small class="hint">Place image in the "images" folder</small>
                 </div>
             </div>
             <div class="form-group">
-                <label><i class="fas fa-mug-hot"></i> Amenities Image <span class="required">*</span></label>
+                <label>Amenities Image <span class="required">*</span></label>
                 <input type="text" name="amenities_image" value="<?= htmlspecialchars($room['amenities_image']) ?>" required>
                 <div class="image-preview">
-                    <img src="images/<?= htmlspecialchars($room['amenities_image']) ?>" alt="Current amenities image">
+                    <img src="images/<?= htmlspecialchars($room['amenities_image']) ?>" alt="Current amenities image" onerror="this.src='images/tea-coffee-default.jpg'">
                     <span class="image-name"><?= htmlspecialchars($room['amenities_image']) ?></span>
                 </div>
-                <small class="hint">Place image in the "images" folder - REQUIRED</small>
+                <small class="hint">Place image in the "images" folder</small>
             </div>
         </div>
         
-        <!-- Status -->
         <div class="form-section">
-            <h3><i class="fas fa-toggle-on"></i> Status</h3>
+            <h3>Status</h3>
             <div class="checkbox-group">
                 <label class="checkbox-label">
                     <input type="checkbox" name="is_active" <?= $room['is_active'] ? 'checked' : '' ?>>
-                    <span class="checkmark"></span>
                     Active (visible to customers)
                 </label>
             </div>
         </div>
         
         <div class="form-actions">
-            <button type="submit" class="btn-submit"><i class="fas fa-save"></i> Update Room</button>
-            <a href="roommanagement.php" class="btn-cancel"><i class="fas fa-times"></i> Cancel</a>
+            <button type="submit" class="btn-submit">Update Room</button>
+            <a href="roommanagement.php" class="btn-cancel">Cancel</a>
         </div>
     </form>
 </div>
 </body>
 </html>
-<?php $conn->close(); ?>
