@@ -48,17 +48,17 @@ $current_page = basename($_SERVER['PHP_SELF']);
         }
 
         [data-theme="dark"] {
-            --bg-body: #0a0a0a;
-            --bg-sidebar: #121212;
-            --bg-header: #121212;
-            --text-primary: #e8e8e8;
-            --text-secondary: #a0a0a0;
-            --border-light: #2a2a2a;
-            --gold: #d4af6a;
-            --gold-light: #e2c28b;
-            --gold-hover: #c5a059;
-            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.2);
-            --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.3);
+            --bg-body: #0a0a0a;         
+            --bg-sidebar: #121212;       
+            --bg-header: #121212;        
+            --text-primary: #E2E8F0;     
+            --text-secondary: #94A3B8;   
+            --border-light: #2a2a2a;    
+            --gold: #fbbf24;            
+            --gold-light: #fcd34d;
+            --gold-hover: #f59e0b;
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.4);
         }
 
         body {
@@ -305,9 +305,9 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <li class="nav-item"><a href="admin_manage_admins.php" class="nav-link <?php echo $current_page == 'admin_manage_admins.php' ? 'active' : ''; ?>"><i class="fas fa-user-shield"></i> Admins</a></li>
             <?php endif; ?>
             <li class="nav-item"><a href="admin_users.php" class="nav-link"><i class="fas fa-users"></i> Users</a></li>
-            <li class="nav-item"><a href="admin_rooms.php" class="nav-link"><i class="fas fa-bed"></i> Rooms</a></li>
+            <li class="nav-item"><a href="../ChongEeLynn/roommanagement.php" class="nav-link"><i class="fas fa-bed"></i> Rooms</a></li>
             <li class="nav-item"><a href="admin_bookings.php" class="nav-link"><i class="fas fa-calendar-check"></i> Bookings</a></li>
-            <li class="nav-item"><a href="admin_offers.php" class="nav-link"><i class="fas fa-tags"></i> Offers</a></li>
+            <li class="nav-item"><a href="../ChongEeLynn/admin_offers.php" class="nav-link"><i class="fas fa-tags"></i> Offers</a></li>
             <li class="nav-item"><a href="admin_reviews.php" class="nav-link"><i class="fas fa-star"></i> Reviews</a></li>
         </ul>
 

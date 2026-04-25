@@ -1,4 +1,4 @@
-/* roommanagement.css - Grand Hotel Admin Panel */
+/* admin_offers.css - Grand Hotel Admin Panel */
 /* Consistent with admin_header.php color scheme */
 
 * {
@@ -7,7 +7,6 @@
     box-sizing: border-box;
 }
 
-/* Color scheme matching admin_header.php */
 :root {
     --bg-body: #f5f5f5;
     --bg-sidebar: #ffffff;
@@ -28,8 +27,10 @@
     --warning-light: #ffe6b3;
     --info: #3498db;
     --info-light: #b3e0ff;
-    --purple: #9b59b6;
-    --purple-light: #e6b3ff;
+    --purple: #8e44ad;
+    --purple-light: #e8daef;
+    --orange: #e67e22;
+    --orange-light: #ffe6cc;
 }
 
 [data-theme="dark"] {
@@ -54,6 +55,8 @@
     --info-light: #1a2a4a;
     --purple: #bb86fc;
     --purple-light: #3a2a5a;
+    --orange: #f39c12;
+    --orange-light: #4a3a1a;
 }
 
 body {
@@ -64,8 +67,7 @@ body {
     line-height: 1.5;
 }
 
-/* Container Styles */
-.rooms-container {
+.offers-container {
     background: var(--bg-sidebar);
     border-radius: 16px;
     padding: 28px;
@@ -73,7 +75,6 @@ body {
     transition: background 0.3s;
 }
 
-/* Page Header */
 .page-header {
     display: flex;
     justify-content: space-between;
@@ -138,7 +139,6 @@ body {
     color: #0a0a0a;
 }
 
-/* Filters */
 .filters {
     display: flex;
     gap: 15px;
@@ -176,19 +176,18 @@ body {
     cursor: pointer;
 }
 
-/* Table Styles */
 .table-responsive {
     overflow-x: auto;
     border-radius: 12px;
 }
 
-.room-table {
+.offers-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 13px;
 }
 
-.room-table th {
+.offers-table th {
     background: var(--gold);
     color: #1e1e1e;
     padding: 14px 12px;
@@ -198,11 +197,11 @@ body {
     white-space: nowrap;
 }
 
-[data-theme="dark"] .room-table th {
+[data-theme="dark"] .offers-table th {
     color: #0a0a0a;
 }
 
-.room-table td {
+.offers-table td {
     padding: 14px 12px;
     border-bottom: 1px solid var(--border-light);
     vertical-align: middle;
@@ -210,11 +209,10 @@ body {
     color: var(--text-primary);
 }
 
-.room-table tr:hover td {
+.offers-table tr:hover td {
     background-color: var(--bg-body);
 }
 
-/* Image Styles */
 .image-cell {
     position: relative;
 }
@@ -224,7 +222,7 @@ body {
     display: inline-block;
 }
 
-.room-thumb {
+.offer-thumb {
     width: 70px;
     height: 70px;
     object-fit: cover;
@@ -234,17 +232,9 @@ body {
     transition: all 0.3s;
 }
 
-.room-thumb:hover {
+.offer-thumb:hover {
     transform: scale(1.05);
     border-color: var(--gold);
-}
-
-.thumb-small {
-    width: 50px;
-    height: 50px;
-    object-fit: cover;
-    border-radius: 8px;
-    border: 1px solid var(--border-light);
 }
 
 .image-hover {
@@ -272,59 +262,35 @@ body {
     opacity: 1;
 }
 
-/* Category Badges */
-.category-badge {
-    display: inline-block;
-    padding: 5px 12px;
-    border-radius: 20px;
-    font-size: 11px;
+.title-cell {
     font-weight: 600;
-    text-transform: uppercase;
+    color: var(--gold);
 }
 
-.category-standard {
-    background: var(--success-light);
-    color: var(--success);
+.code-cell {
+    font-family: monospace;
+    font-weight: bold;
+    color: var(--gold);
+    letter-spacing: 1px;
 }
 
-.category-deluxe {
-    background: var(--warning-light);
+.description-cell {
+    max-width: 200px;
+    word-wrap: break-word;
+    line-height: 1.4;
+    color: var(--text-secondary);
+    cursor: help;
+}
+
+.discount-cell {
+    font-weight: bold;
     color: var(--warning);
 }
 
-.category-family {
-    background: var(--info-light);
-    color: var(--info);
-}
-
-.category-suite {
-    background: var(--purple-light);
-    color: var(--purple);
-}
-
-[data-theme="dark"] .category-standard {
-    color: #2ecc71;
-}
-[data-theme="dark"] .category-deluxe {
-    color: #f39c12;
-}
-[data-theme="dark"] .category-family {
-    color: #3498db;
-}
-[data-theme="dark"] .category-suite {
-    color: #bb86fc;
-}
-
-/* Price Cell */
-.price-cell {
-    font-weight: bold;
-    color: var(--gold);
-    font-size: 16px;
-}
-
-/* Center Alignment */
-.center {
-    text-align: center;
+.date-cell {
+    color: var(--text-secondary);
+    font-size: 12px;
+    white-space: nowrap;
 }
 
 .id-cell {
@@ -332,21 +298,42 @@ body {
     color: var(--text-secondary);
 }
 
-/* Availability Badge */
-.availability-badge {
+/* Category Badges */
+.category-badge {
     display: inline-block;
-    padding: 4px 10px;
+    padding: 5px 12px;
     border-radius: 20px;
     font-size: 11px;
     font-weight: 600;
+    text-transform: capitalize;
 }
 
-.availability-badge.available {
+.category-seasonal {
     background: var(--success-light);
     color: var(--success);
 }
 
-.availability-badge.soldout {
+.category-holiday {
+    background: var(--warning-light);
+    color: var(--warning);
+}
+
+.category-corporate {
+    background: var(--info-light);
+    color: var(--info);
+}
+
+.category-spa {
+    background: var(--purple-light);
+    color: var(--purple);
+}
+
+.category-early_bird {
+    background: var(--orange-light);
+    color: var(--orange);
+}
+
+.category-last_minute {
     background: var(--danger-light);
     color: var(--danger);
 }
@@ -418,7 +405,6 @@ body {
     filter: brightness(0.9);
 }
 
-/* Empty State */
 .empty-state {
     text-align: center;
     padding: 60px !important;
@@ -429,18 +415,9 @@ body {
     font-size: 16px;
 }
 
-/* Description Cell */
-.description-cell {
-    max-width: 200px;
-    word-wrap: break-word;
-    line-height: 1.4;
-    color: var(--text-secondary);
-    cursor: help;
-}
-
 /* Responsive */
 @media (max-width: 768px) {
-    .rooms-container {
+    .offers-container {
         padding: 15px;
     }
     
@@ -453,16 +430,24 @@ body {
         flex-direction: column;
     }
     
-    .room-table {
+    .offers-table {
         font-size: 11px;
     }
     
-    .room-table th, .room-table td {
+    .offers-table th, .offers-table td {
         padding: 8px 6px;
     }
     
     .actions a, .actions button {
         padding: 4px 8px;
+        font-size: 10px;
+    }
+    
+    .description-cell {
+        max-width: 120px;
+    }
+    
+    .code-cell {
         font-size: 10px;
     }
 }

@@ -130,6 +130,9 @@ CREATE TABLE `users` (
   `created_at` datetime DEFAULT current_timestamp(),
   `birthday` date DEFAULT NULL,
   `language` varchar(10) DEFAULT 'en'
+  `email_verified` tinyint(1) NOT NULL DEFAULT 0,
+  `otp_code` varchar(6) DEFAULT NULL,
+  `otp_expires` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE `admins` (

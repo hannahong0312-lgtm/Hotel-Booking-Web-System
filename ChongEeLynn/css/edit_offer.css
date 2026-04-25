@@ -1,4 +1,4 @@
-/* editroom.css - Grand Hotel Admin Panel */
+/* edit_offer.css - Grand Hotel Admin Panel */
 /* Consistent with admin_header.php color scheme */
 
 * {
@@ -7,15 +7,6 @@
     box-sizing: border-box;
 }
 
-body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: var(--bg-body);
-    color: var(--text-primary);
-    padding: 0;
-    min-height: 100vh;
-}
-
-/* Color scheme matching admin_header.php */
 :root {
     --bg-body: #f5f5f5;
     --bg-sidebar: #ffffff;
@@ -33,8 +24,8 @@ body {
     --success-light: #d5f4e6;
     --danger: #e74c3c;
     --danger-light: #fadbd8;
+    --warning: #f39c12;
     --info: #3498db;
-    --info-light: #b3e0ff;
 }
 
 [data-theme="dark"] {
@@ -53,8 +44,16 @@ body {
     --success-light: #1e4a2e;
     --danger: #e74c3c;
     --danger-light: #4a1a1a;
+    --warning: #f39c12;
     --info: #3498db;
-    --info-light: #1a2a4a;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg-body);
+    color: var(--text-primary);
+    padding: 0;
+    min-height: 100vh;
 }
 
 .form-container {
@@ -67,7 +66,6 @@ body {
     transition: background 0.3s;
 }
 
-/* Header */
 .form-header {
     background: var(--gold);
     color: #1e1e1e;
@@ -94,7 +92,6 @@ body {
     font-weight: 700;
 }
 
-/* Messages */
 .message {
     margin: 20px 30px;
     padding: 15px 20px;
@@ -114,8 +111,7 @@ body {
     border-left: 4px solid var(--danger);
 }
 
-/* Form Sections */
-.room-form {
+.offer-form {
     padding: 30px;
 }
 
@@ -138,7 +134,6 @@ body {
     font-weight: 600;
 }
 
-/* Form Groups */
 .form-row {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -194,7 +189,6 @@ body {
     min-height: 100px;
 }
 
-/* Image Preview */
 .image-preview {
     margin-top: 10px;
     padding: 10px;
@@ -229,7 +223,6 @@ body {
     color: var(--text-secondary);
 }
 
-/* Checkbox */
 .checkbox-group {
     margin-top: 10px;
 }
@@ -249,7 +242,6 @@ body {
     cursor: pointer;
 }
 
-/* Form Actions */
 .form-actions {
     display: flex;
     gap: 15px;
@@ -301,7 +293,6 @@ body {
     color: #0a0a0a;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .form-container {
         margin: 20px;
@@ -315,7 +306,7 @@ body {
         font-size: 22px;
     }
     
-    .room-form {
+    .offer-form {
         padding: 20px;
     }
     
@@ -345,7 +336,6 @@ body {
     }
 }
 
-/* Animation */
 @keyframes fadeIn {
     from {
         opacity: 0;

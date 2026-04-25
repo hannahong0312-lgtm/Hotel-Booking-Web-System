@@ -9,6 +9,24 @@ $max_price = $_GET['max_price'] ?? '';
 $arrive = $_GET['arrive'] ?? '';
 $depart = $_GET['depart'] ?? '';
 
+// NEW: Validate that dates are within 1 year
+$today = date('Y-m-d');
+$oneYearLater = date('Y-m-d', strtotime('+1 year'));
+
+if (!empty($arrive) && $arrive < $today) {
+    $arrive = ''; // Clear invalid past date
+}
+
+if (!empty($arrive) && $arrive > $oneYearLater) {
+    $arrive = ''; // Clear date beyond 1 year
+    $error_message = "Bookings are only allowed within 1 year from today.";
+}
+
+if (!empty($depart) && $depart > $oneYearLater) {
+    $depart = ''; // Clear invalid departure date
+    $error_message = "Bookings are only allowed within 1 year from today.";
+}
+
 $sql = "SELECT * FROM rooms WHERE is_active = 1";
 if(!empty($room_type)) $sql .= " AND category = '" . $conn->real_escape_string($room_type) . "'";
 if(!empty($guests)) $sql .= " AND max_guests >= " . intval($guests);
@@ -68,17 +86,23 @@ function getStars($rating) {
 <section class="filter-section">
     <div class="filter-wrapper">
         <div class="filter-oval-card">
-            <form method="GET" action="" class="filter-form">
+            <?php if(isset($error_message)): ?>
+                <div class="error-message" style="background: #f8d7da; color: #721c24; padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: center;">
+                    ⚠️ <?= htmlspecialchars($error_message) ?>
+                </div>
+            <?php endif; ?>
+            
+            <form method="GET" action="" class="filter-form" id="bookingForm">
                 <!-- Arrive Date -->
                 <div class="filter-group">
                     <label>ARRIVE</label>
-                    <input type="date" name="arrive" value="<?= htmlspecialchars($arrive) ?>" class="date-input">
+                    <input type="date" name="arrive" id="arriveDate" value="<?= htmlspecialchars($arrive) ?>" class="date-input">
                 </div>
                 
                 <!-- Depart Date -->
                 <div class="filter-group">
                     <label>DEPART</label>
-                    <input type="date" name="depart" value="<?= htmlspecialchars($depart) ?>" class="date-input">
+                    <input type="date" name="depart" id="departDate" value="<?= htmlspecialchars($depart) ?>" class="date-input">
                 </div>
                 
                 <!-- Guests (Pax) -->
@@ -174,16 +198,6 @@ function getStars($rating) {
 </section>
 
 <script>
-function changeGuests(delta) {
-    let input = document.getElementById('guestInput');
-    let span = document.getElementById('guestVal');
-    let val = parseInt(input.value) + delta;
-    if(val >= 1 && val <= 6) {
-        input.value = val;
-        span.textContent = val;
-    }
-}
-
 // Price slider with live update
 let slider = document.getElementById('priceSlider');
 let priceValueSpan = document.getElementById('priceValue');
@@ -199,14 +213,50 @@ function updatePrice() {
 slider.addEventListener('input', updatePrice);
 updatePrice();
 
-// Optional: Set min date for arrive to today
-let arriveInput = document.querySelector('input[name="arrive"]');
+// Function to change number of guests
+function changeGuests(delta) {
+    let input = document.getElementById('guestInput');
+    let span = document.getElementById('guestVal');
+    let val = parseInt(input.value) + delta;
+    if(val >= 1 && val <= 6) {
+        input.value = val;
+        span.textContent = val;
+    }
+}
+
+// NEW: Date validation with 1-year limit
+const today = new Date();
+const oneYearLater = new Date();
+oneYearLater.setFullYear(today.getFullYear() + 1);
+
+// Format dates for min/max attributes
+const todayStr = today.toISOString().split('T')[0];
+const oneYearLaterStr = oneYearLater.toISOString().split('T')[0];
+
+let arriveInput = document.getElementById('arriveDate');
+let departInput = document.getElementById('departDate');
+
 if(arriveInput) {
-    let today = new Date().toISOString().split('T')[0];
-    if(!arriveInput.value) arriveInput.min = today;
+    // Set min date to today and max date to 1 year from today
+    arriveInput.min = todayStr;
+    arriveInput.max = oneYearLaterStr;
+    
+    // If there's an existing value, validate it
+    if(arriveInput.value && (arriveInput.value < todayStr || arriveInput.value > oneYearLaterStr)) {
+        arriveInput.value = '';
+        alert('Please select a date within 1 year from today.');
+    }
+    
     arriveInput.addEventListener('change', function() {
-        let departInput = document.querySelector('input[name="depart"]');
-        if(departInput && this.value) {
+        // Validate arrive date is within 1 year
+        if(this.value && this.value > oneYearLaterStr) {
+            alert('Bookings are only allowed within 1 year from today. Please select an earlier date.');
+            this.value = '';
+            return;
+        }
+        
+        // Update depart date minimum
+        if(departInput) {
             departInput.min = this.value;
             if(departInput.value && departInput.value < this.value) {
                 departInput.value = '';
@@ -214,7 +264,64 @@ if(arriveInput) {
         }
     });
 }
+
+if(departInput) {
+    // Set max date to 1 year from today
+    departInput.max = oneYearLaterStr;
+    
+    // Validate existing depart date
+    if(departInput.value && departInput.value > oneYearLaterStr) {
+        departInput.value = '';
+        alert('Please select a departure date within 1 year from today.');
+    }
+    
+    departInput.addEventListener('change', function() {
+        if(this.value && this.value > oneYearLaterStr) {
+            alert('Bookings are only allowed within 1 year from today. Please select an earlier date.');
+            this.value = '';
+        }
+    });
+}
+
+// Form submission validation
+document.getElementById('bookingForm').addEventListener('submit', function(e) {
+    let arrive = arriveInput ? arriveInput.value : '';
+    let depart = departInput ? departInput.value : '';
+    
+    if(arrive && arrive > oneYearLaterStr) {
+        e.preventDefault();
+        alert('❌ Arrival date must be within 1 year from today!');
+        return false;
+    }
+    
+    if(depart && depart > oneYearLaterStr) {
+        e.preventDefault();
+        alert('❌ Departure date must be within 1 year from today!');
+        return false;
+    }
+    
+    if(arrive && depart && depart <= arrive) {
+        e.preventDefault();
+        alert('❌ Departure date must be after arrival date!');
+        return false;
+    }
+    
+    return true;
+});
 </script>
+
+<style>
+/* Optional: Style for error message */
+.error-message {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 10px;
+    border-radius: 5px;
+    margin-bottom: 15px;
+    text-align: center;
+    border: 1px solid #f5c6cb;
+}
+</style>
 
 <?php include '../Shared/footer.php'; ?>
 </body>
