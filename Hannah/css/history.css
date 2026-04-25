@@ -1,0 +1,328 @@
+header{
+    background: rgba(26, 26, 26, 0.95) !important;
+    padding: 0.8rem 0 !important;
+}
+/* ========== HISTORY PAGE SPECIFIC STYLES ========== */
+/* Does NOT duplicate main.css – only components for booking history */
+
+/* ----- Hero section (page-specific) ----- */
+.page-hero {
+    background: linear-gradient(135deg, rgba(26,26,26,0.92), rgba(26,26,26,0.85)), url('../../Shared/images/hotel-hero-bg.jpg') center/cover no-repeat;
+    padding: 8rem 0 5rem;
+    margin-top: 0;
+    text-align: center;
+    position: relative;
+}
+
+.hero-badge {
+    display: inline-block;
+    background: rgba(197, 160, 89, 0.2);
+    backdrop-filter: blur(8px);
+    padding: 0.5rem 1.2rem;
+    border-radius: 60px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: var(--gold);
+    margin-bottom: 1.2rem;
+    border: 1px solid rgba(197, 160, 89, 0.3);
+}
+
+.hero-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 3.2rem;
+    font-weight: 600;
+    color: var(--white);
+    margin-bottom: 1rem;
+    letter-spacing: -0.5px;
+}
+
+.hero-desc {
+    font-size: 1.1rem;
+    color: rgba(255,255,255,0.85);
+    max-width: 580px;
+    margin: 0 auto;
+}
+
+/* ----- Layout container spacing ----- */
+.booking-container {
+    padding: 3rem 2rem 5rem;
+}
+
+/* ----- Alert messages (cancel feedback) ----- */
+.alert {
+    padding: 1rem 1.5rem;
+    border-radius: 16px;
+    margin-bottom: 2rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--white);
+    box-shadow: var(--shadow-sm);
+    border-left: 4px solid;
+}
+.alert-success {
+    border-left-color: #2b9348;
+    background: #e9f5ef;
+    color: #1e6f3f;
+}
+.alert-error {
+    border-left-color: #dc2f02;
+    background: #fff0ed;
+    color: #b91c0c;
+}
+.alert i {
+    font-size: 1.3rem;
+}
+
+/* ----- Empty state (no bookings) ----- */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: var(--white);
+    border-radius: 28px;
+    box-shadow: var(--shadow-sm);
+}
+.empty-icon {
+    font-size: 4rem;
+    color: var(--gold);
+    margin-bottom: 1rem;
+    opacity: 0.5;
+}
+.empty-state h3 {
+    font-size: 1.6rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: var(--black);
+}
+.empty-state p {
+    color: var(--gray-text);
+    margin-bottom: 2rem;
+}
+.btn-gold {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--white);
+    padding: 0.8rem 2rem;
+    border-radius: 40px;
+    font-weight: 600;
+    transition: var(--transition);
+    border: none;
+}
+.btn-gold:hover {
+    background: var(--gold-dark);
+    transform: translateY(-2px);
+}
+
+/* ----- Booking card grid ----- */
+.booking-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 2rem;
+}
+
+.booking-card {
+    background: var(--white);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s;
+}
+.booking-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 35px rgba(0,0,0,0.1);
+}
+.booking-card.cancelled-card {
+    opacity: 0.7;
+    background: #fafafa;
+}
+
+/* Card image section */
+.card-image {
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+.cancel-badge, .cancelled-badge, .confirmed-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    padding: 0.3rem 0.9rem;
+    border-radius: 40px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    backdrop-filter: blur(8px);
+    background: rgba(0,0,0,0.6);
+    color: white;
+    letter-spacing: 0.3px;
+}
+.cancel-badge {
+    background: #2b9348;
+    color: white;
+}
+.cancelled-badge {
+    background: #6c757d;
+}
+.confirmed-badge {
+    background: var(--gold);
+}
+
+/* Card content */
+.card-content {
+    padding: 1.5rem;
+}
+.booking-ref {
+    font-size: 0.7rem;
+    font-family: monospace;
+    background: #f0f0f0;
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 20px;
+    color: #555;
+    margin-bottom: 0.8rem;
+}
+.room-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    font-family: 'Playfair Display', serif;
+}
+.room-meta {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    font-size: 0.8rem;
+    color: var(--gray-text);
+}
+.room-meta i {
+    width: 18px;
+    color: var(--gold);
+}
+.date-range {
+    background: #f5f5f5;
+    padding: 0.6rem 0.9rem;
+    border-radius: 16px;
+    font-size: 0.85rem;
+    margin-bottom: 1.2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.nights {
+    font-size: 0.7rem;
+    color: var(--gold-dark);
+    font-weight: 500;
+}
+
+/* Payment details */
+.payment-details {
+    border-top: 1px solid var(--gray-border);
+    margin: 1rem 0 1.2rem;
+    padding-top: 1rem;
+}
+.payment-row {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 500;
+}
+.amount {
+    color: var(--black);
+    font-weight: 700;
+}
+.payment-date {
+    font-size: 0.7rem;
+    color: var(--gray-text);
+    margin-top: 6px;
+}
+
+/* Cancel panel (only when eligible) */
+.cancel-panel {
+    background: #fff6e8;
+    border-radius: 18px;
+    padding: 0.9rem;
+    margin-top: 1rem;
+    border: 1px solid #ffe0b5;
+}
+.timer-warning {
+    font-size: 0.75rem;
+    background: white;
+    padding: 0.4rem 0.7rem;
+    border-radius: 40px;
+    display: inline-block;
+    margin-bottom: 0.8rem;
+    color: #b45f06;
+}
+.btn-cancel {
+    width: 100%;
+    background: #dc2f02;
+    border: none;
+    padding: 0.7rem;
+    border-radius: 40px;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.btn-cancel:hover {
+    background: #a4161a;
+    transform: scale(0.98);
+}
+.policy-note {
+    font-size: 0.65rem;
+    text-align: center;
+    margin-top: 0.6rem;
+    color: #7f5539;
+}
+.cancelled-notice {
+    background: #e9ecef;
+    padding: 0.8rem;
+    border-radius: 14px;
+    font-size: 0.75rem;
+    text-align: center;
+    color: #495057;
+    margin-top: 1rem;
+}
+.nonrefundable {
+    margin-top: 1rem;
+    font-size: 0.7rem;
+    background: #f1f1f1;
+    padding: 0.5rem;
+    border-radius: 14px;
+    text-align: center;
+    color: #888;
+}
+
+/* Welcome greeting in header (light integration) */
+.welcome-greet {
+    color: var(--white);
+    font-weight: 500;
+    background: rgba(255,255,255,0.15);
+    padding: 0.4rem 1rem;
+    border-radius: 40px;
+    font-size: 0.85rem;
+}
+.active-nav {
+    color: var(--gold) !important;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2.2rem;
+    }
+    .booking-grid {
+        grid-template-columns: 1fr;
+    }
+    .booking-container {
+        padding: 2rem 1rem;
+    }
+    .page-hero {
+        padding: 5rem 0 3rem;
+    }
+}

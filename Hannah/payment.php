@@ -85,24 +85,24 @@ $check_in  = isset($_GET['arrive']) ? $_GET['arrive'] : date('Y-m-d');
 $check_out = isset($_GET['depart']) ? $_GET['depart'] : date('Y-m-d', strtotime('+2 days'));
 $guests    = isset($_GET['guests']) ? (int)$_GET['guests'] : 2;
 
-// 3. Fetch room data safely
+// 3. Fetch room data safely with relative image path
 $room_name = 'Unknown Room';
 $room_price = 0.0;
-$room_image = 'images/room-default.jpg';
+$room_image = '../images/room-default.jpg';  // relative fallback
 
 $room_sql = "SELECT name, price, image FROM rooms WHERE id = $room_id";
 $room_result = mysqli_query($conn, $room_sql);
 if ($room_result && mysqli_num_rows($room_result) > 0) {
     $room = mysqli_fetch_assoc($room_result);
-    $room_name = $room['name'] ?? 'Unknown Room';
+    $room_name = htmlspecialchars($room['name'] ?? 'Unknown Room');
     $room_price = (float)($room['price'] ?? 0);
-    // Fix image path: ensure 'images/' prefix
-    $img_file = $room['image'] ?? '';
-    $room_image = (!empty($img_file) ? 'images/' . $img_file : 'images/room-default.jpg');
+    $img_file = trim($room['image'] ?? '');
+    if (!empty($img_file)) {
+        $room_image = '../images/' . $img_file;
+    }
 } else {
     $room_name = 'Standard Room';
     $room_price = 150.00;
-    $room_image = 'images/room-default.jpg';
 }
 
 // 4. Calculate nights & subtotal
@@ -132,6 +132,7 @@ $grand_total = $subtotal + $sst_tax + $foreigner_tax + $service_fee;
 </head>
 <body>
 <main>
+    
 <div class="booking-container">
     <div class="booking-header">
         <h1>Confirm Your Booking</h1>
@@ -149,7 +150,10 @@ $grand_total = $subtotal + $sst_tax + $foreigner_tax + $service_fee;
                     <div class="card-content">
                         <div class="room-info">
                             <div class="room-image">
-                                <img src="<?= htmlspecialchars($room_image) ?>" alt="<?= htmlspecialchars($room_name) ?>" style="width:80px;height:80px;object-fit:cover;border-radius:10px">
+                                <img src="<?= htmlspecialchars($room_image) ?>" 
+                                     alt="<?= htmlspecialchars($room_name) ?>" 
+                                     style="width:80px;height:80px;object-fit:cover;border-radius:10px"
+                                     onerror="this.src='../images/room-default.jpg'; this.onerror=null;">
                             </div>
                             <div class="room-details">
                                 <h3><?= htmlspecialchars($room_name) ?></h3>
@@ -210,7 +214,7 @@ $grand_total = $subtotal + $sst_tax + $foreigner_tax + $service_fee;
                     <small>Cancel up to 24 hours before check-in for a full refund.</small><br>
                     <i class="fas fa-money-bill-wave"></i> <strong>Tourism Fee</strong>
                     <small>Foreigner guests will be charged an additional 10% tourism tax.</small>
-                    <br><small>*Terms and Conditions apply.</small>
+                    <br><small>*Terms and Conditions apply & Subject to Change.</small>
                 </div>
             </div>
 
@@ -262,7 +266,7 @@ $grand_total = $subtotal + $sst_tax + $foreigner_tax + $service_fee;
                                 <div id="pointsDeductionInfo"></div>
                             </div>
                             <div class="points-earned">
-                                <small>You'll earn <strong id="pointsEarned"><?= number_format($points_earned_display) ?></strong> points</small>
+                                <small>You'll earn <strong id="pointsEarned"><?= number_format($points_earned_display) ?></strong> points (excluding taxes)</small>
                             </div>
                         </div>
 
@@ -283,7 +287,7 @@ $grand_total = $subtotal + $sst_tax + $foreigner_tax + $service_fee;
                             </div>
                         </div>
 
-                        <!-- Credit Card Details (hidden initially for non-credit-card) -->
+                        <!-- Credit Card Details -->
                         <div class="form-group" id="card_details" style="display: block;">
                             <label>Card Number</label>
                             <input type="text" class="form-control" id="card_number" name="card_number" placeholder="1234 5678 9012 3456">
@@ -304,7 +308,7 @@ $grand_total = $subtotal + $sst_tax + $foreigner_tax + $service_fee;
                             <textarea class="form-control" name="special_requests" rows="3" placeholder="Any special requests?"></textarea>
                         </div>
 
-                        <!-- Hidden fields to pass booking data -->
+                        <!-- Hidden fields -->
                         <input type="hidden" name="room_id" value="<?= $room_id ?>">
                         <input type="hidden" name="room_price" value="<?= $room_price ?>">
                         <input type="hidden" name="check_in" value="<?= $check_in ?>">
@@ -337,38 +341,31 @@ let discountAmount = 0;
 let pointsDeduction = 0;
 let currentNationality = <?= json_encode($nationality) ?>;
 
-// Toggle credit card fields based on payment method
 function toggleCreditCardFields() {
     let selectedMethod = document.querySelector('input[name="payment_method"]:checked').value;
     let cardDetailsDiv = document.getElementById('card_details');
     if (selectedMethod === 'credit_card') {
         cardDetailsDiv.style.display = 'block';
-        // Make card fields required
         document.getElementById('card_number').setAttribute('required', 'required');
         document.getElementById('expiry_date').setAttribute('required', 'required');
         document.getElementById('cvv').setAttribute('required', 'required');
     } else {
         cardDetailsDiv.style.display = 'none';
-        // Remove required attribute to avoid validation errors
         document.getElementById('card_number').removeAttribute('required');
         document.getElementById('expiry_date').removeAttribute('required');
         document.getElementById('cvv').removeAttribute('required');
     }
 }
 
-// Restrict card number to 16 digits only (numeric)
 function restrictCardNumber() {
     let cardInput = document.getElementById('card_number');
     if (cardInput) {
         cardInput.addEventListener('input', function(e) {
-            // Remove any non-digit characters
             this.value = this.value.replace(/\D/g, '').slice(0, 16);
         });
     }
 }
 
-// Form validation before submit
-// Enhanced form validation with 16-digit check
 function validatePaymentForm() {
     let selectedMethod = document.querySelector('input[name="payment_method"]:checked').value;
     if (selectedMethod === 'credit_card') {
@@ -376,7 +373,6 @@ function validatePaymentForm() {
         let expiry = document.getElementById('expiry_date').value.trim();
         let cvv = document.getElementById('cvv').value.trim();
         
-        // Card number must be exactly 16 digits
         if (cardNum === '') {
             alert('Please enter card number');
             return false;
@@ -385,7 +381,6 @@ function validatePaymentForm() {
             alert('Credit card number must be exactly 16 digits (no spaces or dashes)');
             return false;
         }
-        // Expiry validation (basic MM/YY format)
         if (expiry === '') {
             alert('Please enter expiry date (MM/YY)');
             return false;
@@ -394,7 +389,6 @@ function validatePaymentForm() {
             alert('Expiry date must be in MM/YY format (e.g., 12/25)');
             return false;
         }
-        // CVV: 3 or 4 digits
         if (cvv === '') {
             alert('Please enter CVV');
             return false;
@@ -404,7 +398,6 @@ function validatePaymentForm() {
             return false;
         }
     }
-    // Phone number validation
     let phone = document.querySelector('input[name="phone"]').value.trim();
     if (phone === '') {
         alert('Please enter phone number');
@@ -413,16 +406,14 @@ function validatePaymentForm() {
     return true;
 }
 
-// Attach event listeners
 document.addEventListener('DOMContentLoaded', function() {
-    // Payment method radio buttons
     let radios = document.querySelectorAll('input[name="payment_method"]');
     radios.forEach(radio => {
         radio.addEventListener('change', toggleCreditCardFields);
     });
-    toggleCreditCardFields(); // initial state
+    toggleCreditCardFields();
+    restrictCardNumber();
 
-    // Voucher apply button (basic - you can expand)
     document.getElementById('applyVoucherBtn').addEventListener('click', function() {
         let code = document.getElementById('voucher_code').value;
         if (!code) {
@@ -445,7 +436,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     });
 
-    // Points toggle
     let pointsToggle = document.getElementById('usePointsToggle');
     pointsToggle.addEventListener('change', function() {
         let usePoints = this.checked;

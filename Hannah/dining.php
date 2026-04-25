@@ -1,15 +1,11 @@
 <?php
-// dining.php - Public dining reservations (no login required)
+include '../Shared/config.php';
 include '../Shared/header.php';
 
 use PHPMailer\PHPMailer\{PHPMailer, Exception};
 require 'PHPMailer-master/src/Exception.php';
 require 'PHPMailer-master/src/PHPMailer.php';
 require 'PHPMailer-master/src/SMTP.php';
-
-// SMTP CREDENTIALS 
-define('SMTP_USERNAME', 'grandhotelreservation67@gmail.com');
-define('SMTP_PASSWORD', 'pcurrscmnzgqnyky');
 
 $restaurants = [
     'royale'   => 'Royale Restaurant',
@@ -125,22 +121,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reserve_table'])) {
 }
 
 function sendReservationEmail($to, $firstName, $lastName, $details) {
-    // Create a new PHPMailer instance inside the function
-    $mail = new \PHPMailer\PHPMailer\PHPMailer(true);
+    // Create a new PHPMailer instance
+    $mail = new PHPMailer(true);
 
     try {
         // SMTP Server Settings 
         $mail->isSMTP();
         $mail->Host       = 'smtp.gmail.com'; // Assuming you use Gmail
         $mail->SMTPAuth   = true;
-        // Use the constants you defined at the top of dining.php
-        $mail->Username   = SMTP_USERNAME; 
-        $mail->Password   = SMTP_PASSWORD; 
+        // Use SMTP credentials
+        $mail->Username   = 'grandhotelreservation67@gmail.com'; 
+        $mail->Password   = 'pcurrscmnzgqnyky'; 
         $mail->SMTPSecure = \PHPMailer\PHPMailer\PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port       = 587;
 
         // --- Sender & Recipient ---
-        $mail->setFrom(SMTP_USERNAME, 'Grand Hotel Reservations');
+        $mail->setFrom('grandhotelreservation67@gmail.com', 'Grand Hotel Reservations');
         $mail->addAddress($to, $firstName . ' ' . $lastName);
 
         // --- Email Content ---
@@ -174,7 +170,7 @@ function sendReservationEmail($to, $firstName, $lastName, $details) {
                 </div>
                     <p>Please arrive 10 minutes before your reservation time.</p>
                     <p>Thank you for choosing <strong>{$details['name']}</strong> @ Grand Hotel !</p>
-                    <p>Contact us<strong>🕻 +606-2896886 </strong>for any changes or inquiries.</p>
+                    <p>Please do not hestitate to contact us<strong>+606-2896886 </strong>for any changes or inquiries.</p>
                 </div>
             </body>
         </html>";
@@ -188,6 +184,8 @@ function sendReservationEmail($to, $firstName, $lastName, $details) {
            return false;
         }
 }?>
+
+
 
 <!DOCTYPE html>
 <html lang="en">

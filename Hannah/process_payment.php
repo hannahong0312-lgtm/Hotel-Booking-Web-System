@@ -66,7 +66,7 @@ $service_fee = $total_before_tax * 0.05;
 $grand_total = $total_before_tax + $sst_tax + $foreigner_tax + $service_fee;
 
 $points_per_rm = 10;
-$points_earned = floor($grand_total * $points_per_rm);
+$points_earned = floor($subtotal * $points_per_rm);
 
 $booking_ref = 'BK' . strtoupper(uniqid());
 
