@@ -1,6 +1,5 @@
 <?php
-// Use __DIR__ to ensure correct path regardless of working directory
-require_once __DIR__ . '/../Shared/config.php';
+include '../Shared/config.php';
 include '../Shared/header.php';
 
 // ========== SESSION & USER VALIDATION ==========
@@ -164,18 +163,9 @@ function getRemainingHours($paymentDate) {
         <div class="container">
             <div class="hero-badge"><i class="fas fa-clock"></i> 24-HOUR FREE CANCELLATION</div>
             <h1 class="hero-title">Your Reservation History</h1>
-            <p class="hero-desc">Manage upcoming stays, review past visits, and cancel eligible bookings within 24h of payment.</p>
+            <p class="hero-desc">Manage upcoming stays, review past visits & cancel eligible bookings within 24 hours of payment.</p>
         </div>
-    </div>
-
-    <div class="container booking-container">
-        <!-- Alert messages -->
-        <?php if ($msg): ?>
-            <div class="alert alert-success"><i class="fas fa-check-circle"></i> <?= htmlspecialchars($msg) ?></div>
-        <?php elseif ($error): ?>
-            <div class="alert alert-error"><i class="fas fa-exclamation-triangle"></i> <?= htmlspecialchars($error) ?></div>
-        <?php endif; ?>
-
+        
         <!-- Search & Filter Bar -->
         <div class="search-filter-bar">
             <form method="GET" class="search-form">
@@ -196,6 +186,15 @@ function getRemainingHours($paymentDate) {
                 <?php endif; ?>
             </form>
         </div>
+    </div>
+
+    <div class="container booking-container">
+        <!-- Alert messages -->
+        <?php if ($msg): ?>
+            <div class="alert alert-success"><i class="fas fa-check-circle"></i> <?= htmlspecialchars($msg) ?></div>
+        <?php elseif ($error): ?>
+            <div class="alert alert-error"><i class="fas fa-exclamation-triangle"></i> <?= htmlspecialchars($error) ?></div>
+        <?php endif; ?>
 
         <?php if (empty($bookings)): ?>
             <div class="empty-state">
