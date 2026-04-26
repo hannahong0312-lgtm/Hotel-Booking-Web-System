@@ -211,7 +211,7 @@ function getRemainingHours($paymentDate) {
                     $isCancelled = ($b['booking_status'] === 'cancelled');
                 ?>
                 <div class="booking-card <?= $isCancelled ? 'cancelled-card' : '' ?>">
-                    <div class="card-image" style="background-image: url('../Shared/img/rooms/<?= htmlspecialchars($b['image'] ?? 'default-room.jpg') ?>');">
+                    <div class="card-image" style="background-image: url('../ChongEeLynn/images/<?= htmlspecialchars($b['image'] ?? 'default-room.jpg') ?>');">
                         <?php if ($canCancel): ?>
                             <span class="cancel-badge"><i class="far fa-clock"></i> Can cancel</span>
                         <?php elseif ($isCancelled): ?>

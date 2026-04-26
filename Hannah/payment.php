@@ -85,10 +85,10 @@ $check_in  = isset($_GET['arrive']) ? $_GET['arrive'] : date('Y-m-d');
 $check_out = isset($_GET['depart']) ? $_GET['depart'] : date('Y-m-d', strtotime('+2 days'));
 $guests    = isset($_GET['guests']) ? (int)$_GET['guests'] : 2;
 
-// 3. Fetch room data safely with relative image path
+// 3. Fetch room data safely with correct image path (ChongEeLynn/images/)
 $room_name = 'Unknown Room';
 $room_price = 0.0;
-$room_image = '../images/room-default.jpg';  // relative fallback
+$room_image = '../ChongEeLynn/images/room-default.jpg';  // fallback
 
 $room_sql = "SELECT name, price, image FROM rooms WHERE id = $room_id";
 $room_result = mysqli_query($conn, $room_sql);
@@ -98,7 +98,7 @@ if ($room_result && mysqli_num_rows($room_result) > 0) {
     $room_price = (float)($room['price'] ?? 0);
     $img_file = trim($room['image'] ?? '');
     if (!empty($img_file)) {
-        $room_image = '../images/' . $img_file;
+        $room_image = '../ChongEeLynn/images/' . $img_file;
     }
 } else {
     $room_name = 'Standard Room';
@@ -153,7 +153,7 @@ $grand_total = $subtotal + $sst_tax + $foreigner_tax + $service_fee;
                                 <img src="<?= htmlspecialchars($room_image) ?>" 
                                      alt="<?= htmlspecialchars($room_name) ?>" 
                                      style="width:80px;height:80px;object-fit:cover;border-radius:10px"
-                                     onerror="this.src='../images/room-default.jpg'; this.onerror=null;">
+                                     onerror="this.src='../ChongEeLynn/images/room-default.jpg'; this.onerror=null;">
                             </div>
                             <div class="room-details">
                                 <h3><?= htmlspecialchars($room_name) ?></h3>
