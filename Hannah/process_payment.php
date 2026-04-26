@@ -30,16 +30,15 @@ $special_requests = mysqli_real_escape_string($conn, $_POST['special_requests'])
 $fullname = mysqli_real_escape_string($conn, $_POST['fullname']);
 $email = mysqli_real_escape_string($conn, $_POST['email']);
 $phone = mysqli_real_escape_string($conn, $_POST['phone']);
+$ic_no = trim(mysqli_real_escape_string($conn, $_POST['ic_no'])); // IC/Passport
 
-// Get user's current points from database
+// Get user's current points
 $user_point_query = "SELECT points FROM users WHERE id = $user_id";
 $point_res = mysqli_query($conn, $user_point_query);
 $user_points = mysqli_fetch_assoc($point_res)['points'];
 
-// Check if the checkbox was checked (use_points)
+// Use points if checkbox was checked
 $use_points_checkbox = isset($_POST['use_points']);
-
-// Recalculate if needed (same logic as before)
 if ($use_points_checkbox && $points_used == 0 && $user_points > 0) {
     $after_discount = $subtotal - $discount_amount;
     if ($after_discount < 0) $after_discount = 0;
@@ -48,7 +47,7 @@ if ($use_points_checkbox && $points_used == 0 && $user_points > 0) {
     $points_used = $max_deduction * 100;
 }
 
-// For credit card, capture last4 and expiry
+// Credit card last4 & expiry
 $card_last4 = null;
 $card_expiry = null;
 if ($payment_method == 'credit_card') {
@@ -57,20 +56,22 @@ if ($payment_method == 'credit_card') {
     $card_expiry = mysqli_real_escape_string($conn, $_POST['expiry_date']);
 }
 
-// Calculate final totals (same as before)
+// ---- Determine Malaysian by IC (12 digits) ----
+$is_malaysian = (preg_match('/^\d{12}$/', $ic_no)) ? true : false;
+
+// ---- TAX CALCULATIONS ----
 $total_before_tax = $subtotal - $discount_amount - $points_deduction;
 if ($total_before_tax < 0) $total_before_tax = 0;
 $sst_tax = $total_before_tax * 0.12;
-$foreigner_tax = ($nationality == 'foreigner') ? $subtotal * 0.10 : 0;
+$tourism_tax = ($is_malaysian) ? 0 : (10 * $nights);   // RM10 per night for foreigners
 $service_fee = $total_before_tax * 0.05;
-$grand_total = $total_before_tax + $sst_tax + $foreigner_tax + $service_fee;
+$grand_total = $total_before_tax + $sst_tax + $tourism_tax + $service_fee;
 
 $points_per_rm = 10;
 $points_earned = floor($subtotal * $points_per_rm);
-
 $booking_ref = 'BK' . strtoupper(uniqid());
 
-// 1. Insert into `book` table (only columns that exist now)
+// 1. Insert booking
 $insert_booking = "INSERT INTO book (booking_ref, user_id, room_id, check_in, check_out, guests, 
                     grand_total, nationality, special_requests, status, created_at)
                     VALUES ('$booking_ref', $user_id, $room_id, '$check_in', '$check_out', $guests,
@@ -81,36 +82,38 @@ if (!mysqli_query($conn, $insert_booking)) {
 }
 $book_id = mysqli_insert_id($conn);
 
-// 2. Insert into `payment` table with all financial details
+// 2. Insert payment (with ic_no column)
 $transaction_id = 'TXN' . strtoupper(uniqid());
 
+// Note: the column 'foreigner_tax' holds the tourism tax amount (RM10 per night for non-Malaysians)
 $insert_payment = "INSERT INTO payment (book_id, user_id, method, card_no, card_expiry, transaction_id,
                     subtotal, grand_total, points_used, points_deduction_amount, points_earned,
-                    sst_tax, foreigner_tax, service_fee, payment_date, status)
-                    VALUES ($book_id, $user_id, '$payment_method', " . ($card_last4 ? "'$card_last4'" : "NULL") . ",
-                    " . ($card_expiry ? "'$card_expiry'" : "NULL") . ", '$transaction_id',
-                    $subtotal, $grand_total, $points_used, $points_deduction, $points_earned,
-                    $sst_tax, $foreigner_tax, $service_fee, NOW(), 'confirmed')";
+                    sst_tax, foreigner_tax, service_fee, ic_no, payment_date, status)
+                    VALUES (
+                        $book_id, $user_id, '$payment_method', 
+                        " . ($card_last4 ? "'$card_last4'" : "NULL") . ", 
+                        " . ($card_expiry ? "'$card_expiry'" : "NULL") . ", 
+                        '$transaction_id',
+                        $subtotal, $grand_total, $points_used, $points_deduction, $points_earned,
+                        $sst_tax, $tourism_tax, $service_fee, '$ic_no', NOW(), 'confirmed'
+                    )";
 
 if (!mysqli_query($conn, $insert_payment)) {
-    // Rollback? For simplicity, we delete the booking if payment fails
     mysqli_query($conn, "DELETE FROM book WHERE id = $book_id");
     die("Payment recording failed: " . mysqli_error($conn));
 }
 $payment_id = mysqli_insert_id($conn);
 
-// 3. Link payment to booking (update book.payment_id)
+// 3. Link payment to booking
 mysqli_query($conn, "UPDATE book SET payment_id = $payment_id WHERE id = $book_id");
 
-// 4. Update user points (deduct used, add earned)
+// 4. Update user points
 $current_points = $user_points;
 $new_points = $current_points - $points_used + $points_earned;
 mysqli_query($conn, "UPDATE users SET points = $new_points WHERE id = $user_id");
 
-// 5. Redirect to confirmation page
+// 5. Redirect to confirmation
 $_SESSION['last_booking_ref'] = $booking_ref;
-
-// Show processing page 
 ?>
 <!DOCTYPE html>
 <html>

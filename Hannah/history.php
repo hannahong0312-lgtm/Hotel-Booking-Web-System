@@ -53,7 +53,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_booking_id']))
     $row = $result->fetch_assoc();
 
     if (!$row) {
-        $error = "❌ Booking not found or access denied.";
+        $error = "Booking not found or access denied !.";
     } elseif ($row['book_status'] === 'cancelled') {
         $error = "⚠️ This booking is already cancelled.";
     } elseif ($row['payment_status'] === 'cancelled') {
@@ -74,13 +74,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['cancel_booking_id']))
                 $updPay->execute();
 
                 $conn->commit();
-                $msg = "✅ Booking cancelled. Full refund will be processed within 5-7 business days.";
+                $msg =  "Booking cancelled. Full refund will be processed within 2-3 business days.";
             } catch (Exception $e) {
                 $conn->rollback();
-                $error = "❌ Cancellation failed. Please try again.";
+                $error = "Cancellation failed. Please try again.";
             }
         } else {
-            $error = "⛔ Cancellation period expired. You can only cancel within 24 hours of payment.";
+            $error = "Cancellation period expired. You can only cancel within 24 hours of payment.";
         }
     }
 }
