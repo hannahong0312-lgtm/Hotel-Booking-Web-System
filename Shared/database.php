@@ -18,9 +18,9 @@ CREATE TABLE `payment` (
   `sst_tax` decimal(10,2) DEFAULT NULL,
   `foreigner_tax` decimal(10,2) DEFAULT 0.00,
   `service_fee` decimal(10,2) DEFAULT NULL,
-  `payment_date` date NOT NULL,
   `status` enum('confirmed','cancelled','completed') DEFAULT 'confirmed',
-  `ic_no` varchar(20) NOT NULL
+  `ic_no` varchar(20) NOT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE `book` (
