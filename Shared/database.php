@@ -19,7 +19,8 @@ CREATE TABLE `payment` (
   `foreigner_tax` decimal(10,2) DEFAULT 0.00,
   `service_fee` decimal(10,2) DEFAULT NULL,
   `payment_date` date NOT NULL,
-  `status` enum('confirmed','cancelled','completed') DEFAULT 'confirmed'
+  `status` enum('confirmed','cancelled','completed') DEFAULT 'confirmed',
+  `ic_no` varchar(20) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 CREATE TABLE `book` (

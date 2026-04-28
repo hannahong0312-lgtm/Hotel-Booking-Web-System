@@ -1,5 +1,5 @@
 <?php
-// payment.php - with IC/Passport field (ic_no) to determine tourism tax
+// payment.php - with IC/Passport field (ic_no) + initial tax based on user's country
 session_start();
 include '../Shared/config.php';
 include '../Shared/header.php';
@@ -12,14 +12,19 @@ if (isset($_GET['action']) && $_GET['action'] == 'check_ic' && isset($_GET['ic_n
     $subtotal = isset($_GET['subtotal']) ? floatval($_GET['subtotal']) : 0;
     $discount = isset($_GET['discount']) ? floatval($_GET['discount']) : 0;
     $points = isset($_GET['points']) ? floatval($_GET['points']) : 0;
+    $country_from_db = isset($_GET['country']) ? $_GET['country'] : '';
 
-    // Determine Malaysian by 12-digit numeric MyKad
-    $is_malaysian = (preg_match('/^\d{12}$/', $ic)) ? true : false;
+    // Determine Malaysian: either IC is 12 digits OR country in DB is Malaysia
+    $is_malaysian_by_ic = (preg_match('/^\d{12}$/', $ic)) ? true : false;
+    $is_malaysian_by_country = ($country_from_db == 'Malaysia');
+    // If country is Malaysia but IC is empty or invalid, still consider Malaysian? We'll use IC as final.
+    // For AJAX, we respect IC only.
+    $is_malaysian = $is_malaysian_by_ic;
     $tourism_tax = ($is_malaysian) ? 0 : 10 * $nights;
 
     $total_before_tax = $subtotal - $discount - $points;
     if ($total_before_tax < 0) $total_before_tax = 0;
-    $sst = $total_before_tax * 0.12;
+    $sst = $total_before_tax * 0.08;
     $service = $total_before_tax * 0.05;
     $grand = $total_before_tax + $sst + $tourism_tax + $service;
 
@@ -88,9 +93,8 @@ if (!isset($_SESSION['user_id'])) {
 }
 $user_id = $_SESSION['user_id'];
 
-// Fetch user data
+// Fetch user data (including country)
 $fullname = $email = $country = '';
-$nationality = 'malaysian';
 $user_points = 0;
 $user_query = "SELECT first_name, last_name, email, country, points FROM users WHERE id = $user_id";
 $user_result = mysqli_query($conn, $user_query);
@@ -99,7 +103,6 @@ if ($user_result && mysqli_num_rows($user_result) > 0) {
     $fullname = trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''));
     $email = $user['email'] ?? '';
     $country = $user['country'] ?? '';
-    $nationality = ($country == 'Malaysia') ? 'malaysian' : 'foreigner';
     $user_points = (int)($user['points'] ?? 0);
 }
 
@@ -135,9 +138,10 @@ $subtotal = $room_price * $nights;
 $points_per_rm = 10;
 $points_earned_display = floor($subtotal * $points_per_rm);
 
-// Initial tax calculation (assuming foreigner until IC verified)
-$tourism_tax_initial = 10 * $nights;
-$sst_initial = $subtotal * 0.12;
+// ---- NEW: Initial tax based on user's country ----
+$user_is_malaysian = ($country == 'Malaysia');  // true if profile country is Malaysia
+$tourism_tax_initial = $user_is_malaysian ? 0 : (10 * $nights);
+$sst_initial = $subtotal * 0.08;
 $service_initial = $subtotal * 0.05;
 $grand_initial = $subtotal + $sst_initial + $tourism_tax_initial + $service_initial;
 ?>
@@ -182,8 +186,8 @@ $grand_initial = $subtotal + $sst_initial + $tourism_tax_initial + $service_init
                             <div class="total-item"><span>Subtotal (<?= $nights ?> nights)</span><span>RM <span id="subtotalAmount"><?= number_format($subtotal, 2) ?></span></span></div>
                             <div class="total-item discount-row" id="discountRow" style="display:none"><span>Voucher Discount</span><span>-RM <span id="discountAmount">0.00</span></span></div>
                             <div class="total-item points-row" id="pointsRow" style="display:none"><span>Points Deduction</span><span>-RM <span id="pointsDeductionAmount">0.00</span></span></div>
-                            <div class="total-item"><span>SST Tax (12%)</span><span>RM <span id="sstTax"><?= number_format($sst_initial, 2) ?></span></span></div>
-                            <div class="total-item" id="tourismTaxRow"><span>Tourism Tax (RM10/night)</span><span>RM <span id="tourismTax"><?= number_format($tourism_tax_initial, 2) ?></span></span></div>
+                            <div class="total-item"><span>SST Tax (8%)</span><span>RM <span id="sstTax"><?= number_format($sst_initial, 2) ?></span></span></div>
+                            <div class="total-item" id="tourismTaxRow"><span>Tourism Tax (RM10/room/night)</span><span>RM <span id="tourismTax"><?= number_format($tourism_tax_initial, 2) ?></span></span></div>
                             <div class="total-item"><span>Service Fee (5%)</span><span>RM <span id="serviceFee"><?= number_format($service_initial, 2) ?></span></span></div>
                             <div class="grand-total"><span><strong>Total Amount</strong></span><span><strong>RM <span id="grandTotal"><?= number_format($grand_initial, 2) ?></span></strong></span></div>
                         </div>
@@ -213,10 +217,10 @@ $grand_initial = $subtotal + $sst_initial + $tourism_tax_initial + $service_init
                             <input type="tel" class="form-control" name="phone" placeholder="Enter your phone number" required>
                         </div>
 
-                        <!-- IC / Passport Number Field -->
+                        <!-- IC Number Field -->
                         <div class="form-group">
-                            <label><i class="fas fa-id-card"></i> Identification Number (IC / Passport)</label>
-                            <input type="text" class="form-control" id="ic_no" name="ic_no" placeholder="MyKad (12 digits) or Passport Number" required>
+                            <label><i class="fas fa-id-card"></i> IC Number</label>
+                            <input type="text" class="form-control" id="ic_no" name="ic_no" placeholder="MyKad (12 digits)" required>
                             <small class="form-text text-muted" id="icStatus"></small>
                         </div>
 
@@ -275,11 +279,11 @@ $grand_initial = $subtotal + $sst_initial + $tourism_tax_initial + $service_init
                         <input type="hidden" name="guests" value="<?= $guests ?>">
                         <input type="hidden" name="nights" id="nightsHidden" value="<?= $nights ?>">
                         <input type="hidden" name="subtotal" id="hiddenSubtotal" value="<?= $subtotal ?>">
-                        <input type="hidden" name="nationality" id="hiddenNationality" value="<?= $nationality ?>">
                         <input type="hidden" name="discount_amount" id="hiddenDiscountAmount" value="0">
                         <input type="hidden" name="points_deduction" id="hiddenPointsDeduction" value="0">
                         <input type="hidden" name="points_used" id="hiddenPointsUsed" value="0">
                         <input type="hidden" name="tourism_tax" id="hiddenTourismTax" value="<?= $tourism_tax_initial ?>">
+                        <input type="hidden" id="userCountry" value="<?= htmlspecialchars($country) ?>">
 
                         <div class="button-group">
                             <button type="button" class="btn btn-secondary" onclick="window.history.back()">Back</button>
@@ -300,13 +304,15 @@ let userPoints = <?= json_encode($user_points) ?>;
 let discountAmount = 0;
 let pointsDeduction = 0;
 let currentIcValue = '';
-let isMalaysianByIc = false;
+let userCountry = document.getElementById('userCountry').value;
+// Initialise isMalaysianByIc based on user's country (if Malaysia, start with true)
+let isMalaysianByIc = (userCountry === 'Malaysia') ? true : false;
 
 function refreshTotals() {
     let afterDiscount = subtotal - discountAmount - pointsDeduction;
     if (afterDiscount < 0) afterDiscount = 0;
     let tourismTax = isMalaysianByIc ? 0 : (nights * 10);
-    let sst = afterDiscount * 0.12;
+    let sst = afterDiscount * 0.08;
     let serviceFee = afterDiscount * 0.05;
     let grand = afterDiscount + sst + tourismTax + serviceFee;
     document.getElementById('sstTax').innerText = sst.toFixed(2);
@@ -317,20 +323,16 @@ function refreshTotals() {
     let taxRow = document.getElementById('tourismTaxRow');
     if (taxRow) {
         let labelSpan = taxRow.querySelector('span:first-child');
-        if (labelSpan) labelSpan.innerHTML = isMalaysianByIc ? 'Tourism Tax (waived for Malaysians)' : 'Tourism Tax (RM10/night)';
+        if (labelSpan) labelSpan.innerHTML = isMalaysianByIc ? 'Tourism Tax (RM10/room/night)': 'Tourism Tax (RM10/room/night)';
     }
-    // Update status message
     let statusSpan = document.getElementById('icStatus');
     if (statusSpan) {
         if (isMalaysianByIc) {
-            statusSpan.innerHTML = '✅ Malaysian IC detected – Tourism tax waived.';
+            if (userCountry === 'Malaysia' && currentIcValue === '') {
+                statusSpan.innerHTML = 'Malaysian profile detected – Tourism tax waived. Please enter your MyKad for verification.';
+            }
             statusSpan.style.color = 'green';
-        } else if (currentIcValue !== '') {
-            statusSpan.innerHTML = '⚠️ Foreigner / Passport – RM10 per night tourism tax applies.';
-            statusSpan.style.color = '#b45f06';
-        } else {
-            statusSpan.innerHTML = '';
-        }
+        } 
     }
 }
 
@@ -339,11 +341,13 @@ function checkIcAndRecalc() {
     if (ic === currentIcValue) return;
     currentIcValue = ic;
     if (ic === '') {
-        isMalaysianByIc = false;
+        // If IC field becomes empty, revert to country-based rule
+        isMalaysianByIc = (userCountry === 'Malaysia');
         refreshTotals();
         return;
     }
-    fetch(`?action=check_ic&ic_no=${encodeURIComponent(ic)}&nights=${nights}&subtotal=${subtotal - discountAmount - pointsDeduction}&discount=${discountAmount}&points=${pointsDeduction}`)
+    // Use AJAX to check IC (12-digit rule)
+    fetch(`?action=check_ic&ic_no=${encodeURIComponent(ic)}&nights=${nights}&subtotal=${subtotal - discountAmount - pointsDeduction}&discount=${discountAmount}&points=${pointsDeduction}&country=${encodeURIComponent(userCountry)}`)
         .then(res => res.json())
         .then(data => {
             if (data && typeof data.tourism_tax !== 'undefined') {
@@ -354,8 +358,9 @@ function checkIcAndRecalc() {
         .catch(err => console.log('IC check failed', err));
 }
 
-// ... (rest of your existing JS functions: toggleCreditCardFields, restrictCardNumber, validatePaymentForm, etc.)
-// I'll include them briefly for completeness, but you can keep your existing ones.
+// The rest of your JS functions (toggleCreditCardFields, restrictCardNumber, validatePaymentForm, DOMContentLoaded) remain the same
+// ... (keep your existing functions below)
+
 function toggleCreditCardFields() {
     let selected = document.querySelector('input[name="payment_method"]:checked').value;
     let cardDiv = document.getElementById('card_details');
@@ -394,7 +399,12 @@ document.addEventListener('DOMContentLoaded',function(){
     toggleCreditCardFields(); restrictCardNumber();
     let icInput=document.getElementById('ic_no');
     icInput.addEventListener('input',checkIcAndRecalc);
-    if(icInput.value) checkIcAndRecalc();
+    // Initial check: if user is Malaysian by profile, show message without waiting for IC
+    refreshTotals();
+    if (userCountry === 'Malaysia') {
+        let statusSpan = document.getElementById('icStatus');
+        if (statusSpan) statusSpan.innerHTML = 'Malaysian profile detected – Tourism tax waived. Please enter your MyKad for verification.';
+    }
     document.getElementById('applyVoucherBtn').addEventListener('click',function(){
         let code=document.getElementById('voucher_code').value;
         if(!code){alert('Enter voucher code');return;}

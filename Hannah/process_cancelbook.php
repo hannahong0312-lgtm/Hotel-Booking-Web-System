@@ -1,126 +1,147 @@
 <?php
-// cancel_booking.php - handles cancellation, restores room, adjusts points, sends emails
-session_start();
-header('Content-Type: application/json');
-include '../Shared/config.php';
+date_default_timezone_set('Asia/Kuala_Lumpur');
+require_once '../Shared/config.php';   // provides $conn, session start
+require_once '../Shared/header.php';   // may include additional checks
 
-if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['success' => false, 'message' => 'Please login first']);
-    exit();
+// Only POST with JSON allowed
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    http_response_code(405);
+    echo json_encode(['success' => false, 'message' => 'Method not allowed']);
+    exit;
 }
 
-$user_id = $_SESSION['user_id'];
-$input = json_decode(file_get_contents('php://input'), true);
-$booking_id = $input['booking_id'] ?? 0;
-$reason = trim($input['reason'] ?? '');
-
-if (!$booking_id || !$reason) {
-    echo json_encode(['success' => false, 'message' => 'Invalid request']);
-    exit();
+$rawInput = file_get_contents('php://input');
+$data = json_decode($rawInput, true);
+if (!$data || !isset($data['booking_id'])) {
+    echo json_encode(['success' => false, 'message' => 'Invalid request data']);
+    exit;
 }
 
-// Fetch booking details with user email, room info, payment details
-$sql = "SELECT b.*, u.email as user_email, u.first_name, u.last_name, 
-               r.name as room_name, r.id as room_id, r.rooms_available,
-               p.points_used, p.points_earned, p.grand_total
+$bookingId = (int)$data['booking_id'];
+$reason    = trim($data['reason'] ?? 'Cancelled by user');
+$userId    = $_SESSION['user_id'] ?? 0;
+
+if (!$userId) {
+    echo json_encode(['success' => false, 'message' => 'User not logged in']);
+    exit;
+}
+
+// --------------------------------------------------------------
+// 1. Fetch booking details with necessary fields
+// --------------------------------------------------------------
+$sql = "SELECT b.*, 
+               u.email AS user_email, u.first_name, u.points AS current_points,
+               r.id AS room_id,
+               p.points_used, p.points_earned
         FROM book b
         JOIN users u ON b.user_id = u.id
         JOIN rooms r ON b.room_id = r.id
         LEFT JOIN payment p ON b.payment_id = p.id
-        WHERE b.id = $booking_id AND b.user_id = $user_id";
-$result = mysqli_query($conn, $sql);
-$booking = mysqli_fetch_assoc($result);
+        WHERE b.id = ? AND b.user_id = ?";
+
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("ii", $bookingId, $userId);
+$stmt->execute();
+$booking = $stmt->get_result()->fetch_assoc();
 
 if (!$booking) {
     echo json_encode(['success' => false, 'message' => 'Booking not found']);
-    exit();
+    exit;
 }
-
 if ($booking['status'] !== 'confirmed') {
-    echo json_encode(['success' => false, 'message' => 'Booking already cancelled']);
-    exit();
+    echo json_encode(['success' => false, 'message' => 'Booking is already cancelled or not confirmed']);
+    exit;
 }
 
-// Check if cancellation is allowed (more than 24h before check-in)
-$checkin_time = strtotime($booking['check_in']);
+// --------------------------------------------------------------
+// 2. Check 24‑hour cancellation rule (check‑in at 15:00)
+// --------------------------------------------------------------
+$checkinTime = strtotime($booking['check_in'] . ' 15:00:00');
 $now = time();
-$hours_diff = ($checkin_time - $now) / 3600;
-if ($hours_diff < 24) {
-    echo json_encode(['success' => false, 'message' => 'Cancellation only allowed at least 24 hours before check-in']);
-    exit();
+$hoursDiff = ($checkinTime - $now) / 3600;
+
+if ($hoursDiff < 24) {
+    echo json_encode(['success' => false, 'message' => 'Cannot cancel: less than 24 hours before check‑in (3:00 PM)']);
+    exit;
 }
 
-// Begin transaction
+// --------------------------------------------------------------
+// 3. Perform cancellation in a transaction
+// --------------------------------------------------------------
 mysqli_begin_transaction($conn);
 try {
-    // 1. Update booking status
-    $update_book = "UPDATE book SET status = 'cancelled', cancellation_reason = '$reason', cancelled_at = NOW() WHERE id = $booking_id";
-    mysqli_query($conn, $update_book);
-    
-    // 2. Increase room availability
-    $room_id = $booking['room_id'];
-    $update_room = "UPDATE rooms SET rooms_available = rooms_available + 1 WHERE id = $room_id";
-    mysqli_query($conn, $update_room);
-    
-    // 3. Adjust user points: add back used points, subtract earned points
-    $points_used = (int)$booking['points_used'];
-    $points_earned = (int)$booking['points_earned'];
-    $user_points_query = "SELECT points FROM users WHERE id = $user_id";
-    $user_points_res = mysqli_query($conn, $user_points_query);
-    $current_points = mysqli_fetch_assoc($user_points_res)['points'];
-    $new_points = $current_points + $points_used - $points_earned;
-    $update_points = "UPDATE users SET points = $new_points WHERE id = $user_id";
-    mysqli_query($conn, $update_points);
-    
-    // 4. Update payment status to refunded
-    $update_payment = "UPDATE payment SET status = 'refunded' WHERE book_id = $booking_id";
-    mysqli_query($conn, $update_payment);
-    
+    // 3.1 Update booking status
+    $updateBook = "UPDATE book SET status = 'cancelled', cancellation_reason = ? WHERE id = ?";
+    $stmt = $conn->prepare($updateBook);
+    $stmt->bind_param("si", $reason, $bookingId);
+    $stmt->execute();
+
+    // 3.2 Free the room (increase availability)
+    $updateRoom = "UPDATE rooms SET rooms_available = rooms_available + 1 WHERE id = ?";
+    $stmt = $conn->prepare($updateRoom);
+    $stmt->bind_param("i", $booking['room_id']);
+    $stmt->execute();
+
+    // 3.3 Adjust user points 
+    //     (refund points_used, remove points_earned)
+    $used = (int)($booking['points_used'] ?? 0);
+    $earn = (int)($booking['points_earned'] ?? 0);
+    $newPoints = $booking['current_points'] + $used - $earn;
+    $updatePoints = "UPDATE users SET points = ? WHERE id = ?";
+    $stmt = $conn->prepare($updatePoints);
+    $stmt->bind_param("ii", $newPoints, $userId);
+    $stmt->execute();
+
+    // 3.4 Mark payment as cancelled
+    $updatePayment = "UPDATE payment SET status = 'cancelled' WHERE book_id = ?";
+    $stmt = $conn->prepare($updatePayment);
+    $stmt->bind_param("i", $bookingId);
+    $stmt->execute();
+
     mysqli_commit($conn);
-    
-    // --- Send email notifications ---
-    $customer_email = $booking['user_email'];
-    $customer_name = trim($booking['first_name'] . ' ' . $booking['last_name']);
-    $admin_email = "info.grandhotelmelaka@gmail.com";
-    $booking_ref = $booking['booking_ref'];
-    $room_name = $booking['room_name'];
-    $check_in = date('d F Y', strtotime($booking['check_in']));
-    $check_out = date('d F Y', strtotime($booking['check_out']));
-    $total_paid = number_format($booking['grand_total'], 2);
-    
-    // Subject & body for customer
-    $customer_subject = "Booking Cancellation Confirmation - Refund Processing";
-    $customer_message = "Dear $customer_name,\n\n";
-    $customer_message .= "Your booking (Ref: $booking_ref) for $room_name from $check_in to $check_out has been successfully cancelled.\n";
-    $customer_message .= "Refund amount: RM $total_paid\n";
-    $customer_message .= "The refund will be processed within 3 business days to your original payment method.\n\n";
-    $customer_message .= "If you have any questions, please contact us at info.grandhotelmelaka@gmail.com\n\n";
-    $customer_message .= "Thank you,\nGrand Hotel Melaka Team";
-    
-    // Subject & body for admin
-    $admin_subject = "Booking Cancellation - Refund Required";
-    $admin_message = "A booking has been cancelled by the customer.\n\n";
-    $admin_message .= "Customer: $customer_name ($customer_email)\n";
-    $admin_message .= "Booking Ref: $booking_ref\n";
-    $admin_message .= "Room: $room_name\n";
-    $admin_message .= "Dates: $check_in to $check_out\n";
-    $admin_message .= "Total Paid: RM $total_paid\n";
-    $admin_message .= "Cancellation Reason: $reason\n\n";
-    $admin_message .= "Please process the refund within 3 days.";
-    
-    // Headers
-    $headers = "From: Grand Hotel Melaka <noreply@grandhotel.com>\r\n";
-    $headers .= "Reply-To: info.grandhotelmelaka@gmail.com\r\n";
-    $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
-    
-    // Send emails (suppress errors if mail not configured, but log)
-    @mail($customer_email, $customer_subject, $customer_message, $headers);
-    @mail($admin_email, $admin_subject, $admin_message, $headers);
-    
-    echo json_encode(['success' => true, 'message' => 'Booking cancelled successfully. Refund will be processed within 3 days.']);
-    
+
+    // --------------------------------------------------------------
+    // 4. Send email notification (errors are logged, not shown to user)
+    // --------------------------------------------------------------
+    try {
+        use PHPMailer\PHPMailer\{PHPMailer, Exception};
+        require '../PHPMailer-master/src/Exception.php';
+        require '../PHPMailer-master/src/PHPMailer.php';
+        require '../PHPMailer-master/src/SMTP.php';
+
+        $mail = new PHPMailer(true);
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com';
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'grandhotelreservation67@gmail.com';
+        $mail->Password   = 'Grandhotel67';
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
+
+        $mail->setFrom('grandhotelreservation67@gmail.com', 'Grand Hotel Melaka');
+        $mail->addAddress($booking['user_email'], $booking['first_name']);
+        $mail->isHTML(true);
+        $mail->Subject = 'Booking Cancellation Confirmed';
+        $mail->Body = "
+            <h3>Dear {$booking['first_name']},</h3>
+            <p>Your booking (Ref: {$booking['booking_ref']}) has been cancelled successfully.</p>
+            <p>Your points have been refunded back to your account.</p>
+            <br>
+            <p>Thank you,<br>Grand Hotel Melaka Team</p>
+        ";
+        $mail->send();
+    } catch (Exception $e) {
+        // Log error but don't break the cancellation
+        error_log("PHPMailer Error: " . $e->getMessage());
+    }
+
+    // Success response
+    echo json_encode(['success' => true, 'message' => 'Booking cancelled successfully']);
+    exit;
+
 } catch (Exception $e) {
     mysqli_rollback($conn);
-    echo json_encode(['success' => false, 'message' => 'Cancellation failed: ' . $e->getMessage()]);
+    echo json_encode(['success' => false, 'message' => 'Database error: ' . $e->getMessage()]);
+    exit;
 }
 ?>
