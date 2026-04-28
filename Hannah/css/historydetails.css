@@ -1,0 +1,96 @@
+        .page-hero{
+           padding:4rem 0;
+        }
+
+        .hero-title {
+            font-size: 2.5rem;
+            padding: 20px 0;
+        }
+        .hero-desc {
+            height: 5px;
+        }
+
+        .details-wrapper {
+            max-width: 700px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
+        }
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 2rem;
+            color: var(--gold);
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .back-link:hover {
+            transform: translateX(-4px); 
+            color: var(--gold-dark); 
+        }
+        .detail-card {
+            background: white;
+            border-radius: 28px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            margin-bottom: 2rem;
+        }
+        .detail-header {
+            background: linear-gradient(135deg, #1a1a1a, #2a2a2a);
+            color: var(--gold);
+            padding: 1.2rem 2rem;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+        .detail-header i { margin-right: 10px; }
+        .detail-body { padding: 2rem; }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid #eee;
+        }
+        .info-label { font-weight: 600; color: #555; }
+        .info-value { text-align: right; }
+        .status-badge {
+            display: inline-block;
+            padding: 0.2rem 1rem;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .status-confirmed { background: #e3f7e8; color: #2b9348; }
+        .status-cancelled { background: #f8d7da; color: #b91c0c; }
+        .total-price { font-size: 1.4rem; font-weight: 700; color: var(--gold-dark); }
+        .cancel-section {
+            background: #fff6e8;
+            border-radius: 20px;
+            padding: 1.2rem;
+            margin-top: 1rem;
+            border-left: 4px solid #dc2f02;
+        }
+        .btn-cancel {
+            background: #dc2f02;
+            width: 100%;
+            padding: 0.8rem;
+            border-radius: 40px;
+            color: white;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-cancel:hover { background: #a4161a; }
+        .room-img {
+            width: 100%;
+            height: 240px;
+            object-fit: cover;
+        }
+        @media (max-width: 768px) {
+            .detail-body { padding: 1.2rem; }
+            .info-row { flex-direction: column; gap: 0.3rem; }
+            .info-value { text-align: left; }
+        }

@@ -3,31 +3,6 @@ date_default_timezone_set('Asia/Kuala_Lumpur');
 include '../Shared/config.php';
 include '../Shared/header.php';
 
-// ========== SESSION & USER VALIDATION ==========
-if (!isset($_SESSION['user_id'])) {
-    $result = $conn->query("SELECT id, first_name FROM users LIMIT 1");
-    if ($result && $result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        $_SESSION['user_id'] = $row['id'];
-        $_SESSION['first_name'] = $row['first_name'];
-    } else {
-        $conn->query("INSERT INTO users (first_name, last_name, email, phone, country, password, role, status) 
-                      VALUES ('Hannah', 'Ong', 'hannah@example.com', '0123456789', 'Malaysia', 'demo', 'customer', 'active')");
-        $newId = $conn->insert_id;
-        $_SESSION['user_id'] = $newId;
-        $_SESSION['first_name'] = 'Hannah';
-
-        $ref = 'BKG-' . time();
-        $conn->query("INSERT INTO book (booking_ref, user_id, room_id, check_in, check_out, guests, grand_total, status, created_at) 
-                      VALUES ('$ref', $newId, 1, CURDATE() + INTERVAL 10 DAY, CURDATE() + INTERVAL 12 DAY, 2, 560.00, 'confirmed', NOW())");
-        $bookId = $conn->insert_id;
-        $conn->query("INSERT INTO payment (book_id, user_id, method, card_no, grand_total, created_at, status) 
-                      VALUES ($bookId, $newId, 'Visa', '4242', 560.00, NOW() - INTERVAL 6 HOUR, 'confirmed')");
-        $payId = $conn->insert_id;
-        $conn->query("UPDATE book SET payment_id = $payId WHERE id = $bookId");
-    }
-}
-
 $userId = (int)$_SESSION['user_id'];
 $userName = htmlspecialchars($_SESSION['first_name'] ?? 'Guest');
 
@@ -172,6 +147,7 @@ function getRemainingCancelTime($checkInDate) {
                 $canCancel = ($b['booking_status'] === 'confirmed' && $cancelInfo['can_cancel']);
                 $isCancelled = ($b['booking_status'] === 'cancelled');
             ?>
+            <a href="historydetails.php?booking_id=<?= $b['booking_id'] ?>">
             <div class="booking-card <?= $isCancelled ? 'cancelled-card' : '' ?>">
                 <div class="card-image" style="background-image: url('../ChongEeLynn/images/<?= htmlspecialchars($b['image'] ?? 'default-room.jpg') ?>');">
                     <?php if ($canCancel): ?>
