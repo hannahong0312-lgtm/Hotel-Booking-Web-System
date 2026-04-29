@@ -45,7 +45,14 @@ if (isset($_GET['toggle'])) {
     exit();
 }
 
-// Fetch all experiences
+// Handle delete
+if (isset($_GET['delete'])) {
+    $id = (int)$_GET['delete'];
+    $conn->query("DELETE FROM experiences WHERE id = $id");
+    header("Location: admin_experiences.php");
+    exit();
+}
+
 $result = $conn->query("SELECT * FROM experiences ORDER BY display_order ASC, id DESC");
 ?>
 <!DOCTYPE html>
@@ -76,6 +83,20 @@ $result = $conn->query("SELECT * FROM experiences ORDER BY display_order ASC, id
         <div class="message <?= $messageType ?>"><?= htmlspecialchars($message) ?></div>
     <?php endif; ?>
     
+    <div class="filters">
+        <input type="text" id="searchInput" placeholder="Search experiences..." class="search-input">
+        <select id="typeFilter" class="filter-select">
+            <option value="">All Types</option>
+            <option value="main">Main</option>
+            <option value="favorite">Favorite</option>
+        </select>
+        <select id="statusFilter" class="filter-select">
+            <option value="">All Status</option>
+            <option value="1">Active</option>
+            <option value="0">Inactive</option>
+        </select>
+    </div>
+    
     <div class="table-responsive">
         <table class="experience-table">
             <thead>
@@ -96,16 +117,8 @@ $result = $conn->query("SELECT * FROM experiences ORDER BY display_order ASC, id
                 <?php 
                 $result->data_seek(0);
                 while($row = $result->fetch_assoc()): 
-                    // Handle NULL values - only show image if exists
-                    $hasImage = !empty($row['image_path']);
-                    $imagePath = $hasImage ? htmlspecialchars($row['image_path']) : '';
-                    $category = !empty($row['category']) ? htmlspecialchars($row['category']) : '-';
-                    $description = !empty($row['description']) ? htmlspecialchars($row['description']) : '';
-                    $feature1 = !empty($row['feature1']) ? htmlspecialchars($row['feature1']) : '';
-                    $feature2 = !empty($row['feature2']) ? htmlspecialchars($row['feature2']) : '';
-                    $title = !empty($row['title']) ? htmlspecialchars($row['title']) : 'Untitled';
                 ?>
-                <tr class="experience-row">
+                <tr class="experience-row" data-type="<?= $row['type'] ?>" data-status="<?= $row['is_active'] ?>">
                     <td class="id-cell"><?= $row['id'] ?></td>
                     <td class="type-cell">
                         <span class="type-badge type-<?= $row['type'] ?>">
@@ -113,31 +126,25 @@ $result = $conn->query("SELECT * FROM experiences ORDER BY display_order ASC, id
                         </span>
                     </td>
                     <td class="image-cell">
-                        <?php if($hasImage): ?>
                         <div class="image-group">
-                            <img src="images/<?= $imagePath ?>" class="experience-thumb" alt="experience">
+                            <img src="images/<?= htmlspecialchars($row['image_path']) ?>" class="experience-thumb" alt="experience" onerror="this.style.display='none'">
                             <div class="image-hover">
                                 <span>View</span>
                             </div>
                         </div>
-                        <?php else: ?>
-                        <div class="no-image">
-                            <span>No image</span>
-                        </div>
-                        <?php endif; ?>
                     </td>
-                    <td class="title-cell"><?= $title ?></td>
-                    <td class="category-cell"><?= $category ?></td>
-                    <td class="description-cell" title="<?= $description ?>">
-                        <?= strlen($description) > 60 ? substr($description, 0, 60) . '...' : $description ?>
+                    <td class="title-cell"><?= htmlspecialchars($row['title']) ?></td>
+                    <td class="category-cell"><?= htmlspecialchars($row['category'] ?? '-') ?></td>
+                    <td class="description-cell" title="<?= htmlspecialchars($row['description']) ?>">
+                        <?= htmlspecialchars(substr($row['description'], 0, 60)) . (strlen($row['description']) > 60 ? '...' : '') ?>
                     </td>
                     <td class="features-cell">
                         <div class="features-list">
-                            <?php if($feature1): ?>
-                                <span class="feature-tag"><?= $feature1 ?></span>
+                            <?php if(!empty($row['feature1'])): ?>
+                                <span class="feature-tag"><?= htmlspecialchars($row['feature1']) ?></span>
                             <?php endif; ?>
-                            <?php if($feature2): ?>
-                                <span class="feature-tag"><?= $feature2 ?></span>
+                            <?php if(!empty($row['feature2'])): ?>
+                                <span class="feature-tag"><?= htmlspecialchars($row['feature2']) ?></span>
                             <?php endif; ?>
                         </div>
                     </td>
@@ -152,81 +159,82 @@ $result = $conn->query("SELECT * FROM experiences ORDER BY display_order ASC, id
                     <td class="actions">
                         <button onclick="openEditModal(<?= $row['id'] ?>)" class="btn-edit">Edit</button>
                         <button onclick="toggleStatus(<?= $row['id'] ?>, <?= $row['is_active'] ?>)" class="btn-toggle">Toggle</button>
+                        <button onclick="deleteExperience(<?= $row['id'] ?>)" class="btn-delete">Delete</button>
                     </td>
                 </tr>
                 
-                <!-- Edit Modal -->
+                <!-- Edit Modal - FIXED VERSION -->
                 <div id="editModal<?= $row['id'] ?>" class="modal">
                     <div class="modal-content">
                         <div class="modal-header">
                             <h3>Edit Experience</h3>
-                            <span class="close" onclick="closeEditModal(<?= $row['id'] ?>)">&times;</span>
+                            <button type="button" class="close-btn" onclick="closeEditModal(<?= $row['id'] ?>)">&times;</button>
                         </div>
-                        <form method="POST" class="edit-form">
-                            <input type="hidden" name="update_id" value="<?= $row['id'] ?>">
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label>Type</label>
-                                    <select name="type">
-                                        <option value="main" <?= $row['type'] == 'main' ? 'selected' : '' ?>>Main</option>
-                                        <option value="favorite" <?= $row['type'] == 'favorite' ? 'selected' : '' ?>>Favorite</option>
-                                    </select>
+                        <div class="modal-body">
+                            <form method="POST" class="edit-form">
+                                <input type="hidden" name="update_id" value="<?= $row['id'] ?>">
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Type</label>
+                                        <select name="type" class="form-control">
+                                            <option value="main" <?= $row['type'] == 'main' ? 'selected' : '' ?>>Main</option>
+                                            <option value="favorite" <?= $row['type'] == 'favorite' ? 'selected' : '' ?>>Favorite</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Category</label>
+                                        <input type="text" name="category" class="form-control" value="<?= htmlspecialchars($row['category'] ?? '') ?>" placeholder="e.g., Heritage walk">
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <label>Category</label>
-                                    <input type="text" name="category" value="<?= htmlspecialchars($row['category'] ?? '') ?>" placeholder="e.g., Heritage walk">
+                                
+                                <div class="form-group full-width">
+                                    <label>Title</label>
+                                    <input type="text" name="title" class="form-control" value="<?= htmlspecialchars($row['title']) ?>" required>
                                 </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Title</label>
-                                <input type="text" name="title" value="<?= htmlspecialchars($row['title'] ?? '') ?>" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Description</label>
-                                <textarea name="description" rows="3" required><?= htmlspecialchars($row['description'] ?? '') ?></textarea>
-                            </div>
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label>Feature 1 (Optional)</label>
-                                    <input type="text" name="feature1" value="<?= htmlspecialchars($row['feature1'] ?? '') ?>" placeholder="e.g., Guided Tour">
-                                    <small class="hint">Leave empty if not applicable</small>
+                                
+                                <div class="form-group full-width">
+                                    <label>Description</label>
+                                    <textarea name="description" class="form-control" rows="4" required><?= htmlspecialchars($row['description']) ?></textarea>
                                 </div>
-                                <div class="form-group">
-                                    <label>Feature 2 (Optional)</label>
-                                    <input type="text" name="feature2" value="<?= htmlspecialchars($row['feature2'] ?? '') ?>" placeholder="e.g., Free Breakfast">
-                                    <small class="hint">Leave empty if not applicable</small>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Feature 1 <span class="optional">(Optional)</span></label>
+                                        <input type="text" name="feature1" class="form-control" value="<?= htmlspecialchars($row['feature1'] ?? '') ?>" placeholder="e.g., Guided Tour">
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Feature 2 <span class="optional">(Optional)</span></label>
+                                        <input type="text" name="feature2" class="form-control" value="<?= htmlspecialchars($row['feature2'] ?? '') ?>" placeholder="e.g., Free Breakfast">
+                                    </div>
                                 </div>
-                            </div>
-                            
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label>Image Filename</label>
-                                    <input type="text" name="image_path" value="<?= htmlspecialchars($row['image_path'] ?? '') ?>" placeholder="e.g., experience.jpg">
-                                    <small class="hint">Enter the filename of the image in the "images" folder. Leave empty for no image.</small>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>Image Filename</label>
+                                        <input type="text" name="image_path" class="form-control" value="<?= htmlspecialchars($row['image_path'] ?? '') ?>" placeholder="filename.jpg">
+                                        <small class="hint">Place image in the "images" folder</small>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>Display Order</label>
+                                        <input type="number" name="display_order" class="form-control" value="<?= $row['display_order'] ?? 0 ?>">
+                                        <small class="hint">Lower numbers appear first</small>
+                                    </div>
                                 </div>
-                                <div class="form-group">
-                                    <label>Display Order</label>
-                                    <input type="number" name="display_order" value="<?= $row['display_order'] ?? 0 ?>">
-                                    <small class="hint">Lower numbers appear first</small>
+                                
+                                <div class="form-group full-width checkbox-wrapper">
+                                    <label class="checkbox-label">
+                                        <input type="checkbox" name="is_active" <?= $row['is_active'] ? 'checked' : '' ?>>
+                                        <span>Active (visible on website)</span>
+                                    </label>
                                 </div>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label class="checkbox-label">
-                                    <input type="checkbox" name="is_active" <?= ($row['is_active'] ?? 1) ? 'checked' : '' ?>>
-                                    Active (visible on website)
-                                </label>
-                            </div>
-                            
-                            <div class="modal-actions">
-                                <button type="submit" class="btn-submit">Save Changes</button>
-                                <button type="button" class="btn-cancel" onclick="closeEditModal(<?= $row['id'] ?>)">Cancel</button>
-                            </div>
-                        </form>
+                                
+                                <div class="modal-actions">
+                                    <button type="submit" class="btn-submit">Save Changes</button>
+                                    <button type="button" class="btn-cancel" onclick="closeEditModal(<?= $row['id'] ?>)">Cancel</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
                 <?php endwhile; ?>
@@ -243,9 +251,61 @@ $result = $conn->query("SELECT * FROM experiences ORDER BY display_order ASC, id
 </div>
 
 <script>
+// Search functionality
+document.getElementById('searchInput').addEventListener('keyup', function() {
+    let searchValue = this.value.toLowerCase();
+    let rows = document.querySelectorAll('.experience-row');
+    
+    rows.forEach(row => {
+        let title = row.querySelector('.title-cell').textContent.toLowerCase();
+        let id = row.querySelector('.id-cell').textContent.toLowerCase();
+        if(title.includes(searchValue) || id.includes(searchValue)) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// Type filter
+document.getElementById('typeFilter').addEventListener('change', function() {
+    let type = this.value;
+    let rows = document.querySelectorAll('.experience-row');
+    
+    rows.forEach(row => {
+        let showType = !type || row.dataset.type === type;
+        if(showType) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
+// Status filter
+document.getElementById('statusFilter').addEventListener('change', function() {
+    let status = this.value;
+    let rows = document.querySelectorAll('.experience-row');
+    
+    rows.forEach(row => {
+        let showStatus = !status || row.dataset.status === status;
+        if(showStatus) {
+            row.style.display = '';
+        } else {
+            row.style.display = 'none';
+        }
+    });
+});
+
 function toggleStatus(id, currentStatus) {
     if(confirm('Toggle experience status?')) {
         window.location.href = '?toggle=' + id;
+    }
+}
+
+function deleteExperience(id) {
+    if(confirm('Delete this experience permanently? This action cannot be undone!')) {
+        window.location.href = '?delete=' + id;
     }
 }
 

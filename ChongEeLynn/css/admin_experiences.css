@@ -51,6 +51,7 @@ body {
     border-radius: 16px;
     padding: 28px;
     box-shadow: var(--shadow-md);
+    transition: background 0.3s;
 }
 
 .page-header {
@@ -112,6 +113,43 @@ body {
     background: var(--danger-light);
     color: var(--danger);
     border-left: 4px solid var(--danger);
+}
+
+.filters {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    padding: 15px;
+    background: var(--bg-body);
+    border-radius: 12px;
+    border: 1px solid var(--border-light);
+}
+
+.search-input {
+    flex: 2;
+    padding: 10px 15px;
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    font-size: 14px;
+    background: var(--bg-sidebar);
+    color: var(--text-primary);
+    transition: all 0.3s;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.1);
+}
+
+.filter-select {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    background: var(--bg-sidebar);
+    color: var(--text-primary);
+    cursor: pointer;
 }
 
 .table-responsive {
@@ -316,7 +354,12 @@ body {
     color: white;
 }
 
-.btn-edit:hover, .btn-toggle:hover {
+.btn-delete {
+    background: var(--danger);
+    color: white;
+}
+
+.btn-edit:hover, .btn-toggle:hover, .btn-delete:hover {
     transform: translateY(-2px);
     filter: brightness(0.9);
 }
@@ -331,7 +374,10 @@ body {
     font-size: 16px;
 }
 
-/* Modal Styles */
+/* ============================================ */
+/* MODAL STYLES - FIXED SPACING ISSUES */
+/* ============================================ */
+
 .modal {
     display: none;
     position: fixed;
@@ -339,70 +385,102 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.6);
     z-index: 1000;
     align-items: center;
     justify-content: center;
+    backdrop-filter: blur(3px);
 }
 
 .modal-content {
     background: var(--bg-sidebar);
-    border-radius: 16px;
+    border-radius: 20px;
     width: 90%;
-    max-width: 600px;
+    max-width: 650px;
     max-height: 85vh;
     overflow-y: auto;
-    box-shadow: var(--shadow-lg);
-    animation: fadeIn 0.3s ease;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    animation: modalFadeIn 0.3s ease;
+    padding: 20px;
+    margin: 20px;
 }
 
+/* FIX 1: Header padding - creates breathing space */
 .modal-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 20px 25px;
-    border-bottom: 2px solid var(--border-light);
+    padding: 20px;
     background: var(--gold);
-    border-radius: 16px 16px 0 0;
+    border-radius: 20px 20px 0 0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
 }
 
 .modal-header h3 {
     color: #1e1e1e;
     font-family: 'Playfair Display', serif;
-    font-size: 20px;
+    font-size: 22px;
+    margin: 0;
 }
 
-[data-theme="dark"] .modal-header h3 {
-    color: #0a0a0a;
-}
-
-.close {
+.close-btn {
+    background: none;
+    border: none;
     font-size: 28px;
     font-weight: bold;
     cursor: pointer;
     color: #1e1e1e;
     transition: 0.2s;
+    padding: 0;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
 }
 
-.close:hover {
-    opacity: 0.7;
+.close-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+    transform: scale(1.1);
 }
 
+[data-theme="dark"] .modal-header h3,
+[data-theme="dark"] .close-btn {
+    color: #0a0a0a;
+}
+
+/* FIX 2: Modal body with consistent horizontal padding */
+.modal-body {
+    padding: 0;
+}
+
+/* FIX 3: Form container with consistent horizontal padding */
 .edit-form {
-    padding: 25px;
+    padding: 28px 28px 20px 28px;
 }
 
+/* FIX 4: Form row with proper gap between columns */
 .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 15px;
-    margin-bottom: 15px;
+    display: flex;
+    gap: 20px;
+    margin-bottom: 20px;
 }
 
 .form-group {
-    margin-bottom: 15px;
+    flex: 1;
+    margin-bottom: 0;
 }
 
+.full-width {
+    flex: 1;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+/* FIX 5: Consistent label styling */
 .form-group label {
     display: block;
     margin-bottom: 8px;
@@ -411,30 +489,49 @@ body {
     font-size: 13px;
 }
 
-.form-group input,
-.form-group select,
-.form-group textarea {
+.optional {
+    font-weight: normal;
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.form-control {
     width: 100%;
-    padding: 10px 12px;
-    border: 2px solid var(--border-light);
-    border-radius: 8px;
-    font-size: 13px;
+    padding: 11px 14px;
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    font-size: 14px;
     font-family: inherit;
     background: var(--bg-sidebar);
     color: var(--text-primary);
+    transition: all 0.2s;
 }
 
-.form-group input:focus,
-.form-group select:focus,
-.form-group textarea:focus {
+.form-control:focus {
     outline: none;
     border-color: var(--gold);
-    box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.1);
+    box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.15);
 }
 
-.form-group textarea {
+textarea.form-control {
     resize: vertical;
-    min-height: 80px;
+    min-height: 90px;
+}
+
+select.form-control {
+    cursor: pointer;
+}
+
+.hint {
+    display: block;
+    margin-top: 6px;
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+/* FIX 6: Checkbox wrapper with same left margin as other fields */
+.checkbox-wrapper {
+    margin-bottom: 25px;
 }
 
 .checkbox-label {
@@ -443,38 +540,37 @@ body {
     gap: 10px;
     cursor: pointer;
     font-weight: normal;
+    padding: 5px 0;
 }
 
 .checkbox-label input {
-    width: auto;
+    width: 18px;
+    height: 18px;
     cursor: pointer;
+    accent-color: var(--gold);
 }
 
-.hint {
-    display: block;
-    margin-top: 5px;
-    font-size: 10px;
-    color: var(--text-secondary);
+.checkbox-label span {
+    color: var(--text-primary);
+    font-size: 14px;
 }
 
+/* FIX 7: Modal actions with proper bottom padding */
 .modal-actions {
     display: flex;
-    gap: 12px;
-    margin-top: 25px;
-    padding-top: 15px;
+    gap: 15px;
+    margin-top: 10px;
+    padding: 20px 0 8px 0;
     border-top: 1px solid var(--border-light);
 }
 
 .btn-submit,
 .btn-cancel {
-    padding: 10px 24px;
-    border-radius: 8px;
-    font-size: 13px;
+    padding: 11px 28px;
+    border-radius: 10px;
+    font-size: 14px;
     font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s;
+    transition: all 0.2s;
     cursor: pointer;
     border: none;
 }
@@ -501,27 +597,14 @@ body {
     border-color: var(--danger);
 }
 
-.no-image {
-    width: 70px;
-    height: 70px;
-    background: var(--bg-body);
-    border: 2px dashed var(--border-light);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-secondary);
-    font-size: 11px;
-}
-
 [data-theme="dark"] .btn-submit {
     color: #0a0a0a;
 }
 
-@keyframes fadeIn {
+@keyframes modalFadeIn {
     from {
         opacity: 0;
-        transform: translateY(-20px);
+        transform: translateY(-30px);
     }
     to {
         opacity: 1;
@@ -529,6 +612,7 @@ body {
     }
 }
 
+/* Responsive */
 @media (max-width: 768px) {
     .experience-container {
         padding: 15px;
@@ -536,31 +620,67 @@ body {
     
     .page-header {
         flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .filters {
+        flex-direction: column;
+    }
+    
+    .search-input,
+    .filter-select {
+        width: 100%;
     }
     
     .experience-table {
         font-size: 11px;
     }
     
-    .experience-table th, .experience-table td {
+    .experience-table th,
+    .experience-table td {
         padding: 8px 6px;
+    }
+    
+    .description-cell {
+        max-width: 120px;
     }
     
     .actions button {
         padding: 4px 8px;
         font-size: 10px;
     }
-    
-    .description-cell {
-        max-width: 100px;
+}
+
+@media (max-width: 640px) {
+    .modal-content {
+        width: 95%;
+        margin: 10px;
     }
     
     .form-row {
-        grid-template-columns: 1fr;
-        gap: 0;
+        flex-direction: column;
+        gap: 15px;
     }
     
-    .modal-content {
-        width: 95%;
+    .modal-header {
+        padding: 15px 20px;
+    }
+    
+    .modal-header h3 {
+        font-size: 18px;
+    }
+    
+    .edit-form {
+        padding: 20px;
+    }
+    
+    .modal-actions {
+        flex-direction: column;
+    }
+    
+    .btn-submit,
+    .btn-cancel {
+        width: 100%;
+        justify-content: center;
     }
 }
