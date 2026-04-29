@@ -13,6 +13,22 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['confirm_booking'])) 
     exit();
 }
 
+if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['confirm_booking'])) {
+    header('Location: cart.php');
+    exit();
+}
+
+// Determine if this is a cart order or single room order
+$is_cart = isset($_POST['is_cart']) && $_POST['is_cart'] == '1';
+
+if ($is_cart) {
+    // Cart order - multiple rooms
+    $cart_data = json_decode($_POST['cart_data'], true);
+    if (empty($cart_data)) {
+        header('Location: cart.php');
+        exit();
+    }
+       
 // Retrieve all form data with fallbacks
 $room_id = (int)($_POST['room_id'] ?? 0);
 $room_price = (float)($_POST['room_price'] ?? 0);
