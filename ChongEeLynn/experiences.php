@@ -49,7 +49,7 @@ include '../Shared/header.php';
     <div class="cards-grid">
         <?php foreach ($experiences as $exp): ?>
             <div class="exp-card">
-                <div class="card-img" style="background-image: url('<?= htmlspecialchars($exp['image_path']) ?>'); background-size: cover; background-position: center;"></div>
+                <div class="card-img" style="background-image: url('images/<?= htmlspecialchars($exp['image_path']) ?>'); background-size: cover; background-position: center;"></div>
                 <div class="card-content">
                     <span class="card-category"><?= htmlspecialchars($exp['category']) ?></span>
                     <h3><?= htmlspecialchars($exp['title']) ?></h3>
@@ -83,7 +83,7 @@ include '../Shared/header.php';
         <?php foreach ($localFavorites as $fav): ?>
             <div class="local-card">
                 <div class="local-image">
-                    <img src="<?= htmlspecialchars($fav['image_path']) ?>" alt="<?= htmlspecialchars($fav['title']) ?>">
+                    <img src="images/<?= htmlspecialchars($fav['image_path']) ?>" alt="<?= htmlspecialchars($fav['title']) ?>">
                 </div>
                 <h3><?= htmlspecialchars($fav['title']) ?></h3>
                 <p><?= htmlspecialchars($fav['description']) ?></p>
