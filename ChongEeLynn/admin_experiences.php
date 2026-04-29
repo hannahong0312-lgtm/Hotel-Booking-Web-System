@@ -1,17 +1,17 @@
 <?php
-// admin_experience.php - Grand Hotel Melaka
+// admin_experiences.php - Grand Hotel Melaka
 require_once __DIR__ . '/../ChangJingEn/admin_header.php';
 
 // Handle update
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_id'])) {
     $id = (int)$_POST['update_id'];
     $type = $conn->real_escape_string($_POST['type']);
-    $category = $conn->real_escape_string($_POST['category']);
+    $category = $conn->real_escape_string($_POST['category'] ?? '');
     $title = $conn->real_escape_string($_POST['title']);
     $description = $conn->real_escape_string($_POST['description']);
-    $feature1 = $conn->real_escape_string($_POST['feature1']);
-    $feature2 = $conn->real_escape_string($_POST['feature2']);
-    $image_path = $conn->real_escape_string($_POST['image_path']);
+    $feature1 = isset($_POST['feature1']) && $_POST['feature1'] !== '' ? $conn->real_escape_string($_POST['feature1']) : null;
+    $feature2 = isset($_POST['feature2']) && $_POST['feature2'] !== '' ? $conn->real_escape_string($_POST['feature2']) : null;
+    $image_path = isset($_POST['image_path']) && $_POST['image_path'] !== '' ? $conn->real_escape_string($_POST['image_path']) : null;
     $display_order = (int)$_POST['display_order'];
     $is_active = isset($_POST['is_active']) ? 1 : 0;
     
@@ -20,9 +20,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_id'])) {
             category='$category',
             title='$title',
             description='$description',
-            feature1='$feature1',
-            feature2='$feature2',
-            image_path='$image_path',
+            feature1=" . ($feature1 ? "'$feature1'" : "NULL") . ",
+            feature2=" . ($feature2 ? "'$feature2'" : "NULL") . ",
+            image_path=" . ($image_path ? "'$image_path'" : "NULL") . ",
             display_order=$display_order,
             is_active=$is_active
             WHERE id=$id";
@@ -30,6 +30,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_id'])) {
     if ($conn->query($sql)) {
         $message = "Experience updated successfully!";
         $messageType = "success";
+        echo "<script>setTimeout(()=>{window.location='admin_experiences.php';},1000);</script>";
     } else {
         $message = "Error: " . $conn->error;
         $messageType = "error";
@@ -40,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['update_id'])) {
 if (isset($_GET['toggle'])) {
     $id = (int)$_GET['toggle'];
     $conn->query("UPDATE experiences SET is_active = NOT is_active WHERE id = $id");
-    header("Location: css/admin_experience.php");
+    header("Location: admin_experiences.php");
     exit();
 }
 
@@ -71,8 +72,8 @@ $result = $conn->query("SELECT * FROM experiences ORDER BY display_order ASC, id
         </div>
     </div>
 
-    <?php if(isset($message)): ?>
-        <div class="message <?= $messageType ?>"><?= $message ?></div>
+    <?php if(isset($message) && !isset($_GET['toggle'])): ?>
+        <div class="message <?= $messageType ?>"><?= htmlspecialchars($message) ?></div>
     <?php endif; ?>
     
     <div class="table-responsive">
@@ -95,6 +96,14 @@ $result = $conn->query("SELECT * FROM experiences ORDER BY display_order ASC, id
                 <?php 
                 $result->data_seek(0);
                 while($row = $result->fetch_assoc()): 
+                    // Handle NULL values - only show image if exists
+                    $hasImage = !empty($row['image_path']);
+                    $imagePath = $hasImage ? htmlspecialchars($row['image_path']) : '';
+                    $category = !empty($row['category']) ? htmlspecialchars($row['category']) : '-';
+                    $description = !empty($row['description']) ? htmlspecialchars($row['description']) : '';
+                    $feature1 = !empty($row['feature1']) ? htmlspecialchars($row['feature1']) : '';
+                    $feature2 = !empty($row['feature2']) ? htmlspecialchars($row['feature2']) : '';
+                    $title = !empty($row['title']) ? htmlspecialchars($row['title']) : 'Untitled';
                 ?>
                 <tr class="experience-row">
                     <td class="id-cell"><?= $row['id'] ?></td>
@@ -104,25 +113,31 @@ $result = $conn->query("SELECT * FROM experiences ORDER BY display_order ASC, id
                         </span>
                     </td>
                     <td class="image-cell">
+                        <?php if($hasImage): ?>
                         <div class="image-group">
-                            <img src="images/<?= htmlspecialchars($row['image_path']) ?>" class="experience-thumb" alt="experience" onerror="this.src='images/default-experience.jpg'">
+                            <img src="images/<?= $imagePath ?>" class="experience-thumb" alt="experience">
                             <div class="image-hover">
                                 <span>View</span>
                             </div>
                         </div>
+                        <?php else: ?>
+                        <div class="no-image">
+                            <span>No image</span>
+                        </div>
+                        <?php endif; ?>
                     </td>
-                    <td class="title-cell"><?= htmlspecialchars($row['title']) ?></td>
-                    <td class="category-cell"><?= htmlspecialchars($row['category']) ?></td>
-                    <td class="description-cell" title="<?= htmlspecialchars($row['description']) ?>">
-                        <?= htmlspecialchars(substr($row['description'], 0, 60)) . (strlen($row['description']) > 60 ? '...' : '') ?>
+                    <td class="title-cell"><?= $title ?></td>
+                    <td class="category-cell"><?= $category ?></td>
+                    <td class="description-cell" title="<?= $description ?>">
+                        <?= strlen($description) > 60 ? substr($description, 0, 60) . '...' : $description ?>
                     </td>
                     <td class="features-cell">
                         <div class="features-list">
-                            <?php if($row['feature1']): ?>
-                                <span class="feature-tag"><?= htmlspecialchars($row['feature1']) ?></span>
+                            <?php if($feature1): ?>
+                                <span class="feature-tag"><?= $feature1 ?></span>
                             <?php endif; ?>
-                            <?php if($row['feature2']): ?>
-                                <span class="feature-tag"><?= htmlspecialchars($row['feature2']) ?></span>
+                            <?php if($feature2): ?>
+                                <span class="feature-tag"><?= $feature2 ?></span>
                             <?php endif; ?>
                         </div>
                     </td>
@@ -140,7 +155,7 @@ $result = $conn->query("SELECT * FROM experiences ORDER BY display_order ASC, id
                     </td>
                 </tr>
                 
-                <!-- Edit Modal for each row (hidden by default) -->
+                <!-- Edit Modal -->
                 <div id="editModal<?= $row['id'] ?>" class="modal">
                     <div class="modal-content">
                         <div class="modal-header">
@@ -160,47 +175,49 @@ $result = $conn->query("SELECT * FROM experiences ORDER BY display_order ASC, id
                                 </div>
                                 <div class="form-group">
                                     <label>Category</label>
-                                    <input type="text" name="category" value="<?= htmlspecialchars($row['category']) ?>">
+                                    <input type="text" name="category" value="<?= htmlspecialchars($row['category'] ?? '') ?>" placeholder="e.g., Heritage walk">
                                 </div>
                             </div>
                             
                             <div class="form-group">
                                 <label>Title</label>
-                                <input type="text" name="title" value="<?= htmlspecialchars($row['title']) ?>" required>
+                                <input type="text" name="title" value="<?= htmlspecialchars($row['title'] ?? '') ?>" required>
                             </div>
                             
                             <div class="form-group">
                                 <label>Description</label>
-                                <textarea name="description" rows="3" required><?= htmlspecialchars($row['description']) ?></textarea>
+                                <textarea name="description" rows="3" required><?= htmlspecialchars($row['description'] ?? '') ?></textarea>
                             </div>
                             
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label>Feature 1</label>
-                                    <input type="text" name="feature1" value="<?= htmlspecialchars($row['feature1']) ?>" placeholder="e.g., Guided Tour">
+                                    <label>Feature 1 (Optional)</label>
+                                    <input type="text" name="feature1" value="<?= htmlspecialchars($row['feature1'] ?? '') ?>" placeholder="e.g., Guided Tour">
+                                    <small class="hint">Leave empty if not applicable</small>
                                 </div>
                                 <div class="form-group">
-                                    <label>Feature 2</label>
-                                    <input type="text" name="feature2" value="<?= htmlspecialchars($row['feature2']) ?>" placeholder="e.g., Free Breakfast">
+                                    <label>Feature 2 (Optional)</label>
+                                    <input type="text" name="feature2" value="<?= htmlspecialchars($row['feature2'] ?? '') ?>" placeholder="e.g., Free Breakfast">
+                                    <small class="hint">Leave empty if not applicable</small>
                                 </div>
                             </div>
                             
                             <div class="form-row">
                                 <div class="form-group">
                                     <label>Image Filename</label>
-                                    <input type="text" name="image_path" value="<?= htmlspecialchars($row['image_path']) ?>" placeholder="experience-image.jpg">
-                                    <small class="hint">Place image in the "images" folder</small>
+                                    <input type="text" name="image_path" value="<?= htmlspecialchars($row['image_path'] ?? '') ?>" placeholder="e.g., experience.jpg">
+                                    <small class="hint">Enter the filename of the image in the "images" folder. Leave empty for no image.</small>
                                 </div>
                                 <div class="form-group">
                                     <label>Display Order</label>
-                                    <input type="number" name="display_order" value="<?= $row['display_order'] ?>">
+                                    <input type="number" name="display_order" value="<?= $row['display_order'] ?? 0 ?>">
                                     <small class="hint">Lower numbers appear first</small>
                                 </div>
                             </div>
                             
                             <div class="form-group">
                                 <label class="checkbox-label">
-                                    <input type="checkbox" name="is_active" <?= $row['is_active'] ? 'checked' : '' ?>>
+                                    <input type="checkbox" name="is_active" <?= ($row['is_active'] ?? 1) ? 'checked' : '' ?>>
                                     Active (visible on website)
                                 </label>
                             </div>
@@ -240,7 +257,6 @@ function closeEditModal(id) {
     document.getElementById('editModal' + id).style.display = 'none';
 }
 
-// Close modal when clicking outside
 window.onclick = function(event) {
     if (event.target.classList.contains('modal')) {
         event.target.style.display = 'none';

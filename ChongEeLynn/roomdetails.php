@@ -3,6 +3,9 @@
 include '../Shared/config.php';
 include '../Shared/header.php';
 
+// Check if user is logged in
+$is_logged_in = isset($_SESSION['user_id']);
+
 // Get room ID from URL
 $room_id = isset($_GET['id']) ? intval($_GET['id']) : 0;
 
@@ -67,7 +70,6 @@ $top_reviews = [];
 if ($top_reviews_result && $top_reviews_result->num_rows > 0) {
     while ($row = $top_reviews_result->fetch_assoc()) {
         $row['user_name'] = $row['first_name'] . ' ' . $row['last_name'];
-        // FIXED: using created_at instead of CREATED_AT
         $row['created_at_formatted'] = date('F j, Y', strtotime($row['created_at']));
         $top_reviews[] = $row;
     }
@@ -116,43 +118,43 @@ if ($top_reviews_result && $top_reviews_result->num_rows > 0) {
                 </div>
 
                 <!-- Photo Gallery Section -->
-<div class="info-card">
-    <h2>Room Gallery</h2>
-    <p class="gallery-subtitle">Take a closer look at what this room has to offer</p>
-    
-    <div class="gallery-grid">
-        <!-- Main Room Image  -->
-        <div class="gallery-item main-room">
-            <img src="images/<?php echo $room['image']; ?>" alt="<?= htmlspecialchars($room['name']) ?> - Main Room">
-            <div class="gallery-caption">
-                <span class="caption-icon">🛏️</span>
-                <span>Comfortable <?= htmlspecialchars($room['bed_type']) ?></span>
-            </div>
-        </div>
-        
-        <!-- Bathroom Image -->
-        <div class="gallery-item bathroom">
-            <img src="images/<?php echo $room['bathroom_image']; ?>" 
-                 alt="Luxury Bathroom" 
-                 onerror="this.src='images/bathroom-default.jpg'">
-            <div class="gallery-caption">
-                <span class="caption-icon">🚿</span>
-                <span>Luxury Bathroom</span>
-            </div>
-        </div>
-        
-        <!-- Amenities Image -->
-        <div class="gallery-item amenities-area">
-            <img src="images/<?php echo $room['amenities_image']; ?>" 
-                 alt="Tea, Coffee & Mini Fridge" 
-                 onerror="this.src='images/amenities-default.jpg'">
-            <div class="gallery-caption">
-                <span class="caption-icon">☕</span>
-                <span>Tea, Coffee & Mini Fridge</span>
-            </div>
-        </div>
-    </div>
-</div>
+                <div class="info-card">
+                    <h2>Room Gallery</h2>
+                    <p class="gallery-subtitle">Take a closer look at what this room has to offer</p>
+                    
+                    <div class="gallery-grid">
+                        <!-- Main Room Image -->
+                        <div class="gallery-item main-room">
+                            <img src="images/<?php echo $room['image']; ?>" alt="<?= htmlspecialchars($room['name']) ?> - Main Room">
+                            <div class="gallery-caption">
+                                <span class="caption-icon">🛏️</span>
+                                <span>Comfortable <?= htmlspecialchars($room['bed_type']) ?></span>
+                            </div>
+                        </div>
+                        
+                        <!-- Bathroom Image -->
+                        <div class="gallery-item bathroom">
+                            <img src="images/<?php echo $room['bathroom_image']; ?>" 
+                                 alt="Luxury Bathroom" 
+                                 onerror="this.src='images/bathroom-default.jpg'">
+                            <div class="gallery-caption">
+                                <span class="caption-icon">🚿</span>
+                                <span>Luxury Bathroom</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Amenities Image -->
+                        <div class="gallery-item amenities-area">
+                            <img src="images/<?php echo $room['amenities_image']; ?>" 
+                                 alt="Tea, Coffee & Mini Fridge" 
+                                 onerror="this.src='images/amenities-default.jpg'">
+                            <div class="gallery-caption">
+                                <span class="caption-icon">☕</span>
+                                <span>Tea, Coffee & Mini Fridge</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 
                 <div class="info-card">
                     <div class="features-grid">
@@ -340,10 +342,16 @@ if ($top_reviews_result && $top_reviews_result->num_rows > 0) {
                             </div>
                         </div>
                         
+                        <!-- Proceed to Booking Button -->
                         <button type="submit" class="book-now-btn" <?= $room['rooms_available'] == 0 ? 'disabled' : '' ?>>
                             <?= $room['rooms_available'] > 0 ? 'Proceed to Booking →' : 'Sold Out' ?>
                         </button>
                     </form>
+                    
+                    <!-- Add to Cart Button (Outside Form, Below Proceed Button) -->
+                    <button type="button" class="add-to-cart-btn" id="addToCartBtn" <?= $room['rooms_available'] == 0 ? 'disabled' : '' ?>>
+                        🛒 Add to Cart
+                    </button>
                     
                     <div class="booking-note">
                         <p>✓ Free cancellation up to 24 hours before check-in</p>
@@ -389,7 +397,32 @@ if ($top_reviews_result && $top_reviews_result->num_rows > 0) {
 </section>
 <?php endif; ?>
 
+<!-- Toast Notification for Cart -->
+<div id="cartToast" class="cart-toast">
+    <div class="toast-content">
+        <span class="toast-icon">✅</span>
+        <span class="toast-message">Room added to cart successfully!</span>
+    </div>
+</div>
+
+<!-- Login Modal Popup -->
+<div id="loginModal" class="login-modal">
+    <div class="login-modal-content">
+        <span class="login-modal-close">&times;</span>
+        <div class="login-modal-icon">🔐</div>
+        <h3>Login Required</h3>
+        <p>Please log in to add items to your cart.</p>
+        <div class="login-modal-buttons">
+            <a href="../Login/login.php" class="login-modal-btn login-btn">Login Now</a>
+            <button class="login-modal-btn cancel-btn" id="cancelLoginBtn">Cancel</button>
+        </div>
+    </div>
+</div>
+
 <script>
+// Check login status from PHP
+const isLoggedIn = <?php echo json_encode($is_logged_in); ?>;
+
 // Date picker logic with total calculation
 let arriveInput = document.getElementById('arriveInput');
 let departInput = document.getElementById('departInput');
@@ -450,16 +483,152 @@ departInput.addEventListener('change', function() {
     }
 });
 
-function changeGuestsDetail(delta) {
-    let input = document.getElementById('guestInputDetail');
-    let span = document.getElementById('guestValDetail');
-    let val = parseInt(input.value) + delta;
-    let maxGuests = <?= $room['max_guests'] ?>;
-    if (val >= 1 && val <= maxGuests) {
-        input.value = val;
-        span.textContent = val;
+// Toast function
+function showToast(message, type = 'success', showViewCart = false) {
+    let toast = document.getElementById('cartToast');
+    
+    if (showViewCart) {
+        toast.innerHTML = `
+            <div class="toast-content">
+                <span class="toast-icon">✅</span>
+                <span class="toast-message">${message}</span>
+                <button class="toast-view-cart-btn" onclick="window.location.href='../Hannah/cart.php'">View Cart →</button>
+            </div>
+        `;
+        toast.style.background = '#28a745';
+        toast.style.color = 'white';
+    } else {
+        let icon = '';
+        let bgColor = '';
+        if (type === 'success') {
+            icon = '✅';
+            bgColor = '#28a745';
+        } else if (type === 'error') {
+            icon = '❌';
+            bgColor = '#dc3545';
+        } else if (type === 'warning') {
+            icon = '⚠️';
+            bgColor = '#ffc107';
+        } else if (type === 'login') {
+            icon = '🔐';
+            bgColor = '#C5A059';
+        } else {
+            icon = 'ℹ️';
+            bgColor = '#17a2b8';
+        }
+        toast.innerHTML = `
+            <div class="toast-content">
+                <span class="toast-icon">${icon}</span>
+                <span class="toast-message">${message}</span>
+            </div>
+        `;
+        toast.style.background = bgColor;
+        toast.style.color = type === 'warning' ? '#333' : 'white';
+    }
+    
+    toast.classList.add('show');
+    
+    if (!showViewCart) {
+        setTimeout(function() {
+            toast.classList.remove('show');
+        }, 3000);
     }
 }
+
+// Login Modal functions
+let loginModal = document.getElementById('loginModal');
+let cancelBtn = document.getElementById('cancelLoginBtn');
+let closeSpan = document.querySelector('.login-modal-close');
+
+function showLoginModal() {
+    loginModal.style.display = 'flex';
+}
+
+function closeLoginModal() {
+    loginModal.style.display = 'none';
+}
+
+if (cancelBtn) cancelBtn.addEventListener('click', closeLoginModal);
+if (closeSpan) closeSpan.addEventListener('click', closeLoginModal);
+
+window.addEventListener('click', function(e) {
+    if (e.target === loginModal) {
+        closeLoginModal();
+    }
+});
+
+// Add to Cart functionality with login check
+document.getElementById('addToCartBtn').addEventListener('click', function() {
+    let arrive = arriveInput.value;
+    let depart = departInput.value;
+    let nights = nightCountSpan.textContent;
+    let totalPrice = grandTotalSpan.textContent;
+    
+    // Check if user is logged in
+    if (!isLoggedIn) {
+        showLoginModal();
+        return;
+    }
+    
+    // Check if dates are selected
+    if (!arrive || !depart) {
+        showToast('Please select both check-in and check-out dates', 'error');
+        return;
+    }
+    
+    // Create cart item object
+    let cartItem = {
+        room_id: <?= $room['id'] ?>,
+        room_name: '<?= htmlspecialchars($room['name']) ?>',
+        room_image: '<?= $room['image'] ?>',
+        price_per_night: <?= $room['price'] ?>,
+        arrive_date: arrive,
+        depart_date: depart,
+        nights: parseInt(nights),
+        total_price: parseInt(totalPrice.replace(/,/g, '')),
+        added_at: new Date().toISOString()
+    };
+    
+    // Get existing cart from localStorage
+    let cart = JSON.parse(localStorage.getItem('hotelCart') || '[]');
+    
+    // Check if room already exists in cart with same dates
+    let existingIndex = cart.findIndex(item => 
+        item.room_id === cartItem.room_id && 
+        item.arrive_date === cartItem.arrive_date && 
+        item.depart_date === cartItem.depart_date
+    );
+    
+    if (existingIndex !== -1) {
+        showToast('This room with same dates is already in your cart!', 'warning');
+        return;
+    }
+    
+    // Add to cart
+    cart.push(cartItem);
+    localStorage.setItem('hotelCart', JSON.stringify(cart));
+    
+    // Update cart count in header if element exists
+    updateCartCount();
+    
+    // Show success toast with View Cart button
+    showToast('✓ Room added to cart!', 'success', true);
+});
+
+// Function to update cart count in header
+function updateCartCount() {
+    let cart = JSON.parse(localStorage.getItem('hotelCart') || '[]');
+    let cartCount = cart.length;
+    
+    let cartCountElement = document.getElementById('cartCount');
+    if (cartCountElement) {
+        cartCountElement.textContent = cartCount;
+        cartCountElement.style.display = cartCount > 0 ? 'inline-block' : 'none';
+    }
+}
+
+// Initialize cart count on page load
+updateCartCount();
 
 // Gallery Lightbox Popup Script
 document.addEventListener('DOMContentLoaded', function() {
@@ -488,7 +657,6 @@ document.addEventListener('DOMContentLoaded', function() {
     let currentImageIndex = 0;
     let galleryImages = [];
     
-    // Function to open lightbox
     function openLightbox(index) {
         if (index >= 0 && index < galleryImages.length) {
             currentImageIndex = index;
@@ -500,30 +668,25 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     
-    // Function to close lightbox
     function closeLightbox() {
         lightboxModal.classList.remove('active');
         document.body.style.overflow = '';
     }
     
-    // Function to show next image
     function showNextImage() {
         if (currentImageIndex < galleryImages.length - 1) {
             openLightbox(currentImageIndex + 1);
         }
     }
     
-    // Function to show previous image
     function showPrevImage() {
         if (currentImageIndex > 0) {
             openLightbox(currentImageIndex - 1);
         }
     }
     
-    // Get all gallery images
     galleryImages = document.querySelectorAll('.gallery-item img');
     
-    // Add click event to each gallery image
     galleryImages.forEach((img, index) => {
         img.addEventListener('click', function(e) {
             e.stopPropagation();
@@ -531,19 +694,16 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Event listeners for lightbox controls
     closeBtn.addEventListener('click', closeLightbox);
     nextBtn.addEventListener('click', showNextImage);
     prevBtn.addEventListener('click', showPrevImage);
     
-    // Close lightbox when clicking outside the image
     lightboxModal.addEventListener('click', function(e) {
         if (e.target === lightboxModal) {
             closeLightbox();
         }
     });
     
-    // Keyboard navigation
     document.addEventListener('keydown', function(e) {
         if (lightboxModal.classList.contains('active')) {
             if (e.key === 'Escape') {
