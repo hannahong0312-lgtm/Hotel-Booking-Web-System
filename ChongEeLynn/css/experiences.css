@@ -1,4 +1,4 @@
-/* experiences.css - Complete File */
+/* experiences.css - Complete File (Footer Styles Removed) */
 
 /* Base Styles */
 * {
@@ -329,50 +329,6 @@ body {
     line-height: 1.5;
 }
 
-/* Footer */
-.footer {
-    background: #1a1a1a;
-    color: #ddd8cf;
-    padding: 52px 0 36px;
-    border-top-left-radius: 40px;
-    border-top-right-radius: 40px;
-    margin-top: 48px;
-}
-
-.footer-inner {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 0 24px;
-}
-
-.footer-inner h3 {
-    font-weight: 600;
-    margin-bottom: 6px;
-    font-size: 1.2rem;
-    color: #C5A059;
-}
-
-.footer small {
-    font-size: 0.85rem;
-    opacity: 0.85;
-}
-
-.footer a {
-    color: #C5A059;
-    text-decoration: none;
-    font-weight: 500;
-}
-
-.footer a:hover {
-    text-decoration: underline;
-    opacity: 0.85;
-}
-
 /* Animations */
 @keyframes fadeInUp {
     from {
@@ -472,12 +428,6 @@ body {
     
     .info-item {
         min-width: 150px;
-    }
-    
-    .footer-inner {
-        flex-direction: column;
-        text-align: center;
-        gap: 18px;
     }
 }
 
@@ -583,10 +533,5 @@ body {
         break-inside: avoid;
         box-shadow: none;
         border: 1px solid #ddd;
-    }
-    
-    .footer {
-        background: #f5f0e8;
-        color: #1a1a1a;
     }
 }
