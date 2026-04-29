@@ -62,7 +62,9 @@ if ($is_logged_in && isset($_SESSION['user_name'])) {
                     <?php if ($is_logged_in): ?>
                         <a href="../ChangJingEn/profile.php" class="btn-login"><i class="fas fa-user-circle"></i> Hi, <?php echo htmlspecialchars($user_display_name); ?></a>
                         <a href="../Hannah/cart.php" title="Booking Cart">
-                            <i class="fas fa-shopping-cart" style="color: white; font-size: 1.2em; margin-right: 10px;"></i></a>
+                            <i class="fas fa-shopping-cart" style="color: white; font-size: 1.2em; margin-right: 10px;"></i>
+                            <span id="cartCount" class="cart-count" style="display: none;">0</span>
+                        </a>
                         <a href="../Hannah/history.php" title="Booking History">
                             <i class="fas fa-history" style="color: white; font-size: 1.2em; margin-right: 10px;"></i></a>
                         <a href="../ChangJingEn/logout.php" title="Logout">
