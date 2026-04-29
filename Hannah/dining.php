@@ -9,14 +9,14 @@ require 'PHPMailer-master/src/SMTP.php';
 
 $restaurants = [
     'royale'   => 'Royale Restaurant',
-    'palette'  => 'The Palette Cafe',
+    'buffet' => 'The Grand Buffet',   
     'bar'      => 'Rooftop Bar'
 ];
 
 // Operating hours (hour numbers, 24-hour format)
 $operatingHours = [
     'royale'  => ['open' => 10, 'close' => 16],
-    'palette' => ['open' => 10, 'close' => 16],
+    'buffet' => ['open' => 10, 'close' => 16],
     'bar'     => ['open' => 18, 'close' => 26] // 26 means 2AM 
 ];
 
@@ -223,8 +223,8 @@ function sendReservationEmail($to, $firstName, $lastName, $details) {
     <div class="restaurant-grid">
         <a href="royale.php" style="text-decoration: none; color: inherit; display: block;">
         <div class="restaurant-card"><div class="restaurant-img"><img src="img/nyonyadining.jpg" alt="Nyonya"></div><div class="restaurant-info"><h3>Royale Restaurant</h3><p>Authentic Szechuan and Nyonya cuisine.</p><div class="restaurant-meta"><span><i class="fas fa-clock"></i> 10:00 AM - 4:00 PM</span><span><i class="fas fa-utensils"></i> Nyonya • Cuisine</span></div></div></div></a>
-        <a href="cafe.php" style="text-decoration: none; color: inherit; display: block;">
-        <div class="restaurant-card"><div class="restaurant-img"><img src="img/palettecafe.jpeg" alt="Cafe"></div><div class="restaurant-info"><h3>The Palette Cafe</h3><p>Western buffet with live stations.</p><div class="restaurant-meta"><span><i class="fas fa-clock"></i> 10:00 AM - 4:00 PM</span><span><i class="fas fa-utensils"></i> Western • Buffet</span></div></div></div></a>
+        <a href="buffet.php" style="text-decoration: none; color: inherit; display: block;">
+        <div class="restaurant-card"><div class="restaurant-img"><img src="img/buffet.jpeg" alt="Buffet"></div><div class="restaurant-info"><h3>The Grand Buffet</h3><p>Western buffet with live stations.</p><div class="restaurant-meta"><span><i class="fas fa-clock"></i> 10:00 AM - 4:00 PM</span><span><i class="fas fa-utensils"></i> Western • Buffet</span></div></div></div></a>
         <a href="bar.php" style="text-decoration: none; color: inherit; display: block;">
         <div class="restaurant-card"><div class="restaurant-img"><img src="img/hotelbar.jpg" alt="Bar"></div><div class="restaurant-info"><h3>Rooftop Bar</h3><p>Sky-high cocktails with city views.</p><div class="restaurant-meta"><span><i class="fas fa-clock"></i> 6:00 PM - 2:00 AM</span><span><i class="fas fa-utensils"></i> Night Bar • Light Fare</span></div></div></div></a>
     </div>
@@ -277,7 +277,7 @@ const hourlySlots = <?php echo json_encode($allHourlySlots); ?>;
 // Operating hours (same as PHP)
 const hoursConfig = {
     royale:  { open: 10, close: 16 },
-    palette: { open: 10, close: 16 },
+    buffeten:  { open: 10, close: 16 },
     bar:     { open: 18, close: 26 }  // 26 means 2 AM next day
 };
 

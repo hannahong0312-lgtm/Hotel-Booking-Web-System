@@ -245,7 +245,7 @@ if (!empty($booking['card_no']) && strlen($booking['card_no']) >= 4) {
 
 <script>
 function confirmCancel(bookingId) {
-    if (!confirm('Are you sure you want to cancel this booking? You will receive a full refund.')) return;
+    if (!confirm('Are you sure you want to cancel this booking?')) return;
     fetch('process_cancelbook.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

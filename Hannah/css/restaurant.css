@@ -1,0 +1,108 @@
+        .menu-hero {
+            position: relative;
+            height: 48vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .menu-hero-content h1 {
+            font-size: 3.5rem;
+            color: white;
+            font-weight: 600;
+            text-shadow: 2px 2px 12px black;
+        }
+        .menu-hero-content p {
+            font-size: 1.2rem;
+            color: #f5e7d9;
+            margin-top: 0.5rem;
+        }
+        .menu-section {
+            background: white;
+            border-radius: 32px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.05);
+            padding: 2rem 2rem;
+            margin: 2rem 2rem;
+        }
+        .section-title {
+            font-size: 1.5rem;
+            border-left: 6px solid #c5a059;
+            padding-left: 1rem;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            color: #2c3e2f;
+        }
+        .menu-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 2rem;
+        }
+        .menu-item {
+            background: #fffef7;
+            border-radius: 28px;
+            overflow: hidden;
+            transition: transform 0.25s, box-shadow 0.25s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.03);
+            border: 1px solid #f0e6d8;
+        }
+        .menu-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 30px -10px rgba(0,0,0,0.1);
+        }
+        .menu-img {
+            height: 200px;
+            background-size: cover;
+            background-position: center;
+        }
+        .item-details {
+            padding: 1.5rem;
+        }
+        .item-title {
+            display: flex;
+            justify-content: space-between;
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        .price {
+            color: #c5a059;
+            font-weight: 800;
+        }
+        .desc {
+            color: #5e5b54;
+            line-height: 1.4;
+            margin: 0.5rem 0 0.5rem;
+            font-size: 0.95rem;
+        }
+        .diet-badge {
+            display: inline-block;
+            background: #e8e2d4;
+            font-size: 0.7rem;
+            padding: 0.2rem 0.8rem;
+            border-radius: 50px;
+            margin-top: 0.6rem;
+            color: #5a4a2e;
+        }
+        .back-reserve {
+            text-align: center;
+            margin: 3rem 0 3rem;
+        }
+        .btn-menu-action {
+            display: inline-block;
+            background: #c5a059;
+            color: white;
+            padding: 12px 32px;
+            border-radius: 40px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: 0.2s;
+            border: none;
+            font-size: 1rem;
+        }
+        .btn-menu-action:hover {
+            background: #a07e42;
+            transform: scale(1.02);
+        }
+        @media (max-width: 700px) {
+            .menu-hero-content h1 { font-size: 2.5rem; }
+        }

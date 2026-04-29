@@ -195,8 +195,7 @@ function getRemainingCancelTime($checkInDate) {
                             </div>
                             <button 
                                 class="btn-cancel" 
-                                onclick="confirmCancel(<?= $b['booking_id'] ?>)"
-                            >
+                                onclick="confirmCancel(<?= $b['booking_id'] ?>)">
                                 <i class="fas fa-times-circle"></i> Cancel Booking & Refund
                             </button>
                             <p class="policy-note"><i class="fas fa-shield-alt"></i> Full refund to original payment method</p>

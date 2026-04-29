@@ -4,6 +4,66 @@ session_start();
 include '../Shared/config.php';
 include '../Shared/header.php';
 
+// Check login
+if (!isset($_SESSION['user_id'])) {
+    $_SESSION['login_redirect'] = $_SERVER['REQUEST_URI'];
+    header('Location: ../ChangJingEn/login.php');
+    exit();
+}
+$user_id = $_SESSION['user_id'];
+
+// Fetch user data (including country)
+$fullname = $email = $country = '';
+$user_points = 0;
+$user_query = "SELECT first_name, last_name, email, country, points FROM users WHERE id = $user_id";
+$user_result = mysqli_query($conn, $user_query);
+if ($user_result && mysqli_num_rows($user_result) > 0) {
+    $user = mysqli_fetch_assoc($user_result);
+    $fullname = trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''));
+    $email = $user['email'] ?? '';
+    $country = $user['country'] ?? '';
+    $user_points = (int)($user['points'] ?? 0);
+}
+
+// Get booking data
+$room_id   = isset($_GET['room_id']) ? (int)$_GET['room_id'] : 1;
+$check_in  = isset($_GET['arrive']) ? $_GET['arrive'] : date('Y-m-d');
+$check_out = isset($_GET['depart']) ? $_GET['depart'] : date('Y-m-d', strtotime('+2 days'));
+$guests    = isset($_GET['guests']) ? (int)$_GET['guests'] : 2;
+
+// Fetch room details
+$room_name = 'Unknown Room';
+$room_price = 0.0;
+$room_image = '../ChongEeLynn/images/room-default.jpg';
+$room_sql = "SELECT name, price, image FROM rooms WHERE id = $room_id";
+$room_result = mysqli_query($conn, $room_sql);
+if ($room_result && mysqli_num_rows($room_result) > 0) {
+    $room = mysqli_fetch_assoc($room_result);
+    $room_name = htmlspecialchars($room['name'] ?? 'Unknown Room');
+    $room_price = (float)($room['price'] ?? 0);
+    $img_file = trim($room['image'] ?? '');
+    if (!empty($img_file)) $room_image = '../ChongEeLynn/images/' . $img_file;
+} else {
+    $room_name = 'Standard Room';
+    $room_price = 150.00;
+}
+
+// Calculate nights & subtotal
+$date1 = new DateTime($check_in);
+$date2 = new DateTime($check_out);
+$nights = $date2->diff($date1)->days;
+if ($nights <= 0) $nights = 1;
+$subtotal = $room_price * $nights;
+$points_per_rm = 10;
+$points_earned_display = floor($subtotal * $points_per_rm);
+
+// ---- NEW: Initial tax based on user's country ----
+$user_is_malaysian = ($country == 'Malaysia');  // true if profile country is Malaysia
+$tourism_tax_initial = $user_is_malaysian ? 0 : (10 * $nights);
+$sst_initial = $subtotal * 0.08;
+$service_initial = $subtotal * 0.05;
+$grand_initial = $subtotal + $sst_initial + $tourism_tax_initial + $service_initial;
+
 // --- AJAX: Recalculate taxes when IC changes ---
 if (isset($_GET['action']) && $_GET['action'] == 'check_ic' && isset($_GET['ic_no']) && isset($_GET['nights'])) {
     header('Content-Type: application/json');
@@ -84,66 +144,6 @@ if (isset($_GET['action']) && $_GET['action'] == 'calculate_points' && isset($_G
     exit();
 }
 // --- End AJAX handlers ---
-
-// Check login
-if (!isset($_SESSION['user_id'])) {
-    $_SESSION['login_redirect'] = $_SERVER['REQUEST_URI'];
-    header('Location: ../ChangJingEn/login.php');
-    exit();
-}
-$user_id = $_SESSION['user_id'];
-
-// Fetch user data (including country)
-$fullname = $email = $country = '';
-$user_points = 0;
-$user_query = "SELECT first_name, last_name, email, country, points FROM users WHERE id = $user_id";
-$user_result = mysqli_query($conn, $user_query);
-if ($user_result && mysqli_num_rows($user_result) > 0) {
-    $user = mysqli_fetch_assoc($user_result);
-    $fullname = trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''));
-    $email = $user['email'] ?? '';
-    $country = $user['country'] ?? '';
-    $user_points = (int)($user['points'] ?? 0);
-}
-
-// Get booking data
-$room_id   = isset($_GET['room_id']) ? (int)$_GET['room_id'] : 1;
-$check_in  = isset($_GET['arrive']) ? $_GET['arrive'] : date('Y-m-d');
-$check_out = isset($_GET['depart']) ? $_GET['depart'] : date('Y-m-d', strtotime('+2 days'));
-$guests    = isset($_GET['guests']) ? (int)$_GET['guests'] : 2;
-
-// Fetch room details
-$room_name = 'Unknown Room';
-$room_price = 0.0;
-$room_image = '../ChongEeLynn/images/room-default.jpg';
-$room_sql = "SELECT name, price, image FROM rooms WHERE id = $room_id";
-$room_result = mysqli_query($conn, $room_sql);
-if ($room_result && mysqli_num_rows($room_result) > 0) {
-    $room = mysqli_fetch_assoc($room_result);
-    $room_name = htmlspecialchars($room['name'] ?? 'Unknown Room');
-    $room_price = (float)($room['price'] ?? 0);
-    $img_file = trim($room['image'] ?? '');
-    if (!empty($img_file)) $room_image = '../ChongEeLynn/images/' . $img_file;
-} else {
-    $room_name = 'Standard Room';
-    $room_price = 150.00;
-}
-
-// Calculate nights & subtotal
-$date1 = new DateTime($check_in);
-$date2 = new DateTime($check_out);
-$nights = $date2->diff($date1)->days;
-if ($nights <= 0) $nights = 1;
-$subtotal = $room_price * $nights;
-$points_per_rm = 10;
-$points_earned_display = floor($subtotal * $points_per_rm);
-
-// ---- NEW: Initial tax based on user's country ----
-$user_is_malaysian = ($country == 'Malaysia');  // true if profile country is Malaysia
-$tourism_tax_initial = $user_is_malaysian ? 0 : (10 * $nights);
-$sst_initial = $subtotal * 0.08;
-$service_initial = $subtotal * 0.05;
-$grand_initial = $subtotal + $sst_initial + $tourism_tax_initial + $service_initial;
 ?>
 
 <!DOCTYPE html>
@@ -195,7 +195,9 @@ $grand_initial = $subtotal + $sst_initial + $tourism_tax_initial + $service_init
                 </div>
                 <div class="cancellation-policy">
                     <i class="fas fa-shield-alt"></i> <strong>Free Cancellation</strong> <small>Cancel up to 24 hours before check-in for a full refund.</small><br>
-                    <i class="fas fa-id-card"></i> <strong>Tourism Tax</strong> <small>RM10 per room per night applies to Foreigners. Enter your MyKad (12 digits) to confirm Malaysian status.</small>
+                    <i class="fas fa-id-card"></i> <strong>Tourism Tax</strong> <small>RM10 per room per night applies to Foreigners. Enter your MyKad (12 digits) or Passport Number to confirm your status.</small><br>
+                    <i class="fas fa-coins"></i> <strong>Earn Points</strong> <small>Every RM1 spent (before tax) earns you 100 points! Points can be redeemed for discounts on future stays.</small><br>
+                    <a style="color:#0077cc; text-decoration:underline; font-size:0.9rem;" href="javascript:void(0)" onclick="openLightbox('img/hotel tax.jpg'); return false;">View Terms and Conditions</a>
                 </div>
             </div>
 
@@ -219,8 +221,8 @@ $grand_initial = $subtotal + $sst_initial + $tourism_tax_initial + $service_init
 
                         <!-- IC Number Field -->
                         <div class="form-group">
-                            <label><i class="fas fa-id-card"></i> IC Number</label>
-                            <input type="text" class="form-control" id="ic_no" name="ic_no" placeholder="MyKad (12 digits)" required>
+                            <label><i class="fas fa-id-card"></i> IC Number & Passport</label>
+                            <input type="text" class="form-control" id="ic_no" name="ic_no" placeholder="MyKad (12 digits) or Passport Number" required>
                             <small class="form-text text-muted" id="icStatus"></small>
                         </div>
 
@@ -441,5 +443,28 @@ document.addEventListener('DOMContentLoaded',function(){
             });
     });
 });
+
 </script>
+<!-- Lightbox Popup (Image Overlay) -->
+<div id="lightbox" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; justify-content:center; align-items:center;">
+  <span onclick="closeLightbox()" style="position:absolute; top:20px; right:30px; color:white; font-size:40px; cursor:pointer;">&times;</span>
+  <img id="lightboxImg" style="max-width:90%; max-height:90%;">
+</div>
+
+<script>
+function openLightbox(src) {
+  document.getElementById('lightboxImg').src = src;
+  document.getElementById('lightbox').style.display = 'flex';
+}
+
+function closeLightbox() {
+  document.getElementById('lightbox').style.display = 'none';
+}
+
+// Click background to close
+document.getElementById('lightbox').onclick = function(e) {
+  if (e.target === this) closeLightbox();
+}
+</script>
+
 <?php include '../Shared/footer.php'; ?>
