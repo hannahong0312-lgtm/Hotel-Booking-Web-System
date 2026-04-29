@@ -1,5 +1,6 @@
 <?php
 // roomdetails.php
+session_start(); // Make sure session is started
 include '../Shared/config.php';
 include '../Shared/header.php';
 
@@ -509,9 +510,6 @@ function showToast(message, type = 'success', showViewCart = false) {
         } else if (type === 'warning') {
             icon = '⚠️';
             bgColor = '#ffc107';
-        } else if (type === 'login') {
-            icon = '🔐';
-            bgColor = '#C5A059';
         } else {
             icon = 'ℹ️';
             bgColor = '#17a2b8';
@@ -557,12 +555,11 @@ window.addEventListener('click', function(e) {
     }
 });
 
-// Add to Cart functionality with login check
+// Add to Cart functionality - Redirects to cart.php with room details (works with friend's cart.php)
 document.getElementById('addToCartBtn').addEventListener('click', function() {
     let arrive = arriveInput.value;
     let depart = departInput.value;
-    let nights = nightCountSpan.textContent;
-    let totalPrice = grandTotalSpan.textContent;
+    let guests = <?= $room['max_guests'] ?>;
     
     // Check if user is logged in
     if (!isLoggedIn) {
@@ -576,59 +573,24 @@ document.getElementById('addToCartBtn').addEventListener('click', function() {
         return;
     }
     
-    // Create cart item object
-    let cartItem = {
-        room_id: <?= $room['id'] ?>,
-        room_name: '<?= htmlspecialchars($room['name']) ?>',
-        room_image: '<?= $room['image'] ?>',
-        price_per_night: <?= $room['price'] ?>,
-        arrive_date: arrive,
-        depart_date: depart,
-        nights: parseInt(nights),
-        total_price: parseInt(totalPrice.replace(/,/g, '')),
-        added_at: new Date().toISOString()
-    };
+    // Calculate nights to validate
+    let date1 = new Date(arrive);
+    let date2 = new Date(depart);
+    let nights = Math.ceil((date2 - date1) / (1000 * 3600 * 24));
     
-    // Get existing cart from localStorage
-    let cart = JSON.parse(localStorage.getItem('hotelCart') || '[]');
-    
-    // Check if room already exists in cart with same dates
-    let existingIndex = cart.findIndex(item => 
-        item.room_id === cartItem.room_id && 
-        item.arrive_date === cartItem.arrive_date && 
-        item.depart_date === cartItem.depart_date
-    );
-    
-    if (existingIndex !== -1) {
-        showToast('This room with same dates is already in your cart!', 'warning');
+    if (nights <= 0) {
+        showToast('Departure date must be after arrival date', 'error');
         return;
     }
     
-    // Add to cart
-    cart.push(cartItem);
-    localStorage.setItem('hotelCart', JSON.stringify(cart));
+    // Redirect to cart.php with room details (friend's cart will handle adding to session)
+    // Show a quick "Adding..." message
+    showToast('Adding to cart...', 'success');
     
-    // Update cart count in header if element exists
-    updateCartCount();
-    
-    // Show success toast with View Cart button
-    showToast('✓ Room added to cart!', 'success', true);
+    setTimeout(function() {
+        window.location.href = '../Hannah/cart.php?room_id=<?= $room['id'] ?>&arrive=' + arrive + '&depart=' + depart + '&guests=' + guests;
+    }, 500);
 });
-
-// Function to update cart count in header
-function updateCartCount() {
-    let cart = JSON.parse(localStorage.getItem('hotelCart') || '[]');
-    let cartCount = cart.length;
-    
-    let cartCountElement = document.getElementById('cartCount');
-    if (cartCountElement) {
-        cartCountElement.textContent = cartCount;
-        cartCountElement.style.display = cartCount > 0 ? 'inline-block' : 'none';
-    }
-}
-
-// Initialize cart count on page load
-updateCartCount();
 
 // Gallery Lightbox Popup Script
 document.addEventListener('DOMContentLoaded', function() {
