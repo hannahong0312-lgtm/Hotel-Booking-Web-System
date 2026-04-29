@@ -14,9 +14,7 @@ if (isset($_GET['action']) && $_GET['action'] == 'check_ic' && isset($_GET['ic_n
     $points = isset($_GET['points']) ? floatval($_GET['points']) : 0;
     $country_from_db = isset($_GET['country']) ? $_GET['country'] : '';
 
-    // Determine Malaysian: either IC is 12 digits OR country in DB is Malaysia
     $is_malaysian_by_ic = (preg_match('/^\d{12}$/', $ic)) ? true : false;
-    $is_malaysian_by_country = ($country_from_db == 'Malaysia');
     $is_malaysian = $is_malaysian_by_ic;
     $tourism_tax = ($is_malaysian) ? 0 : 10 * $nights;
 
@@ -112,6 +110,19 @@ if (isset($_GET['action']) && $_GET['action'] == 'update_item' && isset($_GET['i
     exit();
 }
 
+// --- AJAX: Sync cart from localStorage ---
+if (isset($_GET['action']) && $_GET['action'] == 'sync_cart' && isset($_GET['cart_data'])) {
+    header('Content-Type: application/json');
+    $cart_data = json_decode($_GET['cart_data'], true);
+    if (is_array($cart_data) && !empty($cart_data)) {
+        $_SESSION['cart'] = $cart_data;
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['success' => false]);
+    }
+    exit();
+}
+
 // Check login
 if (!isset($_SESSION['user_id'])) {
     $_SESSION['login_redirect'] = $_SERVER['REQUEST_URI'];
@@ -120,7 +131,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 $user_id = $_SESSION['user_id'];
 
-// Fetch user data (including country)
+// Fetch user data
 $fullname = $email = $country = '';
 $user_points = 0;
 $user_query = "SELECT first_name, last_name, email, country, points FROM users WHERE id = $user_id";
@@ -145,19 +156,16 @@ if (isset($_GET['room_id']) && isset($_GET['arrive']) && isset($_GET['depart']) 
     $check_out = $_GET['depart'];
     $guests = (int)$_GET['guests'];
     
-    // Validate dates
     $date1 = new DateTime($check_in);
     $date2 = new DateTime($check_out);
     $nights = $date2->diff($date1)->days;
     if ($nights <= 0) $nights = 1;
     
-    // Fetch room details
     $room_sql = "SELECT id, name, price, max_guests, image FROM rooms WHERE id = $room_id AND is_active = 1";
     $room_result = mysqli_query($conn, $room_sql);
     if ($room_result && mysqli_num_rows($room_result) > 0) {
         $room = mysqli_fetch_assoc($room_result);
         
-        // Check if same room with same dates already exists in cart
         $exists = false;
         foreach ($_SESSION['cart'] as $index => $item) {
             if ($item['room_id'] == $room_id && $item['check_in'] == $check_in && $item['check_out'] == $check_out) {
@@ -181,7 +189,6 @@ if (isset($_GET['room_id']) && isset($_GET['arrive']) && isset($_GET['depart']) 
         }
     }
     
-    // Redirect to cart to avoid re-adding on refresh
     header('Location: cart.php');
     exit();
 }
@@ -197,11 +204,8 @@ foreach ($cart_items as $item) {
     $total_nights += $item['nights'];
 }
 
-// Points earned (10 points per RM spent)
 $points_per_rm = 10;
 $points_earned_display = floor($subtotal * $points_per_rm);
-
-// Initial tax based on user's country
 $user_is_malaysian = ($country == 'Malaysia');
 $tourism_tax_initial = $user_is_malaysian ? 0 : (10 * $total_nights);
 $sst_initial = $subtotal * 0.08;
@@ -299,6 +303,17 @@ $grand_initial = $subtotal + $sst_initial + $tourism_tax_initial + $service_init
         .btn-continue:hover {
             background: var(--gold-dark);
         }
+        .sync-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #28a745;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            z-index: 1000;
+            display: none;
+        }
         @media (max-width: 768px) {
             .cart-item {
                 flex-direction: column;
@@ -314,6 +329,7 @@ $grand_initial = $subtotal + $sst_initial + $tourism_tax_initial + $service_init
     </style>
 </head>
 <body>
+<div id="syncMessage" class="sync-message"></div>
 <main>
 <div class="booking-container">
     <div class="booking-header">
@@ -331,7 +347,6 @@ $grand_initial = $subtotal + $sst_initial + $tourism_tax_initial + $service_init
     <?php else: ?>
     <form method="POST" action="process_payment.php" id="bookingForm" onsubmit="return validatePaymentForm()">
         <div class="booking-grid">
-            <!-- Left Column - Cart Items -->
             <div>
                 <div class="booking-details-card">
                     <div class="card-header"><h3><i class="fas fa-list"></i> Selected Rooms (<?= count($cart_items) ?>)</h3></div>
@@ -379,7 +394,6 @@ $grand_initial = $subtotal + $sst_initial + $tourism_tax_initial + $service_init
                 </div>
             </div>
 
-            <!-- Right Column - Payment Details -->
             <div>
                 <div class="payment-card">
                     <div class="card-header"><h3><i class="fas fa-credit-card"></i> Payment Details</h3></div>
@@ -397,14 +411,12 @@ $grand_initial = $subtotal + $sst_initial + $tourism_tax_initial + $service_init
                             <input type="tel" class="form-control" name="phone" placeholder="Enter your phone number" required>
                         </div>
 
-                        <!-- IC Number Field -->
                         <div class="form-group">
                             <label><i class="fas fa-id-card"></i> IC/Passport Number</label>
                             <input type="text" class="form-control" id="ic_no" name="ic_no" placeholder="MyKad (12 digits) or Passport number" required>
                             <small class="form-text text-muted" id="icStatus"></small>
                         </div>
 
-                        <!-- Voucher Section -->
                         <div class="form-group voucher-section">
                             <label><i class="fas fa-ticket-alt"></i> Voucher Code</label>
                             <div class="voucher-input-group">
@@ -414,7 +426,6 @@ $grand_initial = $subtotal + $sst_initial + $tourism_tax_initial + $service_init
                             <div id="voucherMessage" class="voucher-message"></div>
                         </div>
 
-                        <!-- Points Section -->
                         <div class="form-group points-section">
                             <div class="points-header">
                                 <label><i class="fas fa-coins"></i> Your Points</label>
@@ -431,7 +442,6 @@ $grand_initial = $subtotal + $sst_initial + $tourism_tax_initial + $service_init
                             <div class="points-earned"><small>You'll earn <strong id="pointsEarned"><?= number_format($points_earned_display) ?></strong> points (excluding taxes)</small></div>
                         </div>
 
-                        <!-- Payment Methods -->
                         <div class="payment-methods">
                             <label>Select Payment Method</label>
                             <div class="payment-option"><input type="radio" id="credit_card" name="payment_method" value="credit_card" checked><label for="credit_card"><i class="fab fa-cc-visa"></i> Credit/Debit Card</label></div>
@@ -439,7 +449,6 @@ $grand_initial = $subtotal + $sst_initial + $tourism_tax_initial + $service_init
                             <div class="payment-option"><input type="radio" id="online_banking" name="payment_method" value="online_banking"><label for="online_banking"><i class="fas fa-university"></i> Online Banking</label></div>
                         </div>
 
-                        <!-- Credit Card Details -->
                         <div class="form-group" id="card_details" style="display: block;">
                             <label>Card Number</label>
                             <input type="text" class="form-control" id="card_number" name="card_number" placeholder="1234 5678 9012 3456">
@@ -449,7 +458,6 @@ $grand_initial = $subtotal + $sst_initial + $tourism_tax_initial + $service_init
                             </div>
                         </div>
 
-                        <!-- Tax Breakdown -->
                         <div class="total-section" id="totalSection">
                             <div class="total-item"><span>Subtotal (<?= $total_nights ?> total nights)</span><span>RM <span id="subtotalAmount"><?= number_format($subtotal, 2) ?></span></span></div>
                             <div class="total-item discount-row" id="taxDiscountRow" style="display:none"><span>Voucher Discount</span><span>-RM <span id="taxDiscountAmount">0.00</span></span></div>
@@ -462,7 +470,6 @@ $grand_initial = $subtotal + $sst_initial + $tourism_tax_initial + $service_init
 
                         <div class="form-group"><label>Special Requests</label><textarea class="form-control" name="special_requests" rows="3" placeholder="Any special requests for your stay?"></textarea></div>
 
-                        <!-- Hidden fields for cart data -->
                         <input type="hidden" name="is_cart" value="1">
                         <input type="hidden" name="cart_data" id="cartData" value='<?= htmlspecialchars(json_encode($cart_items)) ?>'>
                         <input type="hidden" name="subtotal" id="hiddenSubtotal" value="<?= $subtotal ?>">
@@ -496,6 +503,106 @@ let currentIcValue = '';
 let userCountry = document.getElementById('userCountry').value;
 let isMalaysianByIc = (userCountry === 'Malaysia') ? true : false;
 
+// ========== LOCALSTORAGE FUNCTIONS ==========
+function showSyncMessage(message, isError = false) {
+    let msgDiv = document.getElementById('syncMessage');
+    msgDiv.style.backgroundColor = isError ? '#dc3545' : '#28a745';
+    msgDiv.innerHTML = message;
+    msgDiv.style.display = 'block';
+    setTimeout(() => {
+        msgDiv.style.display = 'none';
+    }, 3000);
+}
+
+function saveCartToLocalStorage() {
+    let cartItems = <?= json_encode($cart_items) ?>;
+    if (cartItems.length > 0) {
+        localStorage.setItem('hotelCart', JSON.stringify(cartItems));
+        console.log('Cart saved to localStorage:', cartItems);
+    } else {
+        localStorage.removeItem('hotelCart');
+    }
+}
+
+function loadCartFromLocalStorage() {
+    let savedCart = localStorage.getItem('hotelCart');
+    if (savedCart && savedCart !== '[]') {
+        let cartItems = JSON.parse(savedCart);
+        if (cartItems.length > 0 && <?= count($cart_items) ?> === 0) {
+            // Sync localStorage cart to server
+            showSyncMessage('Syncing saved cart...');
+            fetch(`?action=sync_cart&cart_data=${encodeURIComponent(JSON.stringify(cartItems))}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        showSyncMessage('Cart restored successfully!');
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        showSyncMessage('Failed to restore cart', true);
+                    }
+                })
+                .catch(err => {
+                    console.log('Sync failed:', err);
+                    showSyncMessage('Failed to sync cart', true);
+                });
+        }
+    }
+}
+
+// Modified cart operations with localStorage sync
+function removeCartItem(index) {
+    if (confirm('Remove this room from your cart?')) {
+        fetch(`?action=remove_item&index=${index}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // Update localStorage
+                    let localCart = localStorage.getItem('hotelCart');
+                    if (localCart) {
+                        let cartItems = JSON.parse(localCart);
+                        cartItems.splice(index, 1);
+                        if (cartItems.length > 0) {
+                            localStorage.setItem('hotelCart', JSON.stringify(cartItems));
+                        } else {
+                            localStorage.removeItem('hotelCart');
+                        }
+                    }
+                    location.reload();
+                } else {
+                    alert('Failed to remove item');
+                }
+            })
+            .catch(err => console.log('Remove failed', err));
+    }
+}
+
+function updateGuests(index, guests) {
+    fetch(`?action=update_item&index=${index}&guests=${guests}`)
+        .then(res => res.json())
+        .then(data => {
+            if (data.success) {
+                // Update localStorage
+                let localCart = localStorage.getItem('hotelCart');
+                if (localCart) {
+                    let cartItems = JSON.parse(localCart);
+                    if (cartItems[index]) {
+                        cartItems[index].guests = parseInt(guests);
+                        localStorage.setItem('hotelCart', JSON.stringify(cartItems));
+                    }
+                }
+                location.reload();
+            }
+        })
+        .catch(err => console.log('Update failed', err));
+}
+
+// Clear cart after successful payment (call this from process_payment.php success page)
+function clearCartAfterPayment() {
+    localStorage.removeItem('hotelCart');
+    sessionStorage.removeItem('hotelCart');
+}
+
+// ========== EXISTING FUNCTIONS ==========
 function refreshTotals() {
     let afterDiscount = subtotal - discountAmount - pointsDeduction;
     if (afterDiscount < 0) afterDiscount = 0;
@@ -541,32 +648,6 @@ function checkIcAndRecalc() {
             }
         })
         .catch(err => console.log('IC check failed', err));
-}
-
-function removeCartItem(index) {
-    if (confirm('Remove this room from your cart?')) {
-        fetch(`?action=remove_item&index=${index}`)
-            .then(res => res.json())
-            .then(data => {
-                if (data.success) {
-                    location.reload();
-                } else {
-                    alert('Failed to remove item');
-                }
-            })
-            .catch(err => console.log('Remove failed', err));
-    }
-}
-
-function updateGuests(index, guests) {
-    fetch(`?action=update_item&index=${index}&guests=${guests}`)
-        .then(res => res.json())
-        .then(data => {
-            if (data.success) {
-                location.reload();
-            }
-        })
-        .catch(err => console.log('Update failed', err));
 }
 
 function toggleCreditCardFields() {
@@ -631,6 +712,14 @@ function validatePaymentForm() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    // Load cart from localStorage on page load
+    loadCartFromLocalStorage();
+    
+    // Save current cart to localStorage
+    if (<?= count($cart_items) ?> > 0) {
+        saveCartToLocalStorage();
+    }
+    
     document.querySelectorAll('input[name="payment_method"]').forEach(r => r.addEventListener('change', toggleCreditCardFields));
     toggleCreditCardFields();
     restrictCardNumber();

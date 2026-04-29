@@ -8,11 +8,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 $user_id = $_SESSION['user_id'];
 
-if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['confirm_booking'])) {
-    header('Location: payment.php');
-    exit();
-}
-
+// Fix: Remove duplicate condition - only check once
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !isset($_POST['confirm_booking'])) {
     header('Location: cart.php');
     exit();
@@ -28,7 +24,8 @@ if ($is_cart) {
         header('Location: cart.php');
         exit();
     }
-       
+} 
+
 // Retrieve all form data with fallbacks
 $room_id = (int)($_POST['room_id'] ?? 0);
 $room_price = (float)($_POST['room_price'] ?? 0);
@@ -36,6 +33,7 @@ $check_in = isset($_POST['check_in']) ? mysqli_real_escape_string($conn, $_POST[
 $check_out = isset($_POST['check_out']) ? mysqli_real_escape_string($conn, $_POST['check_out']) : date('Y-m-d', strtotime('+2 days'));
 $guests = (int)($_POST['guests'] ?? 2);
 $nights = (int)($_POST['nights'] ?? 1);
+$total_nights = isset($_POST['total_nights']) ? (int)$_POST['total_nights'] : $nights; // For cart orders
 $subtotal = (float)($_POST['subtotal'] ?? 0);
 $discount_amount = (float)($_POST['discount_amount'] ?? 0);
 $points_deduction = (float)($_POST['points_deduction'] ?? 0);
@@ -85,10 +83,12 @@ if ($payment_method == 'credit_card') {
 $is_malaysian = (preg_match('/^\d{12}$/', $ic_no)) ? true : false;
 
 // ---- TAX CALCULATIONS ----
+// Use total_nights for cart orders, nights for single room
+$tax_nights = $is_cart ? $total_nights : $nights;
 $total_before_tax = $subtotal - $discount_amount - $points_deduction;
 if ($total_before_tax < 0) $total_before_tax = 0;
-$sst_tax = $total_before_tax * 0.12;
-$tourism_tax = ($is_malaysian) ? 0 : (10 * $nights);   // RM10 per night for foreigners
+$sst_tax = $total_before_tax * 0.08; // Fixed: Should be 8% not 12%
+$tourism_tax = ($is_malaysian) ? 0 : (10 * $tax_nights);
 $service_fee = $total_before_tax * 0.05;
 $grand_total = $total_before_tax + $sst_tax + $tourism_tax + $service_fee;
 
@@ -96,16 +96,41 @@ $points_per_rm = 10;
 $points_earned = floor($subtotal * $points_per_rm);
 $booking_ref = 'BK' . strtoupper(uniqid());
 
-// 1. Insert booking
-$insert_booking = "INSERT INTO book (booking_ref, user_id, room_id, check_in, check_out, guests, 
-                    grand_total, nationality, special_requests, status, created_at)
-                    VALUES ('$booking_ref', $user_id, $room_id, '$check_in', '$check_out', $guests,
-                    $grand_total, '$nationality', '$special_requests', 'confirmed', NOW())";
-
-if (!mysqli_query($conn, $insert_booking)) {
-    die("Booking failed: " . mysqli_error($conn));
+// Handle multiple rooms booking (cart)
+if ($is_cart) {
+    // For cart orders, create a summary booking or multiple bookings
+    // Option 1: Create one booking with a summary (recommended)
+    $room_summary = '';
+    foreach ($cart_data as $item) {
+        $room_summary .= $item['room_name'] . ' (' . $item['nights'] . ' nights), ';
+    }
+    $room_summary = rtrim($room_summary, ', ');
+    
+    // Use room_id = 0 or a special value for multi-room bookings
+    $room_id_for_booking = 0;
+    
+    $insert_booking = "INSERT INTO book (booking_ref, user_id, room_id, check_in, check_out, guests, 
+                        grand_total, nationality, special_requests, status, created_at)
+                        VALUES ('$booking_ref', $user_id, 0, '$check_in', '$check_out', 1,
+                        $grand_total, '$nationality', CONCAT('$room_summary | ', '$special_requests'), 'confirmed', NOW())";
+    
+    if (!mysqli_query($conn, $insert_booking)) {
+        die("Booking failed: " . mysqli_error($conn));
+    }
+    $book_id = mysqli_insert_id($conn);
+    
+} else {
+    // Single room booking
+    $insert_booking = "INSERT INTO book (booking_ref, user_id, room_id, check_in, check_out, guests, 
+                        grand_total, nationality, special_requests, status, created_at)
+                        VALUES ('$booking_ref', $user_id, $room_id, '$check_in', '$check_out', $guests,
+                        $grand_total, '$nationality', '$special_requests', 'confirmed', NOW())";
+    
+    if (!mysqli_query($conn, $insert_booking)) {
+        die("Booking failed: " . mysqli_error($conn));
+    }
+    $book_id = mysqli_insert_id($conn);
 }
-$book_id = mysqli_insert_id($conn);
 
 // 2. Insert payment (with ic_no column)
 $transaction_id = 'TXN' . strtoupper(uniqid());
@@ -136,7 +161,10 @@ $current_points = $user_points;
 $new_points = $current_points - $points_used + $points_earned;
 mysqli_query($conn, "UPDATE users SET points = $new_points WHERE id = $user_id");
 
-// 5. Redirect to confirmation
+// 5. Clear cart after successful booking
+unset($_SESSION['cart']);
+
+// 6. Redirect to confirmation
 $_SESSION['last_booking_ref'] = $booking_ref;
 ?>
 <!DOCTYPE html>
@@ -155,10 +183,14 @@ $_SESSION['last_booking_ref'] = $booking_ref;
     <div class="message-box">
         <h2>Processing Your Payment</h2>
         <div class="spinner"></div>
-        <p>We will redirect you to the payment process, please wait patiently...</p>
+        <p>Thank you for your booking! Please wait while we confirm your reservation...</p>
         <p>If you are not redirected automatically, <a href="confirm_book.php?ref=<?= $booking_ref ?>">click here</a>.</p>
     </div>
 </body>
+<script>
+    // Clear localStorage cart after successful payment
+    localStorage.removeItem('hotelCart');
+</script>
 </html>
 <?php
 exit();
