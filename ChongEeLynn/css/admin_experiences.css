@@ -1,4 +1,4 @@
-/* admin_experience.css - Grand Hotel Admin Panel */
+/* admin_experiences.css - Grand Hotel Admin Panel */
 * {
     margin: 0;
     padding: 0;
@@ -23,9 +23,6 @@
     --danger-light: #fadbd8;
     --warning: #f39c12;
     --info: #3498db;
-    --info-light: #b3e0ff;
-    --purple: #9b59b6;
-    --purple-light: #e8daef;
 }
 
 [data-theme="dark"] {
@@ -40,8 +37,6 @@
     --shadow-md: 0 6px 20px rgba(0,0,0,0.4);
     --success-light: #1e4a2e;
     --danger-light: #4a1a1a;
-    --info-light: #1a2a4a;
-    --purple-light: #3a2a5a;
 }
 
 body {
@@ -49,7 +44,6 @@ body {
     background-color: var(--bg-body);
     color: var(--text-primary);
     transition: background 0.3s, color 0.2s;
-    line-height: 1.5;
 }
 
 .experience-container {
@@ -57,7 +51,6 @@ body {
     border-radius: 16px;
     padding: 28px;
     box-shadow: var(--shadow-md);
-    transition: background 0.3s;
 }
 
 .page-header {
@@ -67,6 +60,8 @@ body {
     margin-bottom: 30px;
     padding-bottom: 20px;
     border-bottom: 2px solid var(--border-light);
+    flex-wrap: wrap;
+    gap: 15px;
 }
 
 .header-left h1 {
@@ -148,7 +143,6 @@ body {
     padding: 14px 12px;
     border-bottom: 1px solid var(--border-light);
     vertical-align: middle;
-    transition: all 0.2s;
     color: var(--text-primary);
 }
 
@@ -156,7 +150,6 @@ body {
     background-color: var(--bg-body);
 }
 
-/* Type Badges */
 .type-badge {
     display: inline-block;
     padding: 5px 12px;
@@ -181,7 +174,6 @@ body {
     color: #0a0a0a;
 }
 
-/* Image Styles */
 .image-cell {
     position: relative;
 }
@@ -244,10 +236,6 @@ body {
     cursor: help;
 }
 
-.features-cell {
-    min-width: 120px;
-}
-
 .features-list {
     display: flex;
     flex-wrap: wrap;
@@ -274,7 +262,6 @@ body {
     color: var(--text-secondary);
 }
 
-/* Status Badge */
 .status-badge {
     display: inline-flex;
     align-items: center;
@@ -302,17 +289,15 @@ body {
     padding: 0;
 }
 
-/* Action Buttons */
 .actions {
     white-space: nowrap;
 }
 
-.actions a, .actions button {
+.actions button {
     display: inline-flex;
     align-items: center;
     padding: 6px 12px;
     margin: 0 3px;
-    text-decoration: none;
     border-radius: 6px;
     font-size: 11px;
     font-weight: 500;
@@ -434,7 +419,6 @@ body {
     border: 2px solid var(--border-light);
     border-radius: 8px;
     font-size: 13px;
-    transition: all 0.3s;
     font-family: inherit;
     background: var(--bg-sidebar);
     color: var(--text-primary);
@@ -487,7 +471,6 @@ body {
     border-radius: 8px;
     font-size: 13px;
     font-weight: 600;
-    text-decoration: none;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -518,6 +501,19 @@ body {
     border-color: var(--danger);
 }
 
+.no-image {
+    width: 70px;
+    height: 70px;
+    background: var(--bg-body);
+    border: 2px dashed var(--border-light);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    font-size: 11px;
+}
+
 [data-theme="dark"] .btn-submit {
     color: #0a0a0a;
 }
@@ -533,7 +529,6 @@ body {
     }
 }
 
-/* Responsive */
 @media (max-width: 768px) {
     .experience-container {
         padding: 15px;
@@ -541,7 +536,6 @@ body {
     
     .page-header {
         flex-direction: column;
-        gap: 15px;
     }
     
     .experience-table {
@@ -552,7 +546,7 @@ body {
         padding: 8px 6px;
     }
     
-    .actions a, .actions button {
+    .actions button {
         padding: 4px 8px;
         font-size: 10px;
     }
@@ -568,14 +562,5 @@ body {
     
     .modal-content {
         width: 95%;
-        margin: 20px;
-    }
-    
-    .modal-header {
-        padding: 15px 20px;
-    }
-    
-    .edit-form {
-        padding: 20px;
     }
 }

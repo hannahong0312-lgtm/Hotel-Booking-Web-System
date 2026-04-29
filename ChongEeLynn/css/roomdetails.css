@@ -252,17 +252,18 @@
     box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.1);
 }
 
+/* Proceed to Booking Button */
 .book-now-btn {
     background: #C5A059;
     border: none;
-    padding: 16px;
+    padding: 16px 20px;
     border-radius: 16px;
     color: white;
     font-weight: 700;
     font-size: 1rem;
     cursor: pointer;
     transition: 0.3s;
-    margin-top: 10px;
+    width: 100%;
 }
 
 .book-now-btn:hover:not(:disabled) {
@@ -274,6 +275,210 @@
 .book-now-btn:disabled {
     background: #ccc;
     cursor: not-allowed;
+}
+
+/* Add to Cart Button - Below Proceed Button */
+.add-to-cart-btn {
+    background: white;
+    border: 2px solid #C5A059;
+    padding: 16px 20px;
+    border-radius: 16px;
+    color: #C5A059;
+    font-weight: 700;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: 0.3s;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 12px;
+}
+
+.add-to-cart-btn:hover:not(:disabled) {
+    background: #C5A059;
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(197, 160, 89, 0.2);
+}
+
+.add-to-cart-btn:disabled {
+    background: #f5f5f5;
+    border-color: #ccc;
+    color: #999;
+    cursor: not-allowed;
+}
+
+/* Toast Notification */
+.cart-toast {
+    visibility: hidden;
+    min-width: 320px;
+    background-color: #28a745;
+    color: white;
+    text-align: center;
+    border-radius: 12px;
+    padding: 16px 24px;
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 10000;
+    font-size: 0.9rem;
+    font-weight: 500;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+    transition: visibility 0.3s, opacity 0.3s, transform 0.3s;
+    opacity: 0;
+    transform: translateX(100px);
+}
+
+.cart-toast.show {
+    visibility: visible;
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.toast-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.toast-icon {
+    font-size: 1.2rem;
+}
+
+.toast-message {
+    flex: 1;
+    text-align: left;
+}
+
+.toast-view-cart-btn {
+    background: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    color: #28a745;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: 0.2s;
+    margin-left: auto;
+}
+
+.toast-view-cart-btn:hover {
+    background: #C5A059;
+    color: white;
+    transform: scale(1.05);
+}
+
+/* Login Modal Styles */
+.login-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    z-index: 10001;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-modal-content {
+    background: white;
+    border-radius: 24px;
+    padding: 40px;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    position: relative;
+    animation: modalSlideIn 0.3s ease;
+}
+
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.login-modal-close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    color: #999;
+    transition: 0.3s;
+}
+
+.login-modal-close:hover {
+    color: #C5A059;
+}
+
+.login-modal-icon {
+    font-size: 60px;
+    margin-bottom: 20px;
+}
+
+.login-modal-content h3 {
+    font-size: 1.6rem;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #1a1a1a;
+}
+
+.login-modal-content p {
+    color: #666;
+    margin-bottom: 28px;
+    font-size: 1rem;
+}
+
+.login-modal-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.login-modal-btn {
+    padding: 12px 28px;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: 0.3s;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.login-btn {
+    background: #C5A059;
+    color: white;
+    border: none;
+}
+
+.login-btn:hover {
+    background: #a88845;
+    transform: translateY(-2px);
+}
+
+.cancel-btn {
+    background: white;
+    color: #666;
+    border: 1px solid #ddd;
+}
+
+.cancel-btn:hover {
+    background: #f5f5f5;
+    border-color: #C5A059;
 }
 
 .booking-note {
@@ -292,6 +497,31 @@
     content: "✓ ";
     color: #28a745;
     font-weight: bold;
+}
+
+/* Total Price Display */
+.total-price-display {
+    background: #fefcf9;
+    border-radius: 16px;
+    padding: 16px;
+    margin: 10px 0;
+    border: 1px solid #f0ede8;
+}
+
+.total-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.total-grand {
+    padding-top: 12px;
+    margin-top: 8px;
+    border-top: 2px solid #e9e5df;
+    font-size: 1.1rem;
+    color: #1a1a1a;
 }
 
 /* Similar Rooms Section */
@@ -449,31 +679,6 @@
 .sticky-card {
     position: sticky;
     top: 30px;
-}
-
-/* Total Price Display */
-.total-price-display {
-    background: #fefcf9;
-    border-radius: 16px;
-    padding: 16px;
-    margin: 10px 0;
-    border: 1px solid #f0ede8;
-}
-
-.total-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 8px 0;
-    font-size: 0.9rem;
-    color: #555;
-}
-
-.total-grand {
-    padding-top: 12px;
-    margin-top: 8px;
-    border-top: 2px solid #e9e5df;
-    font-size: 1.1rem;
-    color: #1a1a1a;
 }
 
 /* Room Policies Styles */
@@ -935,7 +1140,6 @@
         padding: 20px 16px 50px 16px;
     }
     
-    /* Reviews Section Responsive */
     .reviews-section-header {
         flex-direction: column;
         gap: 15px;
@@ -953,6 +1157,33 @@
     
     .top-review-item {
         padding: 12px;
+    }
+    
+    .cart-toast {
+        left: 20px;
+        right: 20px;
+        bottom: 20px;
+        min-width: auto;
+    }
+    
+    .toast-view-cart-btn {
+        margin-left: 0;
+        width: 100%;
+        margin-top: 8px;
+    }
+    
+    .login-modal-content {
+        padding: 30px 20px;
+        width: 85%;
+    }
+    
+    .login-modal-buttons {
+        flex-direction: column;
+    }
+    
+    .login-modal-btn {
+        width: 100%;
+        text-align: center;
     }
 }
 
@@ -984,7 +1215,6 @@
 }
 
 @media (max-width: 480px) {
-    /* Reviews Section Mobile */
     .review-summary {
         flex-direction: column;
         align-items: flex-start;

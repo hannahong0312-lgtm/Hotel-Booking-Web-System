@@ -314,7 +314,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
         <div class="menu-header">EXPLORE</div>
         <ul style="list-style: none;">
             <li class="nav-item"><a href="admin_facilities.php" class="nav-link"><i class="fas fa-building"></i> Facilities</a></li>
-            <li class="nav-item"><a href="../ChongEeLynn/admin_experience.php" class="nav-link"><i class="fas fa-map-marked-alt"></i> Experience</a></li>
+            <li class="nav-item"><a href="../ChongEeLynn/admin_experiences.php" class="nav-link"><i class="fas fa-map-marked-alt"></i> Experience</a></li>
         </ul>
 
         <ul style="list-style: none;">
