@@ -173,23 +173,60 @@ include '../Shared/header.php';
 </section>
 
 <script>
+    //  Date validation 
+    const today = new Date();
+    const oneYearLater = new Date();
+    oneYearLater.setFullYear(today.getFullYear() + 1);
+    const todayStr = today.toISOString().split('T')[0];
+    const oneYearLaterStr = oneYearLater.toISOString().split('T')[0];
+
     const homeArrive = document.getElementById('home_arrive');
     const homeDepart = document.getElementById('home_depart');
-    function updateHomeCheckoutMin() {
-        if (homeArrive.value) {
-            //Don't let users pick checkout date earlier than check-in date
-            homeDepart.min = homeArrive.value;
-            if (homeDepart.value && homeDepart.value <= homeArrive.value) {
-                let newCheckout = new Date(homeArrive.value);
-                newCheckout.setDate(newCheckout.getDate() + 1);
-                homeDepart.value = newCheckout.toISOString().split('T')[0];
-            }
-        }
-    }
+
+    // Set min and max attributes
     if (homeArrive) {
-        homeArrive.addEventListener('change', updateHomeCheckoutMin);
-        updateHomeCheckoutMin();
+        homeArrive.min = todayStr;
+        homeArrive.max = oneYearLaterStr;
+        // Validate existing value (should not be needed because we set value to today)
+        if (homeArrive.value && (homeArrive.value < todayStr || homeArrive.value > oneYearLaterStr)) {
+            homeArrive.value = todayStr;
+        }
+        homeArrive.addEventListener('change', function() {
+            if (this.value && this.value > oneYearLaterStr) {
+                alert('Bookings are only allowed within 1 year from today. Please select an earlier date.');
+                this.value = todayStr;
+                return;
+            }
+            // Update depart date min
+            if (homeDepart) {
+                homeDepart.min = this.value;
+                if (homeDepart.value && homeDepart.value < this.value) {
+                    let newDepart = new Date(this.value);
+                    newDepart.setDate(newDepart.getDate() + 1);
+                    homeDepart.value = newDepart.toISOString().split('T')[0];
+                }
+            }
+        });
     }
+
+    if (homeDepart) {
+        homeDepart.min = todayStr;
+        homeDepart.max = oneYearLaterStr;
+        if (homeDepart.value && (homeDepart.value < todayStr || homeDepart.value > oneYearLaterStr)) {
+            let defaultDepart = new Date();
+            defaultDepart.setDate(defaultDepart.getDate() + 1);
+            homeDepart.value = defaultDepart.toISOString().split('T')[0];
+        }
+        homeDepart.addEventListener('change', function() {
+            if (this.value && this.value > oneYearLaterStr) {
+                alert('Bookings are only allowed within 1 year from today. Please select an earlier date.');
+                let defaultDepart = new Date(homeArrive ? homeArrive.value : todayStr);
+                defaultDepart.setDate(defaultDepart.getDate() + 1);
+                this.value = defaultDepart.toISOString().split('T')[0];
+            }
+        });
+    }
+
     // Function to handle the guest number stepper (Min: 1, Max: 6)
     function changeHomeGuests(delta) {
         let input = document.getElementById('homeGuestInput');
@@ -199,6 +236,32 @@ include '../Shared/header.php';
             input.value = val;
             span.textContent = val;
         }
+    }
+
+    // Form submission validation (prevent invalid dates)
+    const homeForm = document.querySelector('.search-form-horizontal');
+    if (homeForm) {
+        homeForm.addEventListener('submit', function(e) {
+            let arrive = homeArrive ? homeArrive.value : '';
+            let depart = homeDepart ? homeDepart.value : '';
+            
+            if (arrive && arrive > oneYearLaterStr) {
+                e.preventDefault();
+                alert('❌ Arrival date must be within 1 year from today!');
+                return false;
+            }
+            if (depart && depart > oneYearLaterStr) {
+                e.preventDefault();
+                alert('❌ Departure date must be within 1 year from today!');
+                return false;
+            }
+            if (arrive && depart && depart <= arrive) {
+                e.preventDefault();
+                alert('❌ Departure date must be after arrival date!');
+                return false;
+            }
+            return true;
+        });
     }
 </script>
 
