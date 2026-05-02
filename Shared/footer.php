@@ -47,8 +47,8 @@
             <div class="footer-bottom">
                 <p>&copy; <?php echo date('Y'); ?> Grand Hotel. All rights reserved.</p>
                 <p class="legal-links">
-                    <a href="#">Privacy Policy</a> | 
-                    <a href="#">Terms of Use</a>
+                    <a href="privacy.php">Privacy Policy</a> | 
+                    <a href="terms.php">Terms of Use</a>
                 </p>
             </div>
         </div>
