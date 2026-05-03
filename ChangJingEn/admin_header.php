@@ -329,8 +329,9 @@ $current_page = basename($_SERVER['PHP_SELF']);
             </li>
         </ul>
 
-        <div class="menu-header">SYSTEM</div>
+       <div class="menu-header">SYSTEM</div>
         <ul style="list-style: none;">
+             <li class="nav-item"><a href="admin_newsletter.php" class="nav-link"><i class="fas fa-envelope-open-text"></i> Newsletter</a></li>
             <li class="nav-item"><a href="admin_reports.php" class="nav-link"><i class="fas fa-chart-line"></i> Reports</a></li>
             <li class="nav-item"><a href="admin_profile.php" class="nav-link"><i class="fas fa-user-cog"></i> Profile</a></li>
         </ul>

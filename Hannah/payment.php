@@ -2,6 +2,124 @@
 // payment.php - with IC/Passport field (ic_no) + initial tax based on user's country
 session_start();
 include '../Shared/config.php';
+
+// --- AJAX: Recalculate taxes when IC changes ---
+if (isset($_GET['action']) && $_GET['action'] == 'check_ic' && isset($_GET['ic_no']) && isset($_GET['nights'])) {
+    header('Content-Type: application/json');
+    $ic = trim($_GET['ic_no']);
+    $nights = (int)$_GET['nights'];
+    $subtotal = isset($_GET['subtotal']) ? floatval($_GET['subtotal']) : 0;
+    $discount = isset($_GET['discount']) ? floatval($_GET['discount']) : 0;
+    $points = isset($_GET['points']) ? floatval($_GET['points']) : 0;
+    $country_from_db = isset($_GET['country']) ? $_GET['country'] : '';
+
+ // Determine Malaysian: either IC is 12 digits OR country in DB is Malaysia
+    $is_malaysian_by_ic = (preg_match('/^\d{12}$/', $ic)) ? true : false;
+    $is_malaysian_by_country = ($country_from_db == 'Malaysia');
+    // If country is Malaysia but IC is empty or invalid, still consider Malaysian? We'll use IC as final.
+    // For AJAX, we respect IC only.
+    $is_malaysian = $is_malaysian_by_ic;
+    $tourism_tax = ($is_malaysian) ? 0 : 10 * $nights;
+
+    $total_before_tax = $subtotal - $discount - $points;
+    if ($total_before_tax < 0) $total_before_tax = 0;
+    $sst = $total_before_tax * 0.08;
+    $service = $total_before_tax * 0.05;
+    $grand = $total_before_tax + $sst + $tourism_tax + $service;
+
+    echo json_encode([
+        'tourism_tax' => $tourism_tax,
+        'sst' => $sst,
+        'service_fee' => $service,
+        'grand_total' => $grand,
+        'is_malaysian' => $is_malaysian
+    ]);
+    exit();
+}
+// --- End AJAX ---
+
+// --- Voucher & Points AJAX (unchanged) ---
+if (isset($_GET['action']) && $_GET['action'] == 'validate_voucher' && isset($_GET['code'])) {
+    header('Content-Type: application/json');
+    $code = mysqli_real_escape_string($conn, $_GET['code']);
+    $current_subtotal = isset($_GET['subtotal']) ? floatval($_GET['subtotal']) : 0;
+    $discount_percent = 0;
+    $discount_amount = 0;
+    $source = '';
+    $user_id = $_SESSION['user_id'] ?? 0;
+    $error_message = '';
+
+    // 1. check hotel_offers first
+    $voucher_query = "SELECT discount_percentage FROM hotel_offers WHERE code = '$code' AND is_active = 1 AND (valid_to IS NULL OR valid_to >= CURDATE())";
+    $voucher_res = mysqli_query($conn, $voucher_query);
+    if ($voucher_res && mysqli_num_rows($voucher_res) > 0) {
+        $row = mysqli_fetch_assoc($voucher_res);
+        $discount_percent = (float)$row['discount_percentage'];
+        $source = 'hotel_offers';
+    } else {
+        // 2. check birthday_discount_codes for this user
+        $birthday_query = "SELECT discount_percent FROM birthday_discount_codes WHERE code = '$code' AND user_id = $user_id AND used_at IS NULL AND expires_at > NOW()";
+        $birthday_res = mysqli_query($conn, $birthday_query);
+        if ($birthday_res && mysqli_num_rows($birthday_res) > 0) {
+            $row = mysqli_fetch_assoc($birthday_res);
+            $discount_percent = (float)$row['discount_percent'];
+            $source = 'birthday';
+        } else {
+            // check if the code exists but already used (for better error message)
+            $used_check = "SELECT id FROM birthday_discount_codes WHERE code = '$code' AND user_id = $user_id AND used_at IS NOT NULL";
+            $used_res = mysqli_query($conn, $used_check);
+            if ($used_res && mysqli_num_rows($used_res) > 0) {
+                $error_message = 'This code has already been used.';
+            } else {
+                $error_message = 'Invalid or expired voucher code';
+            }
+        }
+    }
+
+    if ($discount_percent > 0) {
+        $discount_amount = round(($current_subtotal * $discount_percent) / 100, 2);
+        echo json_encode([
+            'success' => true,
+            'discount_percent' => $discount_percent,
+            'discount_amount' => $discount_amount,
+            'source' => $source
+        ]);
+    } else {
+        echo json_encode([
+            'success' => false,
+            'message' => $error_message ?: 'Invalid or expired voucher code'
+        ]);
+    }
+    exit();
+}
+
+if (isset($_GET['action']) && $_GET['action'] == 'calculate_points' && isset($_GET['use_points'])) {
+    header('Content-Type: application/json');
+    $use_points = $_GET['use_points'] == 'true';
+    $current_subtotal = isset($_GET['subtotal']) ? floatval($_GET['subtotal']) : 0;
+    $current_discount = isset($_GET['discount']) ? floatval($_GET['discount']) : 0;
+    $user_points_available = isset($_GET['user_points']) ? intval($_GET['user_points']) : 0;
+    
+    $after_discount = max(0, $current_subtotal - $current_discount);
+    $points_deduction_amount = 0;
+    $points_used = 0;
+    
+    if ($use_points && $user_points_available > 0) {
+        $max_deduction = min($after_discount, floor($user_points_available / 100));
+        $points_deduction_amount = $max_deduction;
+        $points_used = $max_deduction * 100;
+    }
+    
+    echo json_encode([
+        'success' => true,
+        'points_deduction' => $points_deduction_amount,
+        'points_used' => $points_used,
+        'remaining_points' => $user_points_available - $points_used
+    ]);
+    exit();
+}
+// --- End AJAX handlers ---
+
 include '../Shared/header.php';
 
 // Check login
@@ -64,86 +182,7 @@ $sst_initial = $subtotal * 0.08;
 $service_initial = $subtotal * 0.05;
 $grand_initial = $subtotal + $sst_initial + $tourism_tax_initial + $service_initial;
 
-// --- AJAX: Recalculate taxes when IC changes ---
-if (isset($_GET['action']) && $_GET['action'] == 'check_ic' && isset($_GET['ic_no']) && isset($_GET['nights'])) {
-    header('Content-Type: application/json');
-    $ic = trim($_GET['ic_no']);
-    $nights = (int)$_GET['nights'];
-    $subtotal = isset($_GET['subtotal']) ? floatval($_GET['subtotal']) : 0;
-    $discount = isset($_GET['discount']) ? floatval($_GET['discount']) : 0;
-    $points = isset($_GET['points']) ? floatval($_GET['points']) : 0;
-    $country_from_db = isset($_GET['country']) ? $_GET['country'] : '';
 
-    // Determine Malaysian: either IC is 12 digits OR country in DB is Malaysia
-    $is_malaysian_by_ic = (preg_match('/^\d{12}$/', $ic)) ? true : false;
-    $is_malaysian_by_country = ($country_from_db == 'Malaysia');
-    // If country is Malaysia but IC is empty or invalid, still consider Malaysian? We'll use IC as final.
-    // For AJAX, we respect IC only.
-    $is_malaysian = $is_malaysian_by_ic;
-    $tourism_tax = ($is_malaysian) ? 0 : 10 * $nights;
-
-    $total_before_tax = $subtotal - $discount - $points;
-    if ($total_before_tax < 0) $total_before_tax = 0;
-    $sst = $total_before_tax * 0.08;
-    $service = $total_before_tax * 0.05;
-    $grand = $total_before_tax + $sst + $tourism_tax + $service;
-
-    echo json_encode([
-        'tourism_tax' => $tourism_tax,
-        'sst' => $sst,
-        'service_fee' => $service,
-        'grand_total' => $grand,
-        'is_malaysian' => $is_malaysian
-    ]);
-    exit();
-}
-// --- End AJAX ---
-
-// --- Voucher & Points AJAX (unchanged) ---
-if (isset($_GET['action']) && $_GET['action'] == 'validate_voucher' && isset($_GET['code'])) {
-    header('Content-Type: application/json');
-    $code = mysqli_real_escape_string($conn, $_GET['code']);
-    $current_subtotal = isset($_GET['subtotal']) ? floatval($_GET['subtotal']) : 0;
-    
-    $voucher_query = "SELECT * FROM hotel_offers WHERE code = '$code' AND is_active = 1 AND (valid_to IS NULL OR valid_to >= CURDATE())";
-    $voucher_result = mysqli_query($conn, $voucher_query);
-    
-    if ($voucher_result && mysqli_num_rows($voucher_result) > 0) {
-        $voucher = mysqli_fetch_assoc($voucher_result);
-        $discount = round(($current_subtotal * $voucher['discount_percentage']) / 100, 2);
-        echo json_encode(['success' => true, 'discount_percent' => $voucher['discount_percentage'], 'discount_amount' => $discount]);
-    } else {
-        echo json_encode(['success' => false, 'message' => 'Invalid or expired voucher code']);
-    }
-    exit();
-}
-
-if (isset($_GET['action']) && $_GET['action'] == 'calculate_points' && isset($_GET['use_points'])) {
-    header('Content-Type: application/json');
-    $use_points = $_GET['use_points'] == 'true';
-    $current_subtotal = isset($_GET['subtotal']) ? floatval($_GET['subtotal']) : 0;
-    $current_discount = isset($_GET['discount']) ? floatval($_GET['discount']) : 0;
-    $user_points_available = isset($_GET['user_points']) ? intval($_GET['user_points']) : 0;
-    
-    $after_discount = max(0, $current_subtotal - $current_discount);
-    $points_deduction_amount = 0;
-    $points_used = 0;
-    
-    if ($use_points && $user_points_available > 0) {
-        $max_deduction = min($after_discount, floor($user_points_available / 100));
-        $points_deduction_amount = $max_deduction;
-        $points_used = $max_deduction * 100;
-    }
-    
-    echo json_encode([
-        'success' => true,
-        'points_deduction' => $points_deduction_amount,
-        'points_used' => $points_used,
-        'remaining_points' => $user_points_available - $points_used
-    ]);
-    exit();
-}
-// --- End AJAX handlers ---
 ?>
 
 <!DOCTYPE html>
@@ -334,7 +373,7 @@ function refreshTotals() {
                 statusSpan.innerHTML = 'Malaysian profile detected – Tourism tax waived. Please enter your MyKad for verification.';
             }
             statusSpan.style.color = 'green';
-        } 
+        }
     }
 }
 
@@ -408,7 +447,7 @@ document.addEventListener('DOMContentLoaded',function(){
         if (statusSpan) statusSpan.innerHTML = 'Malaysian profile detected – Tourism tax waived. Please enter your MyKad for verification.';
     }
     document.getElementById('applyVoucherBtn').addEventListener('click',function(){
-        let code=document.getElementById('voucher_code').value;
+        let code=document.getElementById('voucher_code').value.trim();
         if(!code){alert('Enter voucher code');return;}
         fetch(`?action=validate_voucher&code=${encodeURIComponent(code)}&subtotal=${subtotal}`)
             .then(res=>res.json())
@@ -418,9 +457,19 @@ document.addEventListener('DOMContentLoaded',function(){
                     document.getElementById('discountAmount').innerText=discountAmount.toFixed(2);
                     document.getElementById('discountRow').style.display='flex';
                     document.getElementById('hiddenDiscountAmount').value=discountAmount;
-                    document.getElementById('voucherMessage').innerHTML='<span class="success">Voucher applied! RM'+discountAmount.toFixed(2)+' off</span>';
+                    // If it's a birthday code, show percentage; if hotel offer, show RM amount
+                    let message = (data.source === 'birthday') ? 'Birthday code applied! ' + data.discount_percent + '% off' : 'Voucher applied! RM'+discountAmount.toFixed(2)+' off';
+                    document.getElementById('voucherMessage').innerHTML='<span class="success">'+message+'</span>';
                     refreshTotals(); checkIcAndRecalc();
-                } else document.getElementById('voucherMessage').innerHTML='<span class="error">'+data.message+'</span>';
+                } else {
+                    // Invalid birthday code
+                    document.getElementById('voucherMessage').innerHTML='<span class="error">'+data.message+'</span>';
+                }
+            })
+            // Network error handling
+            .catch(err => {
+                console.error('Fetch error:', err);
+                document.getElementById('voucherMessage').innerHTML='<span class="error">Network error, please try again.</span>';
             });
     });
     let pointsToggle=document.getElementById('usePointsToggle');
@@ -468,3 +517,5 @@ document.getElementById('lightbox').onclick = function(e) {
 </script>
 
 <?php include '../Shared/footer.php'; ?>
+</body>
+</html>
