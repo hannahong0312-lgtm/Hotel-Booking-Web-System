@@ -1,6 +1,6 @@
 <?php
 // forgot_password.php - Grand Hotel Melaka 
-require_once '../Shared/header.php';
+include '../Shared/header.php';
 
 if (isset($is_logged_in) && $is_logged_in) redirect('profile.php');
 
