@@ -414,7 +414,7 @@ if ($top_reviews_result && $top_reviews_result->num_rows > 0) {
         <h3>Login Required</h3>
         <p>Please log in to add items to your cart.</p>
         <div class="login-modal-buttons">
-            <a href="../Login/login.php" class="login-modal-btn login-btn">Login Now</a>
+            <a href="../ChangJingEn/login.php" class="login-modal-btn login-btn">Login Now</a>
             <button class="login-modal-btn cancel-btn" id="cancelLoginBtn">Cancel</button>
         </div>
     </div>
