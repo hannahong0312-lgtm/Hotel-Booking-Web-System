@@ -103,7 +103,7 @@ include '../Shared/header.php';
                     <div class="item-title"><span>Juice</span><span class="price">FREE</span></div>
                     <div class="desc">Cold refreshing juice - unlimited refill.</div>
                     <span class="diet-badge"><i class="fas fa-tint"></i> Free Flow</span>
-                </div>
+                </div> 
             </div>
         </div>
     </div>

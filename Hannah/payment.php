@@ -1,9 +1,73 @@
 <?php
-// payment.php - with IC/Passport field (ic_no) + initial tax based on user's country
+// payment.php - Multiple rooms from cart, points deduction does not affect taxes
 session_start();
 include '../Shared/config.php';
 
-// --- AJAX: Recalculate taxes when IC changes ---
+// --- Handle selected cart items from cart.php checkout ---
+$selected_cart_items = [];
+$cart_mode = false;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_items']) && is_array($_POST['selected_items'])) {
+    $cart_mode = true;
+    $selected_indices = array_map('intval', $_POST['selected_items']);
+    if (isset($_SESSION['cart']) && !empty($_SESSION['cart'])) {
+        foreach ($selected_indices as $idx) {
+            if (isset($_SESSION['cart'][$idx])) {
+                $selected_cart_items[] = $_SESSION['cart'][$idx];
+            }
+        }
+    }
+    if (empty($selected_cart_items)) {
+        header('Location: cart.php');
+        exit();
+    }
+    // Calculate summary from selected items
+    $subtotal = 0;
+    $total_nights = 0;
+    foreach ($selected_cart_items as $item) {
+        $qty = $item['quantity'] ?? 1;
+        $subtotal += $item['room_price'] * $item['nights'] * $qty;
+        $total_nights += $item['nights'] * $qty;
+    }
+    $nights = $total_nights;
+} else {
+    // Old single-room mode (GET parameters)
+    $room_id   = isset($_GET['room_id']) ? (int)$_GET['room_id'] : 1;
+    $check_in  = isset($_GET['arrive']) ? $_GET['arrive'] : date('Y-m-d');
+    $check_out = isset($_GET['depart']) ? $_GET['depart'] : date('Y-m-d', strtotime('+2 days'));
+
+    $room_sql = "SELECT name, price, image FROM rooms WHERE id = $room_id";
+    $room_result = mysqli_query($conn, $room_sql);
+    if ($room_result && mysqli_num_rows($room_result) > 0) {
+        $room = mysqli_fetch_assoc($room_result);
+        $room_name = htmlspecialchars($room['name']);
+        $room_price = (float)$room['price'];
+        $room_image = '../ChongEeLynn/images/' . trim($room['image']);
+    } else {
+        $room_name = 'Standard Room';
+        $room_price = 150.00;
+        $room_image = '../ChongEeLynn/images/room-default.jpg';
+    }
+    $date1 = new DateTime($check_in);
+    $date2 = new DateTime($check_out);
+    $nights = $date2->diff($date1)->days;
+    if ($nights <= 0) $nights = 1;
+    $subtotal = $room_price * $nights;
+    $selected_cart_items = [
+        [
+            'room_name' => $room_name,
+            'room_price' => $room_price,
+            'nights' => $nights,
+            'quantity' => 1,
+            'check_in' => $check_in,
+            'check_out' => $check_out,
+            'image' => basename($room_image)
+        ]
+    ];
+    $total_nights = $nights;
+}
+
+// --- AJAX: Recalculate taxes when IC changes (points do NOT reduce tax base) ---
 if (isset($_GET['action']) && $_GET['action'] == 'check_ic' && isset($_GET['ic_no']) && isset($_GET['nights'])) {
     header('Content-Type: application/json');
     $ic = trim($_GET['ic_no']);
@@ -13,19 +77,18 @@ if (isset($_GET['action']) && $_GET['action'] == 'check_ic' && isset($_GET['ic_n
     $points = isset($_GET['points']) ? floatval($_GET['points']) : 0;
     $country_from_db = isset($_GET['country']) ? $_GET['country'] : '';
 
- // Determine Malaysian: either IC is 12 digits OR country in DB is Malaysia
     $is_malaysian_by_ic = (preg_match('/^\d{12}$/', $ic)) ? true : false;
-    $is_malaysian_by_country = ($country_from_db == 'Malaysia');
-    // If country is Malaysia but IC is empty or invalid, still consider Malaysian? We'll use IC as final.
-    // For AJAX, we respect IC only.
     $is_malaysian = $is_malaysian_by_ic;
     $tourism_tax = ($is_malaysian) ? 0 : 10 * $nights;
 
-    $total_before_tax = $subtotal - $discount - $points;
-    if ($total_before_tax < 0) $total_before_tax = 0;
-    $sst = $total_before_tax * 0.08;
-    $service = $total_before_tax * 0.05;
-    $grand = $total_before_tax + $sst + $tourism_tax + $service;
+    // Tax base = subtotal - discount (voucher only), points do NOT reduce taxes
+    $tax_base = $subtotal - $discount;
+    if ($tax_base < 0) $tax_base = 0;
+    $sst = $tax_base * 0.08;
+    $service = $tax_base * 0.05;
+    
+    // Final total = (subtotal - discount - points) + taxes
+    $grand = ($subtotal - $discount - $points) + $sst + $tourism_tax + $service;
 
     echo json_encode([
         'tourism_tax' => $tourism_tax,
@@ -36,9 +99,8 @@ if (isset($_GET['action']) && $_GET['action'] == 'check_ic' && isset($_GET['ic_n
     ]);
     exit();
 }
-// --- End AJAX ---
 
-// --- Voucher & Points AJAX (unchanged) ---
+// --- AJAX: Validate voucher code (unchanged) ---
 if (isset($_GET['action']) && $_GET['action'] == 'validate_voucher' && isset($_GET['code'])) {
     header('Content-Type: application/json');
     $code = mysqli_real_escape_string($conn, $_GET['code']);
@@ -49,7 +111,6 @@ if (isset($_GET['action']) && $_GET['action'] == 'validate_voucher' && isset($_G
     $user_id = $_SESSION['user_id'] ?? 0;
     $error_message = '';
 
-    // 1. check hotel_offers first
     $voucher_query = "SELECT discount_percentage FROM hotel_offers WHERE code = '$code' AND is_active = 1 AND (valid_to IS NULL OR valid_to >= CURDATE())";
     $voucher_res = mysqli_query($conn, $voucher_query);
     if ($voucher_res && mysqli_num_rows($voucher_res) > 0) {
@@ -57,7 +118,6 @@ if (isset($_GET['action']) && $_GET['action'] == 'validate_voucher' && isset($_G
         $discount_percent = (float)$row['discount_percentage'];
         $source = 'hotel_offers';
     } else {
-        // 2. check birthday_discount_codes for this user
         $birthday_query = "SELECT discount_percent FROM birthday_discount_codes WHERE code = '$code' AND user_id = $user_id AND used_at IS NULL AND expires_at > NOW()";
         $birthday_res = mysqli_query($conn, $birthday_query);
         if ($birthday_res && mysqli_num_rows($birthday_res) > 0) {
@@ -65,7 +125,6 @@ if (isset($_GET['action']) && $_GET['action'] == 'validate_voucher' && isset($_G
             $discount_percent = (float)$row['discount_percent'];
             $source = 'birthday';
         } else {
-            // check if the code exists but already used (for better error message)
             $used_check = "SELECT id FROM birthday_discount_codes WHERE code = '$code' AND user_id = $user_id AND used_at IS NOT NULL";
             $used_res = mysqli_query($conn, $used_check);
             if ($used_res && mysqli_num_rows($used_res) > 0) {
@@ -85,14 +144,12 @@ if (isset($_GET['action']) && $_GET['action'] == 'validate_voucher' && isset($_G
             'source' => $source
         ]);
     } else {
-        echo json_encode([
-            'success' => false,
-            'message' => $error_message ?: 'Invalid or expired voucher code'
-        ]);
+        echo json_encode(['success' => false, 'message' => $error_message ?: 'Invalid or expired voucher code']);
     }
     exit();
 }
 
+// --- AJAX: Calculate points deduction (unchanged logic, works on after-discount) ---
 if (isset($_GET['action']) && $_GET['action'] == 'calculate_points' && isset($_GET['use_points'])) {
     header('Content-Type: application/json');
     $use_points = $_GET['use_points'] == 'true';
@@ -118,11 +175,10 @@ if (isset($_GET['action']) && $_GET['action'] == 'calculate_points' && isset($_G
     ]);
     exit();
 }
-// --- End AJAX handlers ---
 
 include '../Shared/header.php';
 
-// Check login
+// --- Login check ---
 if (!isset($_SESSION['user_id'])) {
     $_SESSION['login_redirect'] = $_SERVER['REQUEST_URI'];
     header('Location: ../ChangJingEn/login.php');
@@ -130,7 +186,7 @@ if (!isset($_SESSION['user_id'])) {
 }
 $user_id = $_SESSION['user_id'];
 
-// Fetch user data (including country)
+// --- Fetch user data ---
 $fullname = $email = $country = '';
 $user_points = 0;
 $user_query = "SELECT first_name, last_name, email, country, points FROM users WHERE id = $user_id";
@@ -143,46 +199,15 @@ if ($user_result && mysqli_num_rows($user_result) > 0) {
     $user_points = (int)($user['points'] ?? 0);
 }
 
-// Get booking data
-$room_id   = isset($_GET['room_id']) ? (int)$_GET['room_id'] : 1;
-$check_in  = isset($_GET['arrive']) ? $_GET['arrive'] : date('Y-m-d');
-$check_out = isset($_GET['depart']) ? $_GET['depart'] : date('Y-m-d', strtotime('+2 days'));
-$guests    = isset($_GET['guests']) ? (int)$_GET['guests'] : 2;
-
-// Fetch room details
-$room_name = 'Unknown Room';
-$room_price = 0.0;
-$room_image = '../ChongEeLynn/images/room-default.jpg';
-$room_sql = "SELECT name, price, image FROM rooms WHERE id = $room_id";
-$room_result = mysqli_query($conn, $room_sql);
-if ($room_result && mysqli_num_rows($room_result) > 0) {
-    $room = mysqli_fetch_assoc($room_result);
-    $room_name = htmlspecialchars($room['name'] ?? 'Unknown Room');
-    $room_price = (float)($room['price'] ?? 0);
-    $img_file = trim($room['image'] ?? '');
-    if (!empty($img_file)) $room_image = '../ChongEeLynn/images/' . $img_file;
-} else {
-    $room_name = 'Standard Room';
-    $room_price = 150.00;
-}
-
-// Calculate nights & subtotal
-$date1 = new DateTime($check_in);
-$date2 = new DateTime($check_out);
-$nights = $date2->diff($date1)->days;
-if ($nights <= 0) $nights = 1;
-$subtotal = $room_price * $nights;
-$points_per_rm = 10;
-$points_earned_display = floor($subtotal * $points_per_rm);
-
-// ---- NEW: Initial tax based on user's country ----
-$user_is_malaysian = ($country == 'Malaysia');  // true if profile country is Malaysia
-$tourism_tax_initial = $user_is_malaysian ? 0 : (10 * $nights);
+// --- Initial tax calculation (before any discounts/points) ---
+$user_is_malaysian = ($country == 'Malaysia');
+$tourism_tax_initial = $user_is_malaysian ? 0 : (10 * $total_nights);
 $sst_initial = $subtotal * 0.08;
 $service_initial = $subtotal * 0.05;
 $grand_initial = $subtotal + $sst_initial + $tourism_tax_initial + $service_initial;
 
-
+// Points earned: RM1 = 10 points (not 100)
+$points_earned_display = floor($subtotal * 10);
 ?>
 
 <!DOCTYPE html>
@@ -191,6 +216,27 @@ $grand_initial = $subtotal + $sst_initial + $tourism_tax_initial + $service_init
     <meta charset="UTF-8">
     <title>Confirm Your Booking | Grand Hotel</title>
     <link rel="stylesheet" href="css/payment.css">
+    <style>
+        .room-list { margin-bottom: 20px; }
+        .room-summary-item {
+            display: flex;
+            gap: 15px;
+            padding: 15px 0;
+            border-bottom: 1px solid #eee;
+            align-items: center;
+        }
+        .room-summary-image {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        .room-summary-details { flex: 1; }
+        .room-summary-details h4 { margin: 0 0 5px; font-size: 1rem; }
+        .room-summary-details p { margin: 3px 0; font-size: 0.85rem; color: #555; }
+        .room-summary-price { text-align: right; font-weight: bold; color: var(--gold); }
+        .total-section { margin-top: 15px; }
+    </style>
 </head>
 <body>
 <main>
@@ -202,27 +248,33 @@ $grand_initial = $subtotal + $sst_initial + $tourism_tax_initial + $service_init
 
     <form method="POST" action="process_payment.php" id="bookingForm" onsubmit="return validatePaymentForm()">
         <div class="booking-grid">
-            <!-- Left Column - Summary -->
+            <!-- Left Column - Booking Summary (multiple rooms) -->
             <div>
                 <div class="booking-details-card">
                     <div class="card-header"><h3><i class="fas fa-file-alt"></i> Booking Summary</h3></div>
                     <div class="card-content">
-                        <div class="room-info">
-                            <div class="room-image">
-                                <img src="<?= htmlspecialchars($room_image) ?>" alt="<?= htmlspecialchars($room_name) ?>" onerror="this.src='../ChongEeLynn/images/room-default.jpg'">
-                            </div>
-                            <div class="room-details">
-                                <h3><?= htmlspecialchars($room_name) ?></h3>
-                                <p><i class="fas fa-tag"></i> RM<?= number_format($room_price, 0) ?> / night</p>
-                                <p><i class="fas fa-users"></i> Up to <?= (int)$guests ?> guests</p>
-                            </div>
+                        <div class="room-list">
+                            <?php foreach ($selected_cart_items as $item): 
+                                $qty = $item['quantity'] ?? 1;
+                                $nights_item = $item['nights'] ?? 1;
+                                $item_total = $item['room_price'] * $nights_item * $qty;
+                                $img = !empty($item['image']) ? '../ChongEeLynn/images/' . htmlspecialchars($item['image']) : '../ChongEeLynn/images/room-default.jpg';
+                            ?>
+                                <div class="room-summary-item">
+                                    <img src="<?= $img ?>" alt="<?= htmlspecialchars($item['room_name']) ?>" class="room-summary-image" onerror="this.src='../ChongEeLynn/images/room-default.jpg'">
+                                    <div class="room-summary-details">
+                                        <h4><?= htmlspecialchars($item['room_name']) ?></h4>
+                                        <p><i class="fas fa-calendar-alt"></i> <?= date('d F Y', strtotime($item['check_in'])) ?> – <?= date('d F Y', strtotime($item['check_out'])) ?> (<?= $nights_item ?> nights)</p>
+                                        <p><i class="fas fa-door-open"></i> <?= $qty ?> room(s) × RM<?= number_format($item['room_price'], 0) ?>/night</p>
+                                    </div>
+                                    <div class="room-summary-price">
+                                        RM <?= number_format($item_total, 2) ?>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
-                        <div class="summary-item"><span class="summary-label"><i class="fas fa-calendar-check"></i> Check-in</span><span class="summary-value"><?= date('d F Y', strtotime($check_in)) ?></span></div>
-                        <div class="summary-item"><span class="summary-label"><i class="fas fa-calendar-times"></i> Check-out</span><span class="summary-value"><?= date('d F Y', strtotime($check_out)) ?></span></div>
-                        <div class="summary-item"><span class="summary-label"><i class="fas fa-moon"></i> Nights</span><span class="summary-value"><?= $nights ?></span></div>
-                        <div class="summary-item"><span class="summary-label"><i class="fas fa-users"></i> Guests</span><span class="summary-value"><?= $guests ?></span></div>
                         <div class="total-section" id="totalSection">
-                            <div class="total-item"><span>Subtotal (<?= $nights ?> nights)</span><span>RM <span id="subtotalAmount"><?= number_format($subtotal, 2) ?></span></span></div>
+                            <div class="total-item"><span>Subtotal (<?= $total_nights ?> total room‑nights)</span><span>RM <span id="subtotalAmount"><?= number_format($subtotal, 2) ?></span></span></div>
                             <div class="total-item discount-row" id="discountRow" style="display:none"><span>Voucher Discount</span><span>-RM <span id="discountAmount">0.00</span></span></div>
                             <div class="total-item points-row" id="pointsRow" style="display:none"><span>Points Deduction</span><span>-RM <span id="pointsDeductionAmount">0.00</span></span></div>
                             <div class="total-item"><span>SST Tax (8%)</span><span>RM <span id="sstTax"><?= number_format($sst_initial, 2) ?></span></span></div>
@@ -235,12 +287,12 @@ $grand_initial = $subtotal + $sst_initial + $tourism_tax_initial + $service_init
                 <div class="cancellation-policy">
                     <i class="fas fa-shield-alt"></i> <strong>Free Cancellation</strong> <small>Cancel up to 24 hours before check-in for a full refund.</small><br>
                     <i class="fas fa-id-card"></i> <strong>Tourism Tax</strong> <small>RM10 per room per night applies to Foreigners. Enter your MyKad (12 digits) or Passport Number to confirm your status.</small><br>
-                    <i class="fas fa-coins"></i> <strong>Earn Points</strong> <small>Every RM1 spent (before tax) earns you 100 points! Points can be redeemed for discounts on future stays.</small><br>
+                    <i class="fas fa-coins"></i> <strong>Earn Points</strong> <small>Every RM1 spent (before tax) earns you 10 points! Points can be redeemed for discounts on future stays.</small><br>
                     <a style="color:#0077cc; text-decoration:underline; font-size:0.9rem;" href="javascript:void(0)" onclick="openLightbox('img/hotel tax.jpg'); return false;">View Terms and Conditions</a>
                 </div>
             </div>
 
-            <!-- Right Column - Payment Details -->
+            <!-- Right Column - Payment Details (unchanged) -->
             <div>
                 <div class="payment-card">
                     <div class="card-header"><h3><i class="fas fa-credit-card"></i> Payment Details</h3></div>
@@ -258,14 +310,12 @@ $grand_initial = $subtotal + $sst_initial + $tourism_tax_initial + $service_init
                             <input type="tel" class="form-control" name="phone" placeholder="Enter your phone number" required>
                         </div>
 
-                        <!-- IC Number Field -->
                         <div class="form-group">
                             <label><i class="fas fa-id-card"></i> IC Number & Passport</label>
                             <input type="text" class="form-control" id="ic_no" name="ic_no" placeholder="MyKad (12 digits) or Passport Number" required>
                             <small class="form-text text-muted" id="icStatus"></small>
                         </div>
 
-                        <!-- Voucher Section -->
                         <div class="form-group voucher-section">
                             <label><i class="fas fa-ticket-alt"></i> Voucher Code</label>
                             <div class="voucher-input-group">
@@ -275,7 +325,6 @@ $grand_initial = $subtotal + $sst_initial + $tourism_tax_initial + $service_init
                             <div id="voucherMessage" class="voucher-message"></div>
                         </div>
 
-                        <!-- Points Section -->
                         <div class="form-group points-section">
                             <div class="points-header">
                                 <label><i class="fas fa-coins"></i> Your Points</label>
@@ -292,7 +341,6 @@ $grand_initial = $subtotal + $sst_initial + $tourism_tax_initial + $service_init
                             <div class="points-earned"><small>You'll earn <strong id="pointsEarned"><?= number_format($points_earned_display) ?></strong> points (excluding taxes)</small></div>
                         </div>
 
-                        <!-- Payment Methods -->
                         <div class="payment-methods">
                             <label>Select Payment Method</label>
                             <div class="payment-option"><input type="radio" id="credit_card" name="payment_method" value="credit_card" checked><label for="credit_card"><i class="fab fa-cc-visa"></i> Credit/Debit Card</label></div>
@@ -300,7 +348,6 @@ $grand_initial = $subtotal + $sst_initial + $tourism_tax_initial + $service_init
                             <div class="payment-option"><input type="radio" id="online_banking" name="payment_method" value="online_banking"><label for="online_banking"><i class="fas fa-university"></i> Online Banking</label></div>
                         </div>
 
-                        <!-- Credit Card Details -->
                         <div class="form-group" id="card_details" style="display: block;">
                             <label>Card Number</label>
                             <input type="text" class="form-control" id="card_number" name="card_number" placeholder="1234 5678 9012 3456">
@@ -313,12 +360,9 @@ $grand_initial = $subtotal + $sst_initial + $tourism_tax_initial + $service_init
                         <div class="form-group"><label>Special Requests</label><textarea class="form-control" name="special_requests" rows="3" placeholder="Any special requests?"></textarea></div>
 
                         <!-- Hidden fields -->
-                        <input type="hidden" name="room_id" value="<?= $room_id ?>">
-                        <input type="hidden" name="room_price" value="<?= $room_price ?>">
-                        <input type="hidden" name="check_in" value="<?= $check_in ?>">
-                        <input type="hidden" name="check_out" value="<?= $check_out ?>">
-                        <input type="hidden" name="guests" value="<?= $guests ?>">
-                        <input type="hidden" name="nights" id="nightsHidden" value="<?= $nights ?>">
+                        <input type="hidden" name="cart_mode" value="<?= $cart_mode ? '1' : '0' ?>">
+                        <input type="hidden" name="selected_cart_data" id="selectedCartData" value='<?= htmlspecialchars(json_encode($selected_cart_items)) ?>'>
+                        <input type="hidden" name="nights" id="nightsHidden" value="<?= $total_nights ?>">
                         <input type="hidden" name="subtotal" id="hiddenSubtotal" value="<?= $subtotal ?>">
                         <input type="hidden" name="discount_amount" id="hiddenDiscountAmount" value="0">
                         <input type="hidden" name="points_deduction" id="hiddenPointsDeduction" value="0">
@@ -340,39 +384,50 @@ $grand_initial = $subtotal + $sst_initial + $tourism_tax_initial + $service_init
 
 <script>
 let subtotal = <?= json_encode($subtotal) ?>;
-let nights = <?= json_encode($nights) ?>;
+let nights = <?= json_encode($total_nights) ?>;
 let userPoints = <?= json_encode($user_points) ?>;
 let discountAmount = 0;
 let pointsDeduction = 0;
 let currentIcValue = '';
 let userCountry = document.getElementById('userCountry').value;
-// Initialise isMalaysianByIc based on user's country (if Malaysia, start with true)
 let isMalaysianByIc = (userCountry === 'Malaysia') ? true : false;
 
+// --- Update totals: taxes on (subtotal - discount), points affect only final total ---
 function refreshTotals() {
-    let afterDiscount = subtotal - discountAmount - pointsDeduction;
-    if (afterDiscount < 0) afterDiscount = 0;
+    let taxBase = subtotal - discountAmount;
+    if (taxBase < 0) taxBase = 0;
+    
+    let afterDiscount = taxBase;
+    let afterPoints = afterDiscount - pointsDeduction;
+    if (afterPoints < 0) afterPoints = 0;
+    
     let tourismTax = isMalaysianByIc ? 0 : (nights * 10);
-    let sst = afterDiscount * 0.08;
-    let serviceFee = afterDiscount * 0.05;
-    let grand = afterDiscount + sst + tourismTax + serviceFee;
+    let sst = taxBase * 0.08;
+    let serviceFee = taxBase * 0.05;
+    let grand = afterPoints + sst + tourismTax + serviceFee;
+    
     document.getElementById('sstTax').innerText = sst.toFixed(2);
     document.getElementById('tourismTax').innerText = tourismTax.toFixed(2);
     document.getElementById('serviceFee').innerText = serviceFee.toFixed(2);
     document.getElementById('grandTotal').innerText = grand.toFixed(2);
     document.getElementById('hiddenTourismTax').value = tourismTax;
-    let taxRow = document.getElementById('tourismTaxRow');
-    if (taxRow) {
-        let labelSpan = taxRow.querySelector('span:first-child');
-        if (labelSpan) labelSpan.innerHTML = isMalaysianByIc ? 'Tourism Tax (RM10/room/night)': 'Tourism Tax (RM10/room/night)';
-    }
+    
+    // Update status message based on current IC and Malaysian flag
+    let icValue = document.getElementById('ic_no').value.trim();
     let statusSpan = document.getElementById('icStatus');
     if (statusSpan) {
         if (isMalaysianByIc) {
-            if (userCountry === 'Malaysia' && currentIcValue === '') {
-                statusSpan.innerHTML = 'Malaysian profile detected – Tourism tax waived. Please enter your MyKad for verification.';
-            }
+            statusSpan.innerHTML = 'Malaysian (MyKad verified) – Tourism tax waived.';
             statusSpan.style.color = 'green';
+        } else {
+            if (icValue !== '' && !/^\d{12}$/.test(icValue)) {
+                statusSpan.innerHTML = 'Foreigner (Passport detected) – Tourism tax applies.';
+            } else if (icValue === '' && userCountry === 'Malaysia') {
+                statusSpan.innerHTML = 'Malaysian profile detected – Please enter your 12-digit MyKad to waive tourism tax.';
+            } else {
+                statusSpan.innerHTML = 'Foreigner – Tourism tax applies.';
+            }
+            statusSpan.style.color = '#dc3545';
         }
     }
 }
@@ -382,45 +437,47 @@ function checkIcAndRecalc() {
     if (ic === currentIcValue) return;
     currentIcValue = ic;
     if (ic === '') {
-        // If IC field becomes empty, revert to country-based rule
+        // Empty IC: revert to country-based rule
         isMalaysianByIc = (userCountry === 'Malaysia');
         refreshTotals();
         return;
     }
     // Use AJAX to check IC (12-digit rule)
-    fetch(`?action=check_ic&ic_no=${encodeURIComponent(ic)}&nights=${nights}&subtotal=${subtotal - discountAmount - pointsDeduction}&discount=${discountAmount}&points=${pointsDeduction}&country=${encodeURIComponent(userCountry)}`)
+    fetch(`?action=check_ic&ic_no=${encodeURIComponent(ic)}&nights=${nights}&subtotal=${subtotal}&discount=${discountAmount}&points=${pointsDeduction}&country=${encodeURIComponent(userCountry)}`)
         .then(res => res.json())
         .then(data => {
             if (data && typeof data.tourism_tax !== 'undefined') {
                 isMalaysianByIc = data.is_malaysian;
+                // Update the displayed values from AJAX
+                document.getElementById('sstTax').innerText = data.sst.toFixed(2);
+                document.getElementById('tourismTax').innerText = data.tourism_tax.toFixed(2);
+                document.getElementById('serviceFee').innerText = data.service_fee.toFixed(2);
+                document.getElementById('grandTotal').innerText = data.grand_total.toFixed(2);
+                document.getElementById('hiddenTourismTax').value = data.tourism_tax;
+                // Also update status message to reflect new flag
                 refreshTotals();
             }
         })
         .catch(err => console.log('IC check failed', err));
 }
 
-// The rest of your JS functions (toggleCreditCardFields, restrictCardNumber, validatePaymentForm, DOMContentLoaded) remain the same
-// ... (keep your existing functions below)
-
 function toggleCreditCardFields() {
     let selected = document.querySelector('input[name="payment_method"]:checked').value;
     let cardDiv = document.getElementById('card_details');
     if (selected === 'credit_card') {
         cardDiv.style.display = 'block';
-        ['card_number','expiry_date','cvv'].forEach(id => {
-            document.getElementById(id).setAttribute('required','required');
-        });
+        ['card_number','expiry_date','cvv'].forEach(id => document.getElementById(id).setAttribute('required','required'));
     } else {
         cardDiv.style.display = 'none';
-        ['card_number','expiry_date','cvv'].forEach(id => {
-            document.getElementById(id).removeAttribute('required');
-        });
+        ['card_number','expiry_date','cvv'].forEach(id => document.getElementById(id).removeAttribute('required'));
     }
 }
+
 function restrictCardNumber() {
     let cardInput = document.getElementById('card_number');
     if(cardInput) cardInput.addEventListener('input',function(e){this.value=this.value.replace(/\D/g,'').slice(0,16);});
 }
+
 function validatePaymentForm() {
     let selected = document.querySelector('input[name="payment_method"]:checked').value;
     if(selected==='credit_card'){
@@ -435,12 +492,12 @@ function validatePaymentForm() {
     if(!document.getElementById('ic_no').value.trim()){alert('IC/Passport required');return false;}
     return true;
 }
+
 document.addEventListener('DOMContentLoaded',function(){
     document.querySelectorAll('input[name="payment_method"]').forEach(r=>r.addEventListener('change',toggleCreditCardFields));
     toggleCreditCardFields(); restrictCardNumber();
     let icInput=document.getElementById('ic_no');
     icInput.addEventListener('input',checkIcAndRecalc);
-    // Initial check: if user is Malaysian by profile, show message without waiting for IC
     refreshTotals();
     if (userCountry === 'Malaysia') {
         let statusSpan = document.getElementById('icStatus');
@@ -457,16 +514,13 @@ document.addEventListener('DOMContentLoaded',function(){
                     document.getElementById('discountAmount').innerText=discountAmount.toFixed(2);
                     document.getElementById('discountRow').style.display='flex';
                     document.getElementById('hiddenDiscountAmount').value=discountAmount;
-                    // If it's a birthday code, show percentage; if hotel offer, show RM amount
                     let message = (data.source === 'birthday') ? 'Birthday code applied! ' + data.discount_percent + '% off' : 'Voucher applied! RM'+discountAmount.toFixed(2)+' off';
                     document.getElementById('voucherMessage').innerHTML='<span class="success">'+message+'</span>';
                     refreshTotals(); checkIcAndRecalc();
                 } else {
-                    // Invalid birthday code
                     document.getElementById('voucherMessage').innerHTML='<span class="error">'+data.message+'</span>';
                 }
             })
-            // Network error handling
             .catch(err => {
                 console.error('Fetch error:', err);
                 document.getElementById('voucherMessage').innerHTML='<span class="error">Network error, please try again.</span>';
@@ -492,9 +546,9 @@ document.addEventListener('DOMContentLoaded',function(){
             });
     });
 });
-
 </script>
-<!-- Lightbox Popup (Image Overlay) -->
+
+<!-- Lightbox -->
 <div id="lightbox" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:9999; justify-content:center; align-items:center;">
   <span onclick="closeLightbox()" style="position:absolute; top:20px; right:30px; color:white; font-size:40px; cursor:pointer;">&times;</span>
   <img id="lightboxImg" style="max-width:90%; max-height:90%;">
@@ -505,12 +559,9 @@ function openLightbox(src) {
   document.getElementById('lightboxImg').src = src;
   document.getElementById('lightbox').style.display = 'flex';
 }
-
 function closeLightbox() {
   document.getElementById('lightbox').style.display = 'none';
 }
-
-// Click background to close
 document.getElementById('lightbox').onclick = function(e) {
   if (e.target === this) closeLightbox();
 }
