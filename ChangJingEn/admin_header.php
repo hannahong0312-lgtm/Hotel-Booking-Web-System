@@ -304,16 +304,16 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <?php if ($admin_role === 'superadmin'): ?>
             <li class="nav-item"><a href="admin_manage_admins.php" class="nav-link <?php echo $current_page == 'admin_manage_admins.php' ? 'active' : ''; ?>"><i class="fas fa-user-shield"></i> Admins</a></li>
             <?php endif; ?>
-            <li class="nav-item"><a href="admin_users.php" class="nav-link"><i class="fas fa-users"></i> Users</a></li>
+            <li class="nav-item"><a href="../ChangJingEn/admin_users.php" class="nav-link"><i class="fas fa-users"></i> Users</a></li>
             <li class="nav-item"><a href="../ChongEeLynn/roommanagement.php" class="nav-link"><i class="fas fa-bed"></i> Rooms</a></li>
-            <li class="nav-item"><a href="admin_bookings.php" class="nav-link"><i class="fas fa-calendar-check"></i> Bookings</a></li>
+            <li class="nav-item"><a href="../Hannah/admin_bookings.php" class="nav-link"><i class="fas fa-calendar-check"></i> Bookings</a></li>
             <li class="nav-item"><a href="../ChongEeLynn/admin_offers.php" class="nav-link"><i class="fas fa-tags"></i> Offers</a></li>
-            <li class="nav-item"><a href="admin_reviews.php" class="nav-link"><i class="fas fa-star"></i> Reviews</a></li>
+            <li class="nav-item"><a href="../ChongEeLynn/admin_reviews.php" class="nav-link"><i class="fas fa-star"></i> Reviews</a></li>
         </ul>
 
         <div class="menu-header">EXPLORE</div>
         <ul style="list-style: none;">
-            <li class="nav-item"><a href="admin_facilities.php" class="nav-link"><i class="fas fa-building"></i> Facilities</a></li>
+            <li class="nav-item"><a href="../ChangJingEn/admin_facilities.php" class="nav-link"><i class="fas fa-building"></i> Facilities</a></li>
             <li class="nav-item"><a href="../ChongEeLynn/admin_experiences.php" class="nav-link"><i class="fas fa-map-marked-alt"></i> Experience</a></li>
         </ul>
 
@@ -323,17 +323,17 @@ $current_page = basename($_SERVER['PHP_SELF']);
                     <i class="fas fa-concierge-bell"></i> <span>Services & Events</span> <i class="fas fa-chevron-down"></i>
                 </div>
                 <ul class="dropdown-container">
-                    <li><a href="admin_dining.php" class="nav-link"><i class="fas fa-utensils"></i> Dining</a></li>
-                    <li><a href="admin_events.php" class="nav-link"><i class="fas fa-ring"></i> Events</a></li>
+                    <li><a href="../Hannah/admin_dining.php" class="nav-link"><i class="fas fa-utensils"></i> Dining</a></li>
+                    <li><a href="../ChangJingEn/admin_events.php" class="nav-link"><i class="fas fa-ring"></i> Events</a></li>
                 </ul>
             </li>
         </ul>
 
        <div class="menu-header">SYSTEM</div>
         <ul style="list-style: none;">
-             <li class="nav-item"><a href="admin_newsletter.php" class="nav-link"><i class="fas fa-envelope-open-text"></i> Newsletter</a></li>
-            <li class="nav-item"><a href="admin_reports.php" class="nav-link"><i class="fas fa-chart-line"></i> Reports</a></li>
-            <li class="nav-item"><a href="admin_profile.php" class="nav-link"><i class="fas fa-user-cog"></i> Profile</a></li>
+             <li class="nav-item"><a href="../ChangJingEn/admin_newsletter.php" class="nav-link"><i class="fas fa-envelope-open-text"></i> Newsletter</a></li>
+            <li class="nav-item"><a href="../ChongEeLynn/admin_reports.php" class="nav-link"><i class="fas fa-chart-line"></i> Reports</a></li>
+            <li class="nav-item"><a href="../ChangJingEn/admin_profile.php" class="nav-link"><i class="fas fa-user-cog"></i> Profile</a></li>
         </ul>
     </div>
 </aside>

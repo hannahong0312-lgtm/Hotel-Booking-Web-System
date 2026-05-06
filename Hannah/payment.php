@@ -216,27 +216,6 @@ $points_earned_display = floor($subtotal * 10);
     <meta charset="UTF-8">
     <title>Confirm Your Booking | Grand Hotel</title>
     <link rel="stylesheet" href="css/payment.css">
-    <style>
-        .room-list { margin-bottom: 20px; }
-        .room-summary-item {
-            display: flex;
-            gap: 15px;
-            padding: 15px 0;
-            border-bottom: 1px solid #eee;
-            align-items: center;
-        }
-        .room-summary-image {
-            width: 80px;
-            height: 80px;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-        .room-summary-details { flex: 1; }
-        .room-summary-details h4 { margin: 0 0 5px; font-size: 1rem; }
-        .room-summary-details p { margin: 3px 0; font-size: 0.85rem; color: #555; }
-        .room-summary-price { text-align: right; font-weight: bold; color: var(--gold); }
-        .total-section { margin-top: 15px; }
-    </style>
 </head>
 <body>
 <main>
