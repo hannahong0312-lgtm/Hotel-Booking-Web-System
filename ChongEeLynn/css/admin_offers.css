@@ -27,8 +27,8 @@
     --warning-light: #ffe6b3;
     --info: #3498db;
     --info-light: #b3e0ff;
-    --purple: #8e44ad;
-    --purple-light: #e8daef;
+    --purple: #9b59b6;
+    --purple-light: #e6b3ff;
     --orange: #e67e22;
     --orange-light: #ffe6cc;
 }
@@ -139,9 +139,12 @@ body {
     color: #0a0a0a;
 }
 
+/* Filters */
 .filters {
     display: flex;
-    gap: 15px;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
     margin-bottom: 25px;
     padding: 15px;
     background: var(--bg-body);
@@ -158,6 +161,7 @@ body {
     background: var(--bg-sidebar);
     color: var(--text-primary);
     transition: all 0.3s;
+    min-width: 200px;
 }
 
 .search-input:focus {
@@ -174,6 +178,44 @@ body {
     background: var(--bg-sidebar);
     color: var(--text-primary);
     cursor: pointer;
+    min-width: 120px;
+}
+
+/* Search and Reset Button Styles */
+.btn-search {
+    background: var(--gold);
+    color: #1e1e1e;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-search:hover {
+    background: var(--gold-hover);
+    transform: translateY(-2px);
+}
+
+.btn-reset {
+    background: var(--text-secondary);
+    color: white;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-reset:hover {
+    background: var(--danger);
+    transform: translateY(-2px);
+}
+
+[data-theme="dark"] .btn-reset {
+    color: #0a0a0a;
 }
 
 .table-responsive {
@@ -338,6 +380,16 @@ body {
     color: var(--danger);
 }
 
+.category-family {
+    background: #d4f1f9;
+    color: #17a2b8;
+}
+
+.category-romance {
+    background: #fce4ec;
+    color: #e91e63;
+}
+
 /* Status Badge */
 .status-badge {
     display: inline-flex;
@@ -395,12 +447,7 @@ body {
     color: white;
 }
 
-.btn-delete {
-    background: var(--danger);
-    color: white;
-}
-
-.btn-edit:hover, .btn-toggle:hover, .btn-delete:hover {
+.btn-edit:hover, .btn-toggle:hover {
     transform: translateY(-2px);
     filter: brightness(0.9);
 }
@@ -428,6 +475,10 @@ body {
     
     .filters {
         flex-direction: column;
+    }
+    
+    .search-input, .filter-select, .btn-search, .btn-reset {
+        width: 100%;
     }
     
     .offers-table {

@@ -8,7 +8,7 @@ $current_category = isset($_GET['category']) ? $_GET['category'] : '';
 $current_status = isset($_GET['status']) ? $_GET['status'] : '';
 $current_search = isset($_GET['search']) ? $_GET['search'] : '';
 
-// Handle toggle active status - PRESERVE FILTERS
+// Handle toggle active status 
 if (isset($_GET['toggle'])) {
     $id = (int)$_GET['toggle'];
     
