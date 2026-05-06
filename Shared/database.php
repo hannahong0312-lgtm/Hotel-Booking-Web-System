@@ -32,10 +32,16 @@ CREATE TABLE `book` (
   `check_in` date NOT NULL,
   `check_out` date NOT NULL,
   `guests` int(11) DEFAULT 1,
+  `quantity` int(11) NOT NULL DEFAULT 1,
   `grand_total` decimal(10,2) DEFAULT NULL,
   `nationality` varchar(20) DEFAULT NULL,
   `special_requests` text DEFAULT NULL,
   `status` enum('confirmed','cancelled','completed') DEFAULT 'confirmed',
+  `checked_in_at` datetime DEFAULT NULL,
+  `checked_out_at` datetime DEFAULT NULL,
+  `late_checkout_penalty` decimal(10,2) DEFAULT 0.00,
+  `review_skipped` tinyint(1) DEFAULT 0,
+  `review_points_awarded` tinyint(1) DEFAULT 0,
   `created_at` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -110,53 +116,6 @@ INSERT INTO `rooms` (`id`, `name`, `category`, `description`, `price`, `max_gues
 (8, 'Executive Suite', 'suite', 'Premium suite with kitchenette.', 850.00, 2, 'Emperor Bed', 65, 4, 'suite1.jpg', 1, '2026-04-02 14:13:04'),
 (9, 'Presidential Suite', 'suite', 'Ultimate luxury with private terrace.', 1200.00, 4, '2 King Beds', 95, 1, 'suite2.jpg', 1, '2026-04-02 14:13:04');
 
-------------------------------
-//ChangJingEnn Part
-------------------------------
-CREATE TABLE `users` (
-  `id` int(11) NOT NULL,
-  `first_name` varchar(50) NOT NULL,
-  `last_name` varchar(50) NOT NULL,
-  `email` varchar(100) NOT NULL UNIQUE,
-  `phone` varchar(20) NOT NULL,
-  `country` varchar(50) DEFAULT NULL,
-  `password` varchar(255) NOT NULL,
-  `role` enum('customer') NOT NULL DEFAULT 'customer',
-  `status` enum('active','inactive') NOT NULL DEFAULT 'active',
-  `subscribe` tinyint(1) NOT NULL DEFAULT 0,
-  `remember_token` varchar(255) DEFAULT NULL,
-  `points` int(11) DEFAULT 0,
-  `last_login` datetime DEFAULT NULL,
-  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-  `created_at` datetime DEFAULT current_timestamp(),
-  `birthday` date DEFAULT NULL,
-  `language` varchar(10) DEFAULT 'en'
-  `email_verified` tinyint(1) NOT NULL DEFAULT 0,
-  `otp_code` varchar(6) DEFAULT NULL,
-  `otp_expires` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-CREATE TABLE `admins` (
-  `id` int(11) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `username` varchar(50) DEFAULT NULL,
-  `password` varchar(255) NOT NULL,
-  `role` tinyint(1) DEFAULT 0,
-  `status` enum('active','inactive','suspended') DEFAULT 'active',
-  `last_login` datetime DEFAULT NULL,
-  `created_by` int(11) DEFAULT NULL,
-  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
-INSERT INTO `admins` (`id`, `email`, `username`, `password`, `role`, `status`, `last_login`, `created_by`, `created_at`, `updated_at`) VALUES
-(1, 'superadmin@grandhotel.com', 'superadmin', '$2y$10$fCMrYYUPnogML0cG3KdYRehhq01AGYPnywXcBNTjvKIPmcwDSAOzW', 1, 'active', '2026-04-12 20:50:26', NULL, '2026-04-12 12:44:44', '2026-04-12 12:50:26');
-//superadmin role = 1, normal admin role = 0 
-//email:superadmin@grandhotel.com 
-//username: superAdmin
-//password: Admin123!
-
-
 CREATE TABLE REVIEW (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT NOT NULL,
@@ -184,3 +143,63 @@ CREATE TABLE experiences (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+------------------------------
+//ChangJingEnn Part
+------------------------------
+CREATE TABLE `users` (
+  `id` int(11) NOT NULL,
+  `first_name` varchar(50) NOT NULL,
+  `last_name` varchar(50) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `phone` varchar(20) NOT NULL,
+  `country` varchar(50) DEFAULT NULL,
+  `password` varchar(255) NOT NULL,
+  `role` enum('customer') NOT NULL DEFAULT 'customer',
+  `status` enum('active','inactive') NOT NULL DEFAULT 'active',
+  `subscribe` tinyint(1) NOT NULL DEFAULT 0,
+  `remember_token` varchar(255) DEFAULT NULL,
+  `points` int(11) NOT NULL DEFAULT 0,
+  `last_login` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `created_at` datetime DEFAULT current_timestamp(),
+  `birthday` date DEFAULT NULL,
+  `language` varchar(10) DEFAULT 'en',
+  `email_verified` tinyint(1) NOT NULL DEFAULT 0,
+  `otp_code` varchar(6) DEFAULT NULL,
+  `otp_expires` datetime DEFAULT NULL,
+  `reset_token` varchar(255) DEFAULT NULL,
+  `reset_expires` datetime DEFAULT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+CREATE TABLE `admins` (
+  `id` int(11) NOT NULL,
+  `email` varchar(100) NOT NULL,
+  `username` varchar(50) DEFAULT NULL,
+  `password` varchar(255) NOT NULL,
+  `role` tinyint(1) DEFAULT 0,
+  `status` enum('active','inactive','suspended') DEFAULT 'active',
+  `last_login` datetime DEFAULT NULL,
+  `created_by` int(11) DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+INSERT INTO `admins` (`id`, `email`, `username`, `password`, `role`, `status`, `last_login`, `created_by`, `created_at`, `updated_at`) VALUES
+(1, 'superadmin@grandhotel.com', 'superadmin', '$2y$10$fCMrYYUPnogML0cG3KdYRehhq01AGYPnywXcBNTjvKIPmcwDSAOzW', 1, 'active', '2026-04-12 20:50:26', NULL, '2026-04-12 12:44:44', '2026-04-12 12:50:26');
+//superadmin role = 1, normal admin role = 0 
+//email:superadmin@grandhotel.com 
+//username: superAdmin
+//password: Admin123!
+
+CREATE TABLE `birthday_discount_codes` (
+  `id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `code` varchar(20) NOT NULL,
+  `discount_percent` int(11) NOT NULL DEFAULT 10,
+  `expires_at` datetime NOT NULL,
+  `used_at` datetime DEFAULT NULL,
+  `created_at` datetime NOT NULL DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+
