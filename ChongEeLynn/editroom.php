@@ -24,28 +24,37 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $amenities_image = $conn->real_escape_string($_POST['amenities_image']);
     $is_active = isset($_POST['is_active']) ? 1 : 0;
     
-    $sql = "UPDATE rooms SET 
-            name='$name', 
-            category='$category', 
-            description='$description', 
-            price=$price, 
-            max_guests=$max_guests, 
-            bed_type='$bed_type', 
-            size=$size, 
-            rooms_available=$rooms_available, 
-            image='$image', 
-            bathroom_image='$bathroom_image', 
-            amenities_image='$amenities_image', 
-            is_active=$is_active 
-            WHERE id=$id";
+    // Check if room name already exists (excluding current room)
+    $check_sql = "SELECT id FROM rooms WHERE name = '$name' AND id != $id";
+    $check_result = $conn->query($check_sql);
     
-    if ($conn->query($sql)) {
-        $message = "Room updated successfully!";
-        $messageType = "success";
-        echo "<script>setTimeout(()=>{window.location='roommanagement.php';},1500);</script>";
-    } else {
-        $message = "Error: " . $conn->error;
+    if ($check_result->num_rows > 0) {
+        $message = "Error: A room with the name '$name' already exists. Please use a different room name.";
         $messageType = "error";
+    } else {
+        $sql = "UPDATE rooms SET 
+                name='$name', 
+                category='$category', 
+                description='$description', 
+                price=$price, 
+                max_guests=$max_guests, 
+                bed_type='$bed_type', 
+                size=$size, 
+                rooms_available=$rooms_available, 
+                image='$image', 
+                bathroom_image='$bathroom_image', 
+                amenities_image='$amenities_image', 
+                is_active=$is_active 
+                WHERE id=$id";
+        
+        if ($conn->query($sql)) {
+            $message = "Room updated successfully!";
+            $messageType = "success";
+            echo "<script>setTimeout(()=>{window.location='roommanagement.php';},1500);</script>";
+        } else {
+            $message = "Error: " . $conn->error;
+            $messageType = "error";
+        }
     }
 }
 ?>
@@ -69,13 +78,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="message <?= $messageType ?>"><?= $message ?></div>
     <?php endif; ?>
     
-    <form method="POST" class="room-form">
+    <form method="POST" class="room-form" id="roomForm">
         <div class="form-section">
             <h3>Basic Information</h3>
             <div class="form-row">
                 <div class="form-group">
                     <label>Room Name <span class="required">*</span></label>
-                    <input type="text" name="name" value="<?= htmlspecialchars($room['name']) ?>" required>
+                    <input type="text" name="name" id="roomName" value="<?= htmlspecialchars($room['name']) ?>" required>
+                    <small class="hint" id="nameError" style="color: var(--danger); display: none;"></small>
                 </div>
                 <div class="form-group">
                     <label>Category <span class="required">*</span></label>
@@ -171,5 +181,57 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     </form>
 </div>
+
+<script>
+// Real-time duplicate name checking for edit room (excluding current room)
+const currentRoomId = <?= $id ?>;
+const originalName = "<?= htmlspecialchars($room['name']) ?>";
+
+document.getElementById('roomName').addEventListener('blur', function() {
+    const roomName = this.value.trim();
+    const nameError = document.getElementById('nameError');
+    
+    // Skip check if name hasn't changed or is empty
+    if (roomName === originalName || !roomName) {
+        nameError.style.display = 'none';
+        document.querySelector('.btn-submit').disabled = false;
+        document.querySelector('.btn-submit').style.opacity = '1';
+        return;
+    }
+    
+    if (roomName) {
+        fetch('check_room_name.php?name=' + encodeURIComponent(roomName) + '&exclude_id=' + currentRoomId)
+            .then(response => response.json())
+            .then(data => {
+                if (data.exists) {
+                    nameError.textContent = 'Room name already exists! Please choose a different name.';
+                    nameError.style.display = 'block';
+                    document.querySelector('.btn-submit').disabled = true;
+                    document.querySelector('.btn-submit').style.opacity = '0.5';
+                } else {
+                    nameError.style.display = 'none';
+                    document.querySelector('.btn-submit').disabled = false;
+                    document.querySelector('.btn-submit').style.opacity = '1';
+                }
+            });
+    } else {
+        nameError.style.display = 'none';
+        document.querySelector('.btn-submit').disabled = false;
+        document.querySelector('.btn-submit').style.opacity = '1';
+    }
+});
+
+// Form validation before submit
+document.getElementById('roomForm').addEventListener('submit', function(e) {
+    const roomName = document.getElementById('roomName').value.trim();
+    const nameError = document.getElementById('nameError');
+    
+    if (nameError.style.display === 'block') {
+        e.preventDefault();
+        alert('Please fix the errors before submitting.');
+    }
+});
+</script>
+
 </body>
 </html>
