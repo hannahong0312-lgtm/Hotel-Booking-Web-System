@@ -273,7 +273,6 @@ if ($top_reviews_result && $top_reviews_result->num_rows > 0) {
                     <?php if (empty($top_reviews)): ?>
                         <div class="no-reviews-message">
                             <p>No reviews yet for this room.</p>
-                            <a href="review.php?id=<?php echo $room_id; ?>" class="be-first-btn">Be the first to review →</a>
                         </div>
                     <?php else: ?>
                         <div class="top-reviews-list">

@@ -310,7 +310,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <li class="nav-item"><a href="../ChongEeLynn/roommanagement.php" class="nav-link"><i class="fas fa-bed"></i> Rooms</a></li>
             <li class="nav-item"><a href="../Hannah/admin_book.php" class="nav-link"><i class="fas fa-calendar-check"></i> Bookings</a></li>
             <li class="nav-item"><a href="../ChongEeLynn/admin_offers.php" class="nav-link"><i class="fas fa-tags"></i> Offers</a></li>
-            <li class="nav-item"><a href="../ChongEeLynn/admin_reviews.php" class="nav-link"><i class="fas fa-star"></i> Reviews</a></li>
+            <li class="nav-item"><a href="../ChongEeLynn/admin_review.php" class="nav-link"><i class="fas fa-star"></i> Reviews</a></li>
         </ul>
 
         <div class="menu-header">EXPLORE</div>

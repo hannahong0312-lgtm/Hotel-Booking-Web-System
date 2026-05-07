@@ -1025,23 +1025,6 @@
     font-size: 0.95rem;
 }
 
-.be-first-btn {
-    background: #C5A059;
-    color: white;
-    padding: 10px 24px;
-    border-radius: 50px;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 0.85rem;
-    display: inline-block;
-    transition: 0.3s;
-}
-
-.be-first-btn:hover {
-    background: #a88845;
-    transform: translateY(-2px);
-}
-
 /* More Reviews Link */
 .more-reviews-link {
     text-align: center;
