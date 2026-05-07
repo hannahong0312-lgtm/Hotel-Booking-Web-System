@@ -286,7 +286,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <div class="user-role"><?php echo ucfirst($admin_role); ?></div>
             </div>
         </div>
-        <form method="POST" action="admin_logout.php" style="display: inline;">
+        <form method="POST" action="../ChangJingEn/admin_logout.php" style="display: inline;">
             <button type="submit" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</button>
         </form>
     </div>
@@ -296,17 +296,17 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <div class="sidebar-menu">
         <div class="menu-header">MAIN</div>
         <ul style="list-style: none;">
-            <li class="nav-item"><a href="admin_dashboard.php" class="nav-link <?php echo $current_page == 'admin_dashboard.php' ? 'active' : ''; ?>"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+            <li class="nav-item"><a href="../ChangJingEn/admin_dashboard.php" class="nav-link <?php echo $current_page == 'admin_dashboard.php' ? 'active' : ''; ?>"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
         </ul>
 
         <div class="menu-header">MANAGEMENT</div>
         <ul style="list-style: none;">
             <?php if ($admin_role === 'superadmin'): ?>
-            <li class="nav-item"><a href="admin_manage_admins.php" class="nav-link <?php echo $current_page == 'admin_manage_admins.php' ? 'active' : ''; ?>"><i class="fas fa-user-shield"></i> Admins</a></li>
+            <li class="nav-item"><a href="../ChangJingEn/admin_manage_admins.php" class="nav-link <?php echo $current_page == 'admin_manage_admins.php' ? 'active' : ''; ?>"><i class="fas fa-user-shield"></i> Admins</a></li>
             <?php endif; ?>
             <li class="nav-item"><a href="../ChangJingEn/admin_users.php" class="nav-link"><i class="fas fa-users"></i> Users</a></li>
             <li class="nav-item"><a href="../ChongEeLynn/roommanagement.php" class="nav-link"><i class="fas fa-bed"></i> Rooms</a></li>
-            <li class="nav-item"><a href="../Hannah/admin_bookings.php" class="nav-link"><i class="fas fa-calendar-check"></i> Bookings</a></li>
+            <li class="nav-item"><a href="../Hannah/admin_book.php" class="nav-link"><i class="fas fa-calendar-check"></i> Bookings</a></li>
             <li class="nav-item"><a href="../ChongEeLynn/admin_offers.php" class="nav-link"><i class="fas fa-tags"></i> Offers</a></li>
             <li class="nav-item"><a href="../ChongEeLynn/admin_reviews.php" class="nav-link"><i class="fas fa-star"></i> Reviews</a></li>
         </ul>
