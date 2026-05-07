@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['reserve_table'])) {
             if ($hour < 10 || $hour >= 16) {
                 $errors[] = "Restaurant operates from 10:00 AM to 4:00 PM.";
             }
-        }
+        }  
     }
   
     if ($guests < 1 || $guests > 50) $errors[] = "Guests must be 1-50.";
