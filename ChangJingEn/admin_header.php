@@ -1,6 +1,8 @@
 <?php
 // admin_header.php - Grand Hotel Melaka
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 $config_path = __DIR__ . '/../Shared/config.php';
 if (!file_exists($config_path)) {
@@ -340,3 +342,4 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
 <div class="content-wrapper">
     <main class="main-content">
+        

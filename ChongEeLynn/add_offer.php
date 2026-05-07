@@ -17,16 +17,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $is_active = isset($_POST['is_active']) ? 1 : 0;
     $terms = isset($_POST['terms']) ? $conn->real_escape_string($_POST['terms']) : '';
     
-    $sql = "INSERT INTO hotel_offers (code, category, title, description, image, discount_percentage, valid_from, valid_to, is_active, terms) 
-            VALUES ('$code', '$category', '$title', '$description', '$image', $discount_percentage, '$valid_from', '$valid_to', $is_active, '$terms')";
+    // Check if offer code already exists
+    $check_sql = "SELECT id FROM hotel_offers WHERE code = '$code'";
+    $check_result = $conn->query($check_sql);
     
-    if ($conn->query($sql)) {
-        $message = "Offer added successfully!";
-        $messageType = "success";
-        echo "<script>setTimeout(()=>{window.location='admin_offers.php';},1500);</script>";
-    } else {
-        $message = "Error: " . $conn->error;
+    if ($check_result->num_rows > 0) {
+        $message = "Error: An offer with the code '$code' already exists. Please use a different offer code.";
         $messageType = "error";
+    } else {
+        $sql = "INSERT INTO hotel_offers (code, category, title, description, image, discount_percentage, valid_from, valid_to, is_active, terms) 
+                VALUES ('$code', '$category', '$title', '$description', '$image', $discount_percentage, '$valid_from', '$valid_to', $is_active, '$terms')";
+        
+        if ($conn->query($sql)) {
+            $message = "Offer added successfully!";
+            $messageType = "success";
+            echo "<script>setTimeout(()=>{window.location='admin_offers.php';},1500);</script>";
+        } else {
+            $message = "Error: " . $conn->error;
+            $messageType = "error";
+        }
     }
 }
 ?>
@@ -50,14 +59,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="message <?= $messageType ?>"><?= $message ?></div>
     <?php endif; ?>
     
-    <form method="POST" class="offer-form">
+    <form method="POST" class="offer-form" id="offerForm">
         <div class="form-section">
             <h3>Offer Information</h3>
             <div class="form-row">
                 <div class="form-group">
                     <label>Offer Code <span class="required">*</span></label>
-                    <input type="text" name="code" placeholder="e.g., SUMMER25, WELCOME10" required>
-                    <small class="hint">Unique promotional code for this offer</small>
+                    <input type="text" name="code" id="offerCode" placeholder="e.g., SUMMER25, WELCOME10" required>
+                    <small class="hint" id="codeError" style="color: var(--danger); display: none;"></small>
+                    <small class="hint">Unique promotional code for this offer (uppercase letters and numbers only)</small>
                 </div>
                 <div class="form-group">
                     <label>Category <span class="required">*</span></label>
@@ -141,5 +151,65 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     </form>
 </div>
+
+<script>
+// Real-time duplicate code checking for add offer
+document.getElementById('offerCode').addEventListener('blur', function() {
+    const offerCode = this.value.trim().toUpperCase();
+    const codeError = document.getElementById('codeError');
+    
+    if (offerCode) {
+        fetch('check_offer_code.php?code=' + encodeURIComponent(offerCode))
+            .then(response => response.json())
+            .then(data => {
+                if (data.exists) {
+                    codeError.textContent = 'Offer code already exists! Please choose a different code.';
+                    codeError.style.display = 'block';
+                    document.querySelector('.btn-submit').disabled = true;
+                    document.querySelector('.btn-submit').style.opacity = '0.5';
+                } else {
+                    codeError.style.display = 'none';
+                    document.querySelector('.btn-submit').disabled = false;
+                    document.querySelector('.btn-submit').style.opacity = '1';
+                }
+            });
+    } else {
+        codeError.style.display = 'none';
+        document.querySelector('.btn-submit').disabled = false;
+        document.querySelector('.btn-submit').style.opacity = '1';
+    }
+});
+
+// Auto-uppercase for offer code
+document.getElementById('offerCode').addEventListener('input', function() {
+    this.value = this.value.toUpperCase();
+});
+
+// Validate dates
+document.querySelector('form').addEventListener('submit', function(e) {
+    const validFrom = new Date(document.querySelector('[name="valid_from"]').value);
+    const validTo = new Date(document.querySelector('[name="valid_to"]').value);
+    const codeError = document.getElementById('codeError');
+    const discount = parseFloat(document.querySelector('[name="discount_percentage"]').value);
+    
+    if (validFrom > validTo) {
+        e.preventDefault();
+        alert('Valid From date cannot be later than Valid To date.');
+        return;
+    }
+    
+    if (discount <= 0 || discount > 100) {
+        e.preventDefault();
+        alert('Discount percentage must be between 1 and 100.');
+        return;
+    }
+    
+    if (codeError.style.display === 'block') {
+        e.preventDefault();
+        alert('Please fix the errors before submitting.');
+    }
+});
+</script>
+
 </body>
 </html>

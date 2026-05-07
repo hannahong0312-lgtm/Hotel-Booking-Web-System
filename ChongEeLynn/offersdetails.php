@@ -31,7 +31,7 @@ function isExpired($valid_to) {
 
 $expired = isExpired($offer['valid_to']);
 
-// Get similar offers (same category, different id)
+// Get similar offers 
 $similar_sql = "SELECT * FROM hotel_offers WHERE category = '{$offer['category']}' AND id != $id LIMIT 3";
 $similar_result = mysqli_query($conn, $similar_sql);
 $similar = [];

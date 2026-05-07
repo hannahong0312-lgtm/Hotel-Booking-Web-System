@@ -141,8 +141,10 @@ body {
 /* Filters */
 .filters {
     display: flex;
-    gap: 15px;
-    margin-bottom: 25px;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    margin-bottom: 15px;
     padding: 15px;
     background: var(--bg-body);
     border-radius: 12px;
@@ -158,6 +160,7 @@ body {
     background: var(--bg-sidebar);
     color: var(--text-primary);
     transition: all 0.3s;
+    min-width: 200px;
 }
 
 .search-input:focus {
@@ -174,6 +177,44 @@ body {
     background: var(--bg-sidebar);
     color: var(--text-primary);
     cursor: pointer;
+    min-width: 120px;
+}
+
+/* Button Styles */
+.btn-search {
+    background: var(--gold);
+    color: #1e1e1e;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-search:hover {
+    background: var(--gold-hover);
+    transform: translateY(-2px);
+}
+
+.btn-reset {
+    background: var(--text-secondary);
+    color: white;
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-reset:hover {
+    background: var(--danger);
+    transform: translateY(-2px);
+}
+
+[data-theme="dark"] .btn-reset {
+    color: #0a0a0a;
 }
 
 /* Table Styles */
@@ -387,7 +428,7 @@ body {
 .actions a, .actions button {
     display: inline-flex;
     align-items: center;
-    padding: 6px 12px;
+    padding: 6px 14px;
     margin: 0 3px;
     text-decoration: none;
     border-radius: 6px;
@@ -408,12 +449,7 @@ body {
     color: white;
 }
 
-.btn-delete {
-    background: var(--danger);
-    color: white;
-}
-
-.btn-edit:hover, .btn-toggle:hover, .btn-delete:hover {
+.btn-edit:hover, .btn-toggle:hover {
     transform: translateY(-2px);
     filter: brightness(0.9);
 }
@@ -451,6 +487,10 @@ body {
     
     .filters {
         flex-direction: column;
+    }
+    
+    .search-input, .filter-select, .btn-search, .btn-reset {
+        width: 100%;
     }
     
     .room-table {

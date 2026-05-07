@@ -19,16 +19,25 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $amenities_image = $conn->real_escape_string($_POST['amenities_image']);
     $is_active = isset($_POST['is_active']) ? 1 : 0;
     
-    $sql = "INSERT INTO rooms (name, category, description, price, max_guests, bed_type, size, rooms_available, image, bathroom_image, amenities_image, is_active) 
-            VALUES ('$name', '$category', '$description', $price, $max_guests, '$bed_type', $size, $rooms_available, '$image', '$bathroom_image', '$amenities_image', $is_active)";
+    // Check if room name already exists
+    $check_sql = "SELECT id FROM rooms WHERE name = '$name'";
+    $check_result = $conn->query($check_sql);
     
-    if ($conn->query($sql)) {
-        $message = "Room added successfully!";
-        $messageType = "success";
-        echo "<script>setTimeout(()=>{window.location='roommanagement.php';},1500);</script>";
-    } else {
-        $message = "Error: " . $conn->error;
+    if ($check_result->num_rows > 0) {
+        $message = "Error: A room with the name '$name' already exists. Please use a different room name.";
         $messageType = "error";
+    } else {
+        $sql = "INSERT INTO rooms (name, category, description, price, max_guests, bed_type, size, rooms_available, image, bathroom_image, amenities_image, is_active) 
+                VALUES ('$name', '$category', '$description', $price, $max_guests, '$bed_type', $size, $rooms_available, '$image', '$bathroom_image', '$amenities_image', $is_active)";
+        
+        if ($conn->query($sql)) {
+            $message = "Room added successfully!";
+            $messageType = "success";
+            echo "<script>setTimeout(()=>{window.location='roommanagement.php';},1500);</script>";
+        } else {
+            $message = "Error: " . $conn->error;
+            $messageType = "error";
+        }
     }
 }
 ?>
@@ -52,13 +61,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         <div class="message <?= $messageType ?>"><?= $message ?></div>
     <?php endif; ?>
     
-    <form method="POST" class="room-form">
+    <form method="POST" class="room-form" id="roomForm">
         <div class="form-section">
             <h3>Basic Information</h3>
             <div class="form-row">
                 <div class="form-group">
                     <label>Room Name <span class="required">*</span></label>
-                    <input type="text" name="name" placeholder="e.g., Ocean View Suite" required>
+                    <input type="text" name="name" id="roomName" placeholder="e.g., Ocean View Suite" required>
+                    <small class="hint" id="nameError" style="color: var(--danger); display: none;"></small>
                 </div>
                 <div class="form-group">
                     <label>Category <span class="required">*</span></label>
@@ -143,5 +153,46 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         </div>
     </form>
 </div>
+
+<script>
+// Real-time duplicate name checking for add room
+document.getElementById('roomName').addEventListener('blur', function() {
+    const roomName = this.value.trim();
+    const nameError = document.getElementById('nameError');
+    
+    if (roomName) {
+        fetch('check_room_name.php?name=' + encodeURIComponent(roomName))
+            .then(response => response.json())
+            .then(data => {
+                if (data.exists) {
+                    nameError.textContent = 'Room name already exists! Please choose a different name.';
+                    nameError.style.display = 'block';
+                    document.querySelector('.btn-submit').disabled = true;
+                    document.querySelector('.btn-submit').style.opacity = '0.5';
+                } else {
+                    nameError.style.display = 'none';
+                    document.querySelector('.btn-submit').disabled = false;
+                    document.querySelector('.btn-submit').style.opacity = '1';
+                }
+            });
+    } else {
+        nameError.style.display = 'none';
+        document.querySelector('.btn-submit').disabled = false;
+        document.querySelector('.btn-submit').style.opacity = '1';
+    }
+});
+
+// Form validation before submit
+document.getElementById('roomForm').addEventListener('submit', function(e) {
+    const roomName = document.getElementById('roomName').value.trim();
+    const nameError = document.getElementById('nameError');
+    
+    if (nameError.style.display === 'block') {
+        e.preventDefault();
+        alert('Please fix the errors before submitting.');
+    }
+});
+</script>
+
 </body>
 </html>
