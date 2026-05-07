@@ -1,5 +1,5 @@
 <?php
-// admin_book.php - Complete booking management with clean print windows
+// admin_book.php - Complete booking management with check-in/out & review system
 require_once '../Shared/config.php';
 require_once '../ChangJingEn/admin_header.php';
 
@@ -122,14 +122,8 @@ if ($action === 'single_invoice_print' && isset($_GET['booking_id'])) {
         </div>
     </div>
     <script>
-        // Auto-trigger print dialog when window loads
-        window.onload = function() {
-            window.print();
-        };
-        // After printing, close the window (optional, user can keep it)
-        window.onafterprint = function() {
-            window.close();
-        };
+        window.onload = function() { window.print(); };
+        window.onafterprint = function() { window.close(); };
     </script>
     </body>
     </html>
@@ -196,10 +190,7 @@ if ($action === 'all_invoices_print') {
             .label { font-weight: 600; color: #555; }
             .total-row { border-top: 1px solid #ccc; margin-top: 15px; padding-top: 10px; font-weight: bold; }
             hr { margin: 20px 0; }
-            .print-footer {
-                text-align: center;
-                margin-top: 40px;
-            }
+            .print-footer { text-align: center; margin-top: 40px; }
             @media print {
                 body { padding: 0; margin: 0; }
                 .invoice-page { margin: 0; page-break-after: always; border: none; }
@@ -237,14 +228,9 @@ if ($action === 'all_invoices_print') {
         <button onclick="window.print(); setTimeout(() => window.close(), 500);" style="padding:12px 30px; background:#c5a059; border:none; border-radius:40px; cursor:pointer;">Print All Invoices</button>
     </div>
     <script>
-        // Auto-trigger print if there are invoices
         <?php if ($count > 0): ?>
-        window.onload = function() {
-            window.print();
-        };
-        window.onafterprint = function() {
-            window.close();
-        };
+        window.onload = function() { window.print(); };
+        window.onafterprint = function() { window.close(); };
         <?php endif; ?>
     </script>
     </body>
@@ -253,7 +239,7 @@ if ($action === 'all_invoices_print') {
     exit;
 }
 
-// ------------------- DEFAULT: LIST VIEW (unchanged except invoice buttons) -------------------
+// ------------------- DEFAULT: LIST VIEW -------------------
 $status_filter = isset($_GET['status']) ? $_GET['status'] : 'all';
 $search        = isset($_GET['search']) ? trim($_GET['search']) : '';
 $page          = isset($_GET['page']) ? (int)$_GET['page'] : 1;
@@ -317,10 +303,10 @@ $bookings = $stmt->get_result();
 $total_all = $conn->query("SELECT COUNT(*) FROM book")->fetch_row()[0];
 $confirmed_count = $conn->query("SELECT COUNT(*) FROM book WHERE status = 'confirmed'")->fetch_row()[0];
 $cancelled_count = $conn->query("SELECT COUNT(*) FROM book WHERE status = 'cancelled'")->fetch_row()[0];
+$checked_in_count = $conn->query("SELECT COUNT(*) FROM book WHERE checked_in_at IS NOT NULL AND checked_out_at IS NULL")->fetch_row()[0];
 ?>
 
 <style>
-    /* Same styling as before for stats, table, etc. */
     .stats-summary {
         display: flex;
         gap: 20px;
@@ -435,6 +421,16 @@ $cancelled_count = $conn->query("SELECT COUNT(*) FROM book WHERE status = 'cance
     .status-confirmed { background: #e6f9ed; color: #0b5e42; }
     .status-cancelled { background: #fee2e2; color: #991b1b; }
     .status-completed { background: #e0e7ff; color: #1e3a8a; }
+    .checkin-badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 0.65rem;
+        font-weight: 500;
+        margin-top: 4px;
+    }
+    .checked-in { background: #dbeafe; color: #1e40af; }
+    .checked-out { background: #f3e8ff; color: #6b21a5; }
     .action-buttons {
         display: flex;
         gap: 8px;
@@ -467,6 +463,20 @@ $cancelled_count = $conn->query("SELECT COUNT(*) FROM book WHERE status = 'cance
     .action-btn.invoice:hover {
         background: rgba(44,62,102,0.1);
     }
+    .action-btn.checkin {
+        border-color: #0b5e42;
+        color: #0b5e42;
+    }
+    .action-btn.checkin:hover {
+        background: rgba(11,94,66,0.1);
+    }
+    .action-btn.checkout {
+        border-color: #b45309;
+        color: #b45309;
+    }
+    .action-btn.checkout:hover {
+        background: rgba(180,83,9,0.1);
+    }
     .pagination {
         margin-top: 32px;
         display: flex;
@@ -488,6 +498,29 @@ $cancelled_count = $conn->query("SELECT COUNT(*) FROM book WHERE status = 'cance
         color: white;
         border-color: var(--gold);
     }
+    .alert-toast {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        padding: 12px 20px;
+        border-radius: 12px;
+        font-size: 0.85rem;
+        animation: slideIn 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .alert-success {
+        background: #0b5e42;
+        color: white;
+    }
+    .alert-error {
+        background: #991b1b;
+        color: white;
+    }
+    @keyframes slideIn {
+        from { transform: translateX(100%); opacity: 0; }
+        to { transform: translateX(0); opacity: 1; }
+    }
 </style>
 
 <div class="content-wrapper" style="margin-left:0; padding-top:20px;">
@@ -501,6 +534,11 @@ $cancelled_count = $conn->query("SELECT COUNT(*) FROM book WHERE status = 'cance
             <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
             <div class="stat-value"><?= $confirmed_count ?></div>
             <div class="stat-label">Confirmed</div>
+        </div>
+        <div class="stat-summary-card">
+            <div class="stat-icon"><i class="fas fa-sign-in-alt"></i></div>
+            <div class="stat-value"><?= $checked_in_count ?></div>
+            <div class="stat-label">Currently Checked In</div>
         </div>
         <div class="stat-summary-card">
             <div class="stat-icon"><i class="fas fa-ban"></i></div>
@@ -535,7 +573,7 @@ $cancelled_count = $conn->query("SELECT COUNT(*) FROM book WHERE status = 'cance
             </thead>
             <tbody>
                 <?php if ($bookings->num_rows == 0): ?>
-                    <tr><td colspan="9" style="text-align:center; padding:48px;">No bookings found.</td></td>
+                    <tr><td colspan="9" style="text-align:center; padding:48px;">No bookings found.</td></tr>
                 <?php else: while ($row = $bookings->fetch_assoc()):
                     $total_display = $row['payment_grand_total'] ?? $row['grand_total'] ?? 0;
                     $status_class = match($row['status']) {
@@ -547,7 +585,13 @@ $cancelled_count = $conn->query("SELECT COUNT(*) FROM book WHERE status = 'cance
                 ?>
                 <tr>
                     <td><?= $row['id'] ?></td>
-                    <td><strong><?= htmlspecialchars($row['booking_ref']) ?></strong></td>
+                    <td><strong><?= htmlspecialchars($row['booking_ref']) ?></strong>
+                        <?php if ($row['checked_in_at'] && !$row['checked_out_at']): ?>
+                            <div class="checkin-badge checked-in"><i class="fas fa-door-open"></i> Checked In</div>
+                        <?php elseif ($row['checked_out_at']): ?>
+                            <div class="checkin-badge checked-out"><i class="fas fa-door-closed"></i> Checked Out</div>
+                        <?php endif; ?>
+                    </td>
                     <td><?= htmlspecialchars($row['first_name'] . ' ' . $row['last_name']) ?><br><small><?= htmlspecialchars($row['email']) ?></small></td>
                     <td><?= htmlspecialchars($row['room_name']) ?> (x<?= $row['quantity'] ?>)</td>
                     <td><?= date('d M Y', strtotime($row['check_in'])) ?></td>
@@ -556,6 +600,15 @@ $cancelled_count = $conn->query("SELECT COUNT(*) FROM book WHERE status = 'cance
                     <td><span class="status-badge <?= $status_class ?>"><?= ucfirst($row['status']) ?></span></td>
                     <td class="action-buttons">
                         <a href="admin_bdetails.php?booking_id=<?= $row['id'] ?>" class="action-btn edit"><i class="fas fa-edit"></i> Edit</a>
+                        
+                        <?php if ($row['status'] == 'confirmed' && !$row['checked_in_at']): ?>
+                            <button class="action-btn checkin" data-id="<?= $row['id'] ?>"><i class="fas fa-sign-in-alt"></i> Check In</button>
+                        <?php endif; ?>
+                        
+                        <?php if ($row['checked_in_at'] && !$row['checked_out_at']): ?>
+                            <button class="action-btn checkout" data-id="<?= $row['id'] ?>"><i class="fas fa-sign-out-alt"></i> Check Out</button>
+                        <?php endif; ?>
+                        
                         <button class="action-btn invoice" data-id="<?= $row['id'] ?>"><i class="fas fa-receipt"></i> Invoice</button>
                     </td>
                 </tr>
@@ -574,7 +627,19 @@ $cancelled_count = $conn->query("SELECT COUNT(*) FROM book WHERE status = 'cance
 </div>
 
 <script>
-// Handle single invoice: open a new printable window
+// Show toast notification
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `alert-toast alert-${type}`;
+    toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Handle single invoice
 document.querySelectorAll('.invoice').forEach(btn => {
     btn.addEventListener('click', () => {
         const bookingId = btn.dataset.id;
@@ -583,10 +648,64 @@ document.querySelectorAll('.invoice').forEach(btn => {
     });
 });
 
-// Handle all invoices: open printable window with current filters
+// Handle all invoices
 document.getElementById('exportAllBtn').addEventListener('click', () => {
     const params = new URLSearchParams(window.location.search);
     const url = `?action=all_invoices_print&${params.toString()}`;
     window.open(url, '_blank', 'width=900,height=1000,scrollbars=yes,resizable=yes');
+});
+
+// Handle Check In
+document.querySelectorAll('.checkin').forEach(btn => {
+    btn.addEventListener('click', async () => {
+        const bookingId = btn.dataset.id;
+        if (confirm('Confirm check-in for this booking?')) {
+            try {
+                const response = await fetch('../ChongEeLynn/admin_book_actions.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'checkin', booking_id: bookingId })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    showToast('Guest checked in successfully!', 'success');
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showToast(result.error || 'Check-in failed', 'error');
+                }
+            } catch (error) {
+                showToast('Network error. Please try again.', 'error');
+            }
+        }
+    });
+});
+
+// Handle Check Out
+document.querySelectorAll('.checkout').forEach(btn => {
+    btn.addEventListener('click', async () => {
+        const bookingId = btn.dataset.id;
+        if (confirm('Confirm check-out for this booking? The user will be prompted to leave a review.')) {
+            try {
+                const response = await fetch('../ChongEeLynn/admin_book_actions.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: 'checkout', booking_id: bookingId })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    if (result.late_penalty > 0) {
+                        showToast(`Checked out! ${result.late_penalty} points deducted for late checkout.`, 'success');
+                    } else {
+                        showToast('Guest checked out successfully! Review prompt will appear on user dashboard.', 'success');
+                    }
+                    setTimeout(() => location.reload(), 1500);
+                } else {
+                    showToast(result.error || 'Check-out failed', 'error');
+                }
+            } catch (error) {
+                showToast('Network error. Please try again.', 'error');
+            }
+        }
+    });
 });
 </script>

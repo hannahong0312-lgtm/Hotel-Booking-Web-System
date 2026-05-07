@@ -293,44 +293,6 @@ function getStars($rating) {
                     <p>🛏️ <?php echo htmlspecialchars($room['bed_type']); ?></p>
                     <a href="roomdetails.php?id=<?php echo $room_id; ?>" class="view-room-btn">View Room →</a>
                 </div>
-                
-                <!-- Write Review Form -->
-                <?php if (isset($_SESSION['user_id']) && !$has_reviewed): ?>
-                    <div class="sidebar-card write-review-card">
-                        <h3>Write a Review</h3>
-                        <form method="POST" action="" class="review-form-simple">
-                            <div class="form-group">
-                                <label>Rating</label>
-                                <select name="rating" required>
-                                    <option value="">Select rating</option>
-                                    <option value="5">5 Stars - Excellent</option>
-                                    <option value="4">4 Stars - Very Good</option>
-                                    <option value="3">3 Stars - Good</option>
-                                    <option value="2">2 Stars - Fair</option>
-                                    <option value="1">1 Star - Poor</option>
-                                </select>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label>Your Review</label>
-                                <textarea name="comment" rows="4" maxlength="255" placeholder="Share your experience..." required></textarea>
-                                <small>Max 255 characters</small>
-                            </div>
-                            
-                            <button type="submit" name="submit_review" class="submit-review-btn">Submit Review</button>
-                        </form>
-                    </div>
-                <?php elseif (!isset($_SESSION['user_id'])): ?>
-                    <div class="sidebar-card write-review-card">
-                        <h3>Write a Review</h3>
-                        <p>Please <a href="../ChangJingEn/login.php" class="login-link">login</a> to submit a review.</p>
-                    </div>
-                <?php elseif ($has_reviewed): ?>
-                    <div class="sidebar-card write-review-card">
-                        <h3>Thank You!</h3>
-                        <p>You have already reviewed this room.</p>
-                    </div>
-                <?php endif; ?>
             </div>
         </div>
     </div>
