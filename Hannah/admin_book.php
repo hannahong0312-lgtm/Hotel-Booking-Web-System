@@ -509,7 +509,7 @@ $cancelled_count = $conn->query("SELECT COUNT(*) FROM book WHERE status = 'cance
         </div>
     </div>
 
-    <div class="page-header">
+    <div class="page-header"> 
         <h2><i class="fas fa-calendar-alt"></i> Booking Management</h2>
     </div>
 
@@ -522,9 +522,9 @@ $cancelled_count = $conn->query("SELECT COUNT(*) FROM book WHERE status = 'cance
                 <option value="cancelled" <?= $status_filter == 'cancelled' ? 'selected' : '' ?>>Cancelled</option>
                 <option value="completed" <?= $status_filter == 'completed' ? 'selected' : '' ?>>Completed</option>
             </select>
-            <button type="submit" class="action-btn" style="background: var(--gold); color:white; border:none;">Filter</button>
-            <a href="admin_book.php" class="action-btn">Reset</a>
-            <button type="button" id="exportAllBtn" class="action-btn" style="background: #2c3e66; color:white;">Generate All Invoices</button>
+            <button type="submit" class="action-btn edit" style="font-size: 1rem;">Filter</button>
+            <a href="admin_book.php" class="action-btn edit" style="font-size: 1rem;">Reset</a>
+            <button type="button" id="exportAllBtn" class="action-btn invoice" style="font-size: 1rem">Generate All Invoices</button>
         </form>
     </div>
 
