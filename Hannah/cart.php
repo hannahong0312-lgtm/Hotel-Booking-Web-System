@@ -3,6 +3,12 @@ session_start();
 include '../Shared/config.php';
 include '../Shared/header.php';
 
+// --- Display cart errors (if any) ---
+if (isset($_SESSION['cart_error'])) {
+    echo '<div class="error-message" style="background:#f8d7da; color:#721c24; padding:10px; margin:10px auto; border-radius:5px; max-width:1200px;">' . htmlspecialchars($_SESSION['cart_error']) . '</div>';
+    unset($_SESSION['cart_error']);
+}
+
 // --- Handle single item removal ---
 if (isset($_GET['remove_index'])) {
     $remove_index = (int)$_GET['remove_index'];
@@ -12,12 +18,6 @@ if (isset($_GET['remove_index'])) {
     }
     header('Location: cart.php');
     exit();
-}
-
-// --- Display cart errors (if any) ---
-if (isset($_SESSION['cart_error'])) {
-    echo '<div class="error-message" style="background:#f8d7da; color:#721c24; padding:10px; margin-bottom:20px; border-radius:5px;">' . htmlspecialchars($_SESSION['cart_error']) . '</div>';
-    unset($_SESSION['cart_error']);
 }
 
 // --- Handle batch removal ---
@@ -187,7 +187,7 @@ if (isset($_GET['room_id'], $_GET['arrive'], $_GET['depart'])) {
 
 $cart_items = $_SESSION['cart'] ?? [];
 ?>
-?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -379,7 +379,6 @@ function updateSelectedSubtotal() {
     });
     document.getElementById('selectedCount').innerText = selectedCount;
     document.getElementById('cartSubtotal').innerText = total.toFixed(2);
-    document.getElementById('summarySubtotal').innerText = total.toFixed(2);
 }
 
 function removeCartItem(index) {
