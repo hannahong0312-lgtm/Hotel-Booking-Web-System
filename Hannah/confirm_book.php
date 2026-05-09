@@ -9,21 +9,38 @@ if (!$ref) {
     exit();
 }
 
-// Join book with rooms and payment to get all needed data
-$sql = "SELECT b.*, r.name AS room_name, p.points_earned, p.grand_total AS payment_grand_total
+// Join book with rooms and payment to get all details in one query
+$sql = "SELECT b.*, p.points_earned, p.grand_total AS payment_grand_total
         FROM book b
-        JOIN rooms r ON b.room_id = r.id
         LEFT JOIN payment p ON b.payment_id = p.id
-        WHERE b.booking_ref = '$ref'";
-$result = mysqli_query($conn, $sql);
+        WHERE b.booking_ref = ?";
+
+$stmt = mysqli_prepare($conn, $sql);
+mysqli_stmt_bind_param($stmt, "s", $ref);
+mysqli_stmt_execute($stmt);
+$result = mysqli_stmt_get_result($stmt);
 $booking = mysqli_fetch_assoc($result);
+
 if (!$booking) {
     echo "<p>Booking not found.</p>";
     include '../Shared/footer.php';
     exit();
 }
 
-// Use grand_total from payment if available, otherwise fallback to book.grand_total
+// single room details to display on confirmation page
+$room_name = 'Unknown Room';
+if (!empty($booking['room_id'])) {
+    $room_sql = "SELECT name FROM rooms WHERE id = ? LIMIT 1";
+    $room_stmt = mysqli_prepare($conn, $room_sql);
+    mysqli_stmt_bind_param($room_stmt, "i", $booking['room_id']);
+    mysqli_stmt_execute($room_stmt);
+    $room_result = mysqli_stmt_get_result($room_stmt);
+    if ($room_result && mysqli_num_rows($room_result) > 0) {
+        $room = mysqli_fetch_assoc($room_result);
+        $room_name = $room['name'];
+    }
+}
+
 $total_paid = isset($booking['payment_grand_total']) ? $booking['payment_grand_total'] : $booking['grand_total'];
 $points_earned = isset($booking['points_earned']) ? $booking['points_earned'] : 0;
 ?>
@@ -44,7 +61,7 @@ $points_earned = isset($booking['points_earned']) ? $booking['points_earned'] : 
     <div class="payment-card" style="max-width:600px; margin:auto">
         <div class="card-content">
             <p><strong>Booking Reference:</strong> <?= htmlspecialchars($booking['booking_ref']) ?></p>
-            <p><strong>Room:</strong> <?= htmlspecialchars($booking['room_name']) ?></p>
+            <p><strong>Room:</strong> <?= htmlspecialchars($room_name) ?></p>
             <p><strong>Check-in:</strong> <?= date('d F Y', strtotime($booking['check_in'])) ?></p>
             <p><strong>Check-out:</strong> <?= date('d F Y', strtotime($booking['check_out'])) ?></p>
             <p><strong>Total Paid:</strong> RM <?= number_format($total_paid, 2) ?></p>

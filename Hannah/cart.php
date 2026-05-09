@@ -1,10 +1,9 @@
 <?php
-// cart.php - Select quantity of rooms (not guests) with stock limit from rooms_available
 session_start();
 include '../Shared/config.php';
 include '../Shared/header.php';
 
-// --- Handle single item removal via GET ---
+// --- Handle single item removal ---
 if (isset($_GET['remove_index'])) {
     $remove_index = (int)$_GET['remove_index'];
     if (isset($_SESSION['cart'][$remove_index])) {
@@ -15,7 +14,13 @@ if (isset($_GET['remove_index'])) {
     exit();
 }
 
-// --- Handle batch removal via GET ---
+// --- Display cart errors (if any) ---
+if (isset($_SESSION['cart_error'])) {
+    echo '<div class="error-message" style="background:#f8d7da; color:#721c24; padding:10px; margin-bottom:20px; border-radius:5px;">' . htmlspecialchars($_SESSION['cart_error']) . '</div>';
+    unset($_SESSION['cart_error']);
+}
+
+// --- Handle batch removal ---
 if (isset($_GET['remove_indices'])) {
     $indices = explode(',', $_GET['remove_indices']);
     rsort($indices);
@@ -30,22 +35,19 @@ if (isset($_GET['remove_indices'])) {
     exit();
 }
 
-// --- AJAX: update quantity of rooms ---
+// --- AJAX: update quantity ---
 if (isset($_GET['action']) && $_GET['action'] == 'update_quantity' && isset($_GET['index']) && isset($_GET['quantity'])) {
     header('Content-Type: application/json');
     $index = (int)$_GET['index'];
     $new_qty = (int)$_GET['quantity'];
     if (isset($_SESSION['cart'][$index])) {
         $room_id = $_SESSION['cart'][$index]['room_id'];
-        
         $room_sql = "SELECT rooms_available FROM rooms WHERE id = $room_id";
         $room_res = mysqli_query($conn, $room_sql);
         $max_available = ($room_res && mysqli_num_rows($room_res) > 0) ? (int)mysqli_fetch_assoc($room_res)['rooms_available'] : 0;
-        
-        $max_qty = $max_available;
-        $new_qty = max(1, min($new_qty, $max_qty));
+        $new_qty = max(1, min($new_qty, $max_available));
         $_SESSION['cart'][$index]['quantity'] = $new_qty;
-        echo json_encode(['success' => true, 'new_quantity' => $new_qty, 'max' => $max_qty]);
+        echo json_encode(['success' => true, 'new_quantity' => $new_qty, 'max' => $max_available]);
     } else {
         echo json_encode(['success' => false]);
     }
@@ -75,23 +77,45 @@ if (!isset($_SESSION['user_id'])) {
 // --- Initialise cart ---
 if (!isset($_SESSION['cart'])) $_SESSION['cart'] = [];
 
-// --- MIGRATION: Fix old cart items missing 'quantity' or 'max_rooms' ---
+// ========== MIGRATION & VALIDATION LOOP ==========
 $need_reload = false;
 foreach ($_SESSION['cart'] as $idx => &$item) {
+    // 1. Ensure room_id and room_name exist and are valid
+    if (!isset($item['room_id']) || !isset($item['room_name']) || $item['room_id'] == 0 || empty($item['room_name'])) {
+        // Try to recover using room_name (if present)
+        if (isset($item['room_name']) && !empty($item['room_name'])) {
+            $name_esc = mysqli_real_escape_string($conn, $item['room_name']);
+            $find = mysqli_query($conn, "SELECT id, name FROM rooms WHERE name = '$name_esc' LIMIT 1");
+            if ($find && mysqli_num_rows($find) > 0) {
+                $row = mysqli_fetch_assoc($find);
+                $item['room_id'] = (int)$row['id'];
+                $item['room_name'] = $row['name'];
+                $need_reload = true;
+                continue;
+            }
+        }
+        // Cannot recover – delete this item
+        unset($_SESSION['cart'][$idx]);
+        $need_reload = true;
+        continue;
+    }
+
+    // 2. Ensure quantity exists
     if (!isset($item['quantity'])) {
         $item['quantity'] = 1;
         $need_reload = true;
     }
+
+    // 3. Ensure max_rooms exists (fetch from DB)
     if (!isset($item['max_rooms'])) {
-        // Fetch from database
         $room_id = $item['room_id'];
         $room_sql = "SELECT rooms_available FROM rooms WHERE id = $room_id";
         $room_res = mysqli_query($conn, $room_sql);
-        $max_rooms = ($room_res && mysqli_num_rows($room_res) > 0) ? (int)mysqli_fetch_assoc($room_res)['rooms_available'] : 5;
-        $item['max_rooms'] = $max_rooms;
+        $item['max_rooms'] = ($room_res && mysqli_num_rows($room_res) > 0) ? (int)mysqli_fetch_assoc($room_res)['rooms_available'] : 5;
         $need_reload = true;
     }
-    // Also ensure 'nights' exists (for very old carts)
+
+    // 4. Ensure nights exists
     if (!isset($item['nights'])) {
         $date1 = new DateTime($item['check_in']);
         $date2 = new DateTime($item['check_out']);
@@ -101,12 +125,18 @@ foreach ($_SESSION['cart'] as $idx => &$item) {
     }
 }
 unset($item);
-// If we fixed missing keys, reload the page to remove warnings and show correct data
-if ($need_reload) {
+
+// If we fixed anything, reload the page to show corrected data
+if ($need_reload && !empty($_SESSION['cart'])) {
+    header('Location: cart.php');
+    exit();
+} elseif ($need_reload && empty($_SESSION['cart'])) {
+    // Cart became empty after cleaning
+    unset($_SESSION['cart']);
     header('Location: cart.php');
     exit();
 }
-// --- End migration ---
+// ========== END MIGRATION ==========
 
 // --- Add item to cart (from room page) ---
 if (isset($_GET['room_id'], $_GET['arrive'], $_GET['depart'])) {
@@ -156,6 +186,7 @@ if (isset($_GET['room_id'], $_GET['arrive'], $_GET['depart'])) {
 }
 
 $cart_items = $_SESSION['cart'] ?? [];
+?>
 ?>
 <!DOCTYPE html>
 <html lang="en">

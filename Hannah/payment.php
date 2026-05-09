@@ -48,6 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['selected_items']) && 
         $room_price = 150.00;
         $room_image = '../ChongEeLynn/images/room-default.jpg';
     }
+    $single_room_id = $room_id;
     $date1 = new DateTime($check_in);
     $date2 = new DateTime($check_out);
     $nights = $date2->diff($date1)->days;
@@ -339,6 +340,7 @@ $points_earned_display = floor($subtotal * 10);
                         <div class="form-group"><label>Special Requests</label><textarea class="form-control" name="special_requests" rows="3" placeholder="Any special requests?"></textarea></div>
 
                         <!-- Hidden fields -->
+                         <input type="hidden" name="room_id" value="<?= $cart_mode ? '' : $single_room_id ?>">
                         <input type="hidden" name="cart_mode" value="<?= $cart_mode ? '1' : '0' ?>">
                         <input type="hidden" name="selected_cart_data" id="selectedCartData" value='<?= htmlspecialchars(json_encode($selected_cart_items)) ?>'>
                         <input type="hidden" name="nights" id="nightsHidden" value="<?= $total_nights ?>">
