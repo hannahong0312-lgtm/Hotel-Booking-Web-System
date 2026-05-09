@@ -3,7 +3,8 @@
 session_start();
 require_once __DIR__ . '/../Shared/config.php';
 
-header('Content-Type: 'application/json');
+// Set JSON header
+header('Content-Type: application/json');
 
 // Check if user is logged in for user-side actions
 $is_logged_in = isset($_SESSION['user_id']);
@@ -248,7 +249,7 @@ switch ($action) {
         break;
     
     default:
-        echo json_encode(['success' => false, 'error' => 'Invalid action']);
+        echo json_encode(['success' => false, 'error' => 'Invalid action: ' . $action]);
         break;
 }
 ?>

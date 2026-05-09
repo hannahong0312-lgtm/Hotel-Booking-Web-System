@@ -103,21 +103,26 @@
     font-size: 0.9rem;
 }
 
+/* Star Rating Styles - Fixed */
 .star-rating {
     display: flex;
-    gap: 8px;
+    gap: 12px;
     cursor: pointer;
 }
 
-.star-rating i {
-    font-size: 1.8rem;
-    transition: 0.2s;
+.star-rating .star {
+    font-size: 2rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
     color: #ddd;
 }
 
-.star-rating i:hover,
-.star-rating i.fas.fa-star {
-    color: #fbbf24;
+.star-rating .star:hover {
+    transform: scale(1.1);
+}
+
+.star-rating .fa-solid.fa-star {
+    color: #fbbf24 !important;
 }
 
 .review-comment-section textarea {

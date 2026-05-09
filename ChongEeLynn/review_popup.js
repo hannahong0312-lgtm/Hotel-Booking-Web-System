@@ -1,5 +1,8 @@
 // review_popup.js - Handle review popup on user side
 
+// API Base URL
+const API_URL = '/Hotel-Booking-Web-System/ChongEeLynn/review_api.php';
+
 let reviewModal = null;
 
 function showReviewPopup(booking) {
@@ -25,12 +28,12 @@ function showReviewPopup(booking) {
                 
                 <div class="review-rating-section">
                     <label>Your Rating:</label>
-                    <div class="star-rating">
-                        <i class="far fa-star" data-rating="1"></i>
-                        <i class="far fa-star" data-rating="2"></i>
-                        <i class="far fa-star" data-rating="3"></i>
-                        <i class="far fa-star" data-rating="4"></i>
-                        <i class="far fa-star" data-rating="5"></i>
+                    <div class="star-rating" id="starRatingContainer">
+                        <span class="star" data-rating="1">☆</span>
+                        <span class="star" data-rating="2">☆</span>
+                        <span class="star" data-rating="3">☆</span>
+                        <span class="star" data-rating="4">☆</span>
+                        <span class="star" data-rating="5">☆</span>
                     </div>
                     <input type="hidden" id="reviewRating" value="0">
                 </div>
@@ -53,21 +56,49 @@ function showReviewPopup(booking) {
     
     document.body.appendChild(reviewModal);
     
-    // Star rating functionality
-    const stars = reviewModal.querySelectorAll('.star-rating i');
+    // Star rating functionality - SIMPLE VERSION USING TEXT STARS
+    const stars = reviewModal.querySelectorAll('.star');
+    const ratingInput = reviewModal.querySelector('#reviewRating');
+    
+    function updateStars(rating) {
+        stars.forEach((star, index) => {
+            if (index < rating) {
+                star.textContent = '★';
+                star.style.color = '#fbbf24';
+            } else {
+                star.textContent = '☆';
+                star.style.color = '#ddd';
+            }
+        });
+    }
+    
     stars.forEach(star => {
         star.addEventListener('click', function() {
             const rating = parseInt(this.dataset.rating);
-            document.getElementById('reviewRating').value = rating;
-            
+            ratingInput.value = rating;
+            updateStars(rating);
+            console.log('Rating selected:', rating);
+        });
+        
+        star.addEventListener('mouseenter', function() {
+            const rating = parseInt(this.dataset.rating);
             stars.forEach((s, index) => {
                 if (index < rating) {
-                    s.className = 'fas fa-star';
+                    s.textContent = '★';
+                    s.style.color = '#fbbf24';
                 } else {
-                    s.className = 'far fa-star';
+                    s.textContent = '☆';
+                    s.style.color = '#ddd';
                 }
             });
         });
+    });
+    
+    // Reset stars on mouse leave
+    const container = reviewModal.querySelector('#starRatingContainer');
+    container.addEventListener('mouseleave', function() {
+        const currentRating = parseInt(ratingInput.value);
+        updateStars(currentRating);
     });
     
     // Show modal
@@ -94,7 +125,7 @@ function closeReviewPopup() {
 }
 
 function skipReview(bookingId) {
-    fetch('review_api.php', {
+    fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'skip_review', booking_id: bookingId })
@@ -108,12 +139,15 @@ function skipReview(bookingId) {
     })
     .catch(error => {
         console.error('Error:', error);
+        showToast('Network error. Please try again.', 'error');
     });
 }
 
 function submitReview(bookingId, roomId) {
     const rating = document.getElementById('reviewRating').value;
     const comment = document.getElementById('reviewComment').value;
+    
+    console.log('Rating:', rating, 'Comment:', comment);
     
     if (rating == 0) {
         showToast('Please select a rating!', 'error');
@@ -131,7 +165,7 @@ function submitReview(bookingId, roomId) {
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
     submitBtn.disabled = true;
     
-    fetch('review_api.php', {
+    fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -149,9 +183,9 @@ function submitReview(bookingId, roomId) {
             closeReviewPopup();
             
             // Update points display if exists on page
-            const pointsElement = document.querySelector('.user-points, #pointsBalance');
+            const pointsElement = document.querySelector('.stat-number');
             if (pointsElement) {
-                fetch('review_api.php?action=get_points')
+                fetch(`${API_URL}?action=get_points`)
                     .then(res => res.json())
                     .then(pointsData => {
                         if (pointsData.points) {
@@ -166,6 +200,7 @@ function submitReview(bookingId, roomId) {
         }
     })
     .catch(error => {
+        console.error('Error:', error);
         showToast('Network error. Please try again.', 'error');
         submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;
@@ -196,13 +231,21 @@ function escapeHtml(str) {
 
 // Check for pending review on page load
 function checkForPendingReview() {
-    fetch('review_api.php?action=check_pending')
-        .then(response => response.json())
+    console.log('Checking for pending review...');
+    fetch(`${API_URL}?action=check_pending`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            return response.json();
+        })
         .then(data => {
+            console.log('API Response:', data);
             if (data.success && data.has_review) {
-                setTimeout(() => {
-                    showReviewPopup(data.booking);
-                }, 1000);
+                console.log('Pending review found! Showing popup...');
+                showReviewPopup(data.booking);
+            } else {
+                console.log('No pending review found');
             }
         })
         .catch(error => {
@@ -212,5 +255,5 @@ function checkForPendingReview() {
 
 // Auto-check when page loads
 document.addEventListener('DOMContentLoaded', function() {
-    checkForPendingReview();
+    setTimeout(checkForPendingReview, 500);
 });

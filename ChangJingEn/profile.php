@@ -155,7 +155,7 @@ try {
     // 房间预订：通过 JOIN rooms 获取 room name，LEFT JOIN payment 获取 points_earned
     $room_query = "SELECT 'Room' as type, r.name as name, 
                           b.check_in as start_date, b.check_out as end_date, b.guests, 
-                          b.status, p.points_earned, b.created_at, b.id as booking_id
+                          b.status, p.points_earned, b.created_at, b.id as booking_id, b.room_id
                    FROM book b
                    JOIN rooms r ON b.room_id = r.id
                    LEFT JOIN payment p ON b.payment_id = p.id
@@ -169,7 +169,7 @@ try {
     
     // 餐饮预订（没有积分赚取，直接显示 NULL）
     $dining_query = "SELECT 'Dining' as type, name, date as start_date, 
-                            NULL as end_date, guests, status, NULL as points_earned, created_at, id as booking_id
+                            NULL as end_date, guests, status, NULL as points_earned, created_at, id as booking_id, NULL as room_id
                      FROM dining WHERE email = ? AND status != 'cancelled'
                      ORDER BY created_at DESC LIMIT 10";
     $stmt = $conn->prepare($dining_query);
@@ -209,7 +209,7 @@ $languages = [
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <!-- Review Popup CSS -->
-    <link rel="stylesheet" href="../ChongEeLynn/css/review_popup.css">
+    <link rel="stylesheet" href="/Hotel-Booking-Web-System/ChongEeLynn/css/review_popup.css">
     
     <style>
         /* 所有样式限定在 .profile-container 内，避免影响 footer */
@@ -725,15 +725,14 @@ $languages = [
                                     }
                                     ?>
                                 </td>
-                                <td id="review-cell-<?php echo $b['booking_id']; ?>">
-                                    <!-- Review button will be populated by JavaScript based on status -->
+                                <td id="review-cell-<?php echo $b['booking_id']; ?>" data-room-id="<?php echo $b['room_id']; ?>" data-room-name="<?php echo htmlspecialchars($b['name']); ?>">
                                     <span class="review-loading">Loading...</span>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="7" class="empty-state">No bookings yet. <a href="../ChongEeLynn/accommodation.php" style="color: #D4AF37;">Explore our rooms</a></td>
+                            <td colspan="7" class="empty-state">No bookings yet. <a href="/Hotel-Booking-Web-System/ChongEeLynn/accommodation.php" style="color: #D4AF37;">Explore our rooms</a></td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
@@ -744,38 +743,35 @@ $languages = [
 
 <!-- Review Popup JavaScript -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
-<script src="../ChongEeLynn/js/review_popup.js"></script>
+<script src="/Hotel-Booking-Web-System/ChongEeLynn/review_popup.js"></script>
 
 <script>
+
 // Function to check review status for each booking and show appropriate button
 async function loadReviewStatuses() {
     const bookingRows = document.querySelectorAll('#bookings-tab .bookings-table tbody tr');
     
     for (const row of bookingRows) {
-        // Skip the empty state row
         if (row.querySelector('.empty-state')) continue;
         
-        // Try to get booking ID from the row (you may need to adjust this based on your data)
-        // For now, we're using the review-cell ID which contains booking_id
         const reviewCell = row.querySelector('[id^="review-cell-"]');
         if (!reviewCell) continue;
         
         const bookingId = reviewCell.id.replace('review-cell-', '');
-        
-        // Check if booking is completed and not reviewed
+        const roomId = reviewCell.dataset.roomId;
+        const roomName = reviewCell.dataset.roomName;
         const statusCell = row.querySelector('.status-badge');
         const status = statusCell ? statusCell.innerText.trim().toLowerCase() : '';
         
-        if (status === 'completed') {
-            // Fetch if already reviewed
+        if (status === 'completed' && roomId) {
             try {
-                const response = await fetch('../ChongEeLynn/check_booking_review_status.php?booking_id=' + bookingId);
+                const response = await fetch(`${API_URL}?action=check_booking&booking_id=${bookingId}`);
                 const data = await response.json();
                 
                 if (data.reviewed) {
                     reviewCell.innerHTML = '<span class="reviewed-badge"><i class="fas fa-check-circle"></i> Reviewed</span>';
                 } else {
-                    reviewCell.innerHTML = '<button class="review-btn" onclick="openManualReviewPopup(' + bookingId + ', \'' + encodeURIComponent(row.cells[1]?.innerText || '') + '\')"><i class="fas fa-star"></i> Leave Review</button>';
+                    reviewCell.innerHTML = `<button class="review-btn" onclick="openManualReviewPopup(${bookingId}, ${roomId}, '${encodeURIComponent(roomName)}')"><i class="fas fa-star"></i> Leave Review</button>`;
                 }
             } catch (error) {
                 console.error('Error checking review status:', error);
@@ -788,8 +784,7 @@ async function loadReviewStatuses() {
 }
 
 // Manual review popup trigger
-function openManualReviewPopup(bookingId, roomName) {
-    // Create a simple review popup manually
+function openManualReviewPopup(bookingId, roomId, roomName) {
     const modal = document.createElement('div');
     modal.id = 'reviewModal';
     modal.className = 'review-modal';
@@ -828,42 +823,33 @@ function openManualReviewPopup(bookingId, roomName) {
             </div>
             <div class="review-modal-footer">
                 <button class="review-later-btn" onclick="closeAndSkip(${bookingId})">Later</button>
-                <button class="review-submit-btn" onclick="submitManualReview(${bookingId})">Submit Review & Earn Points</button>
+                <button class="review-submit-btn" onclick="submitManualReview(${bookingId}, ${roomId})">Submit Review & Earn Points</button>
             </div>
         </div>
     `;
     document.body.appendChild(modal);
     
-    // Star rating functionality
     const stars = modal.querySelectorAll('.star-rating i');
     stars.forEach(star => {
         star.addEventListener('click', function() {
             const rating = parseInt(this.dataset.rating);
             document.getElementById('reviewRating').value = rating;
-            
             stars.forEach((s, index) => {
-                if (index < rating) {
-                    s.className = 'fas fa-star';
-                } else {
-                    s.className = 'far fa-star';
-                }
+                s.className = index < rating ? 'fas fa-star' : 'far fa-star';
             });
         });
     });
     
-    // Close on background click
     modal.addEventListener('click', function(e) {
-        if (e.target === modal) {
-            modal.remove();
-        }
+        if (e.target === modal) modal.remove();
     });
 }
 
 function closeAndSkip(bookingId) {
-    fetch('../ChongEeLynn/skip_review.php', {
+    fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ booking_id: bookingId })
+        body: JSON.stringify({ action: 'skip_review', booking_id: bookingId })
     })
     .then(response => response.json())
     .then(data => {
@@ -871,19 +857,16 @@ function closeAndSkip(bookingId) {
             const modal = document.getElementById('reviewModal');
             if (modal) modal.remove();
             showToastMessage('You can review later from your bookings page.', 'info');
-            // Reload review status
             loadReviewStatuses();
         }
     })
     .catch(error => console.error('Error:', error));
 }
 
-function submitManualReview(bookingId) {
+function submitManualReview(bookingId, roomId) {
     const rating = document.getElementById('reviewRating').value;
     const comment = document.getElementById('reviewComment').value;
     
-    // Need to get room_id - you may need to pass this from your data
-    // For now, we'll fetch it
     if (rating == 0) {
         showToastMessage('Please select a rating!', 'error');
         return;
@@ -899,56 +882,47 @@ function submitManualReview(bookingId) {
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
     submitBtn.disabled = true;
     
-    // First get room_id for this booking
-    fetch(`../ChongEeLynn/get_booking_room.php?booking_id=${bookingId}`)
-        .then(res => res.json())
-        .then(roomData => {
-            if (roomData.room_id) {
-                return fetch('../ChongEeLynn/submit_review.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        booking_id: bookingId,
-                        room_id: roomData.room_id,
-                        rating: rating,
-                        comment: comment
-                    })
-                });
-            } else {
-                throw new Error('Could not find room for this booking');
-            }
+    fetch(API_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            action: 'submit_review',
+            booking_id: bookingId,
+            room_id: roomId,
+            rating: rating,
+            comment: comment
         })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                showToastMessage(data.message, 'success');
-                const modal = document.getElementById('reviewModal');
-                if (modal) modal.remove();
-                // Update points display
-                const pointsElement = document.querySelector('.stat-number');
-                if (pointsElement) {
-                    fetch('../ChongEeLynn/get_user_points.php')
-                        .then(res => res.json())
-                        .then(pointsData => {
-                            if (pointsData.points) {
-                                pointsElement.textContent = pointsData.points.toLocaleString();
-                            }
-                        });
-                }
-                // Reload review status
-                loadReviewStatuses();
-            } else {
-                showToastMessage(data.error, 'error');
-                submitBtn.innerHTML = originalText;
-                submitBtn.disabled = false;
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showToastMessage(data.message, 'success');
+            const modal = document.getElementById('reviewModal');
+            if (modal) modal.remove();
+            
+            const pointsElement = document.querySelector('.stat-number');
+            if (pointsElement) {
+                fetch(`${API_URL}?action=get_points`)
+                    .then(res => res.json())
+                    .then(pointsData => {
+                        if (pointsData.points) {
+                            pointsElement.textContent = pointsData.points.toLocaleString();
+                        }
+                    });
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            showToastMessage('Network error. Please try again.', 'error');
+            loadReviewStatuses();
+        } else {
+            showToastMessage(data.error, 'error');
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
-        });
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showToastMessage('Network error. Please try again.', 'error');
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
 }
 
 function showToastMessage(message, type = 'success') {
@@ -972,14 +946,12 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
         document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
         document.getElementById(`${tabId}-tab`).classList.add('active');
         
-        // If bookings tab is opened, load review statuses
         if (tabId === 'bookings') {
             loadReviewStatuses();
         }
     });
 });
 
-// If bookings tab is active by default, load review statuses
 if (document.getElementById('bookings-tab').classList.contains('active')) {
     loadReviewStatuses();
 }
