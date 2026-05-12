@@ -111,18 +111,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     elseif (!preg_match('/^[0-9+\-\s]+$/', $phone)) $errors['phone'] = 'Valid phone number';
     if (empty($country)) $errors['country'] = 'Select country';
 
-    // ========== 改进后的生日验证 ==========
+    //  Birthday validation (optional)
     if (!empty($birthday)) {
-        // 基本格式检查
         if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $birthday)) {
             $errors['birthday'] = 'Invalid date format.';
         } else {
             $parts = explode('-', $birthday);
-            // 使用 checkdate 验证真实日期
+            // User must be at least 18 years old, and birthday cannot be in the future
             if (!checkdate($parts[1], $parts[2], $parts[0])) {
                 $errors['birthday'] = 'Please enter a valid date.';
             } elseif (strtotime($birthday) > strtotime('today')) {
                 $errors['birthday'] = 'Birthday cannot be in the future.';
+            } elseif (strtotime($birthday) > strtotime('-18 years')) {
+                $errors['birthday'] = 'You must be at least 18 years old.';
             }
         }
     }
@@ -663,9 +664,12 @@ try {
                 <div class="two-col">
                     <div class="form-group">
                         <label>Birthday (Optional)</label>
-                        <!-- ✅ 关键修改：添加 max 属性禁止未来日期 -->
-                        <input type="date" name="birthday" value="<?php echo htmlspecialchars($user['birthday']); ?>" max="<?php echo date('Y-m-d'); ?>">
-                        <?php if (isset($errors['birthday'])): ?><div class="error-message"><?php echo $errors['birthday']; ?></div><?php endif; ?>
+                        <!-- max 属性限制为 18 年前的今天 -->
+                        <input type="date" name="birthday" value="<?php echo htmlspecialchars($user['birthday']); ?>" max="<?php echo date('Y-m-d', strtotime('-18 years')); ?>">
+                        <div class="info-note">You must be at least 18 years old to be eligible for birthday offers.</div>
+                        <?php if (isset($errors['birthday'])): ?>
+                            <div class="error-message"><?php echo $errors['birthday']; ?></div>
+                        <?php endif; ?>
                     </div>
                     <div class="form-group">
                         <label>Preferred Language</label>
@@ -740,6 +744,7 @@ try {
                         <th>Status</th>
                         <th>Points</th>
                         <th>Review</th>
+                    </tr>
                 </thead>
                 <tbody>
                     <?php if (!empty($all_bookings)): ?>
@@ -771,7 +776,7 @@ try {
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="6" class="empty-state">No bookings yet. <a href="../ChongEeLynn/accommodation.php" style="color: #D4AF37;">Explore our rooms</a></td>
+                            <td colspan="7" class="empty-state">No bookings yet. <a href="../ChongEeLynn/accommodation.php" style="color: #D4AF37;">Explore our rooms</a></td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
@@ -785,7 +790,6 @@ try {
 <script src="/Hotel-Booking-Web-System/ChongEeLynn/review_popup.js"></script>
 
 <script>
-
 // Function to check review status for each booking and show appropriate button
 async function loadReviewStatuses() {
     const bookingRows = document.querySelectorAll('#bookings-tab .bookings-table tbody tr');
@@ -977,19 +981,19 @@ function showToastMessage(message, type = 'success') {
 }
 
 // Load review statuses when bookings tab becomes active
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const tabId = btn.dataset.tab;
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            document.getElementById(`${tabId}-tab`).classList.add('active');
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        const tabId = btn.dataset.tab;
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+        document.getElementById(`${tabId}-tab`).classList.add('active');
         
         if (tabId === 'bookings') {
             loadReviewStatuses();
         }
-        });
     });
+});
 
 if (document.getElementById('bookings-tab').classList.contains('active')) {
     loadReviewStatuses();
