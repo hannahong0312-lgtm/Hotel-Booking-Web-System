@@ -1348,6 +1348,35 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
 if (document.getElementById('bookings-tab').classList.contains('active')) {
     loadReviewStatuses();
 }
+
+// Check for pending review on page load (auto-popup when admin marks checkout)
+function checkForPendingReview() {
+    console.log('Checking for pending review...');
+    fetch(`${API_URL}?action=check_pending`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('API Response:', data);
+            if (data.success && data.has_review) {
+                console.log('Pending review found! Showing popup...');
+                showReviewPopup(data.booking);
+            } else {
+                console.log('No pending review found');
+            }
+        })
+        .catch(error => {
+            console.error('Error checking review status:', error);
+        });
+}
+
+// Auto-check when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(checkForPendingReview, 500);
+});
 </script>
 
 <?php include '../Shared/footer.php'; ?>
