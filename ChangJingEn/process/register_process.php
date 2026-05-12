@@ -1,12 +1,6 @@
 <?php
 // register_process.php - Grand Hotel Melaka 
-use PHPMailer\PHPMailer\PHPMailer;
-use PHPMailer\PHPMailer\SMTP;
-use PHPMailer\PHPMailer\Exception;
-
-require_once __DIR__ . '/../src/PHPMailer.php';
-require_once __DIR__ . '/../src/SMTP.php';
-require_once __DIR__ . '/../src/Exception.php';
+require_once __DIR__ . '/../mail_functions.php';   
 require_once '../../Shared/config.php';
 
 if (session_status() === PHP_SESSION_NONE) {
@@ -149,42 +143,19 @@ if (!$stmt->execute()) {
 
 $new_user_id = $conn->insert_id;
 $stmt->close();
+$subject = "Your OTP for Grand Hotel Registration";
+$htmlBody = "
+    <h2>Welcome to Grand Hotel, $first_name!</h2>
+    <p>Your One-Time Password (OTP) for email verification is:</p>
+    <h1 style='background:#f4f4f4; padding:10px; text-align:center; letter-spacing:5px;'>$otp_code</h1>
+    <p>This OTP is valid for <strong>10 minutes</strong>. Please enter it on the registration page to complete your account activation.</p>
+    <p>If you did not register, please ignore this email.</p>
+";
+$altBody = "Your OTP code is: $otp_code. Valid for 10 minutes.";
 
-// Send OTP email
-function sendOtpEmail($toEmail, $firstName, $otp) {
-    $mail = new PHPMailer(true);
-    try {
-        // SMTP 配置（使用 Gmail）
-        $mail->isSMTP();
-        $mail->Host       = 'smtp.gmail.com';
-        $mail->SMTPAuth   = true;
-        $mail->Username   = 'info.grandhotelmelaka@gmail.com';
-        $mail->Password   = 'vwaf jose etky kzpt';   // 应用专用密码
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port       = 587;
-        
-        $mail->setFrom('no-reply@grandhotel.com', 'Grand Hotel Melaka');
-        $mail->addAddress($toEmail, $firstName);
-        $mail->isHTML(true);
-        $mail->Subject = 'Your OTP for Grand Hotel Registration';
-        $mail->Body    = "
-            <h2>Welcome to Grand Hotel, $firstName!</h2>
-            <p>Your One-Time Password (OTP) for email verification is:</p>
-            <h1 style='background:#f4f4f4; padding:10px; text-align:center; letter-spacing:5px;'>$otp</h1>
-            <p>This OTP is valid for <strong>10 minutes</strong>. Please enter it on the registration page to complete your account activation.</p>
-            <p>If you did not register, please ignore this email.</p>
-        ";
-        $mail->AltBody = "Your OTP code is: $otp. Valid for 10 minutes.";
-        
-        $mail->send();
-        return true;
-    } catch (Exception $e) {
-        error_log("Mailer Error: " . $mail->ErrorInfo);
-        return false;
-    }
-}
+$mailSent = sendCustomEmail($email, $first_name, $subject, $htmlBody, $altBody);
 
-if (sendOtpEmail($email, $first_name, $otp_code)) {
+if ($mailSent) {
     $_SESSION['pending_user_id'] = $new_user_id;
     $_SESSION['pending_user_email'] = $email;
     $_SESSION['reg_success'] = "A 6-digit OTP has been sent to your email. Please enter it below to verify your account.";
