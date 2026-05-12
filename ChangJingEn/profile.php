@@ -1,6 +1,4 @@
 <?php
-// profile.php - Four Tabs (Account, Security, Points Rewards, Recent Bookings)
-// 统一使用 subscribe 字段
 require_once '../Shared/header.php';
 
 if (!$is_logged_in || $user_role !== 'customer') {
@@ -10,9 +8,9 @@ if (!$is_logged_in || $user_role !== 'customer') {
 $user_id = $_SESSION['user_id'];
 $errors = [];
 $success = '';
-$active_tab = 'account'; // 默认显示 Account Details 标签页
+$active_tab = 'account'; 
 
-// 获取用户基本信息（使用 subscribe 字段）
+// Fetch user info
 $stmt = $conn->prepare("SELECT first_name, last_name, email, phone, country, points, created_at, 
                                birthday, language, subscribe FROM users WHERE id = ?");
 $stmt->bind_param("i", $user_id);
@@ -27,7 +25,7 @@ if (!isset($user['language'])) $user['language'] = 'en';
 if (!isset($user['subscribe'])) $user['subscribe'] = 1;
 $user['points'] = $user['points'] ?? 0;
 
-// 统计预订数量（房间+餐饮）
+// Total bookings and points earned
 $total_bookings = 0;
 $total_points_earned = 0;
 try {
@@ -46,8 +44,6 @@ try {
     $stmt->execute();
     $total_bookings += $stmt->get_result()->fetch_assoc()['count'];
     $stmt->close();
-    
-    // 从 payment 表获取生命周期总赚取积分
     $points_earned_query = "SELECT COALESCE(SUM(points_earned), 0) as total_earned 
                             FROM payment WHERE user_id = ?";
     $stmt = $conn->prepare($points_earned_query);
@@ -61,7 +57,43 @@ try {
 
 $join_date = date('F Y', strtotime($user['created_at'] ?? 'now'));
 
-// 处理个人信息更新（使用 subscribe）
+// Country list for dropdown
+function getCountryList() {
+    $jsonFile = __DIR__ . '/countries.json';
+    if (file_exists($jsonFile)) {
+        $json = file_get_contents($jsonFile);
+        $data = json_decode($json, true);
+        if (is_array($data) && !empty($data)) {
+            $countries = [];
+            foreach ($data as $item) {
+                if (is_string($item)) $countries[] = $item;
+                elseif (isset($item['name']['common'])) $countries[] = $item['name']['common'];
+                elseif (isset($item['common'])) $countries[] = $item['common'];
+            }
+            if (!empty($countries)) {
+                sort($countries);
+                return $countries;
+            }
+        }
+    }
+    // 回退硬编码
+    return [
+        'Malaysia', 'Singapore', 'Thailand', 'Indonesia', 'Vietnam', 'Philippines',
+        'United States', 'United Kingdom', 'Australia', 'China', 'Japan', 'South Korea',
+        'India', 'Germany', 'France', 'Italy', 'Canada', 'Other'
+    ];
+}
+$countries = getCountryList();
+
+// Language options
+$languages = [
+    'en' => 'English',
+    'zh' => '中文',
+    'ms' => 'Bahasa Malaysia',
+    'ja' => '日本語'
+];
+
+// Update Profile
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     $first_name = cleanInput($_POST['first_name'] ?? '');
     $last_name  = cleanInput($_POST['last_name'] ?? '');
@@ -78,7 +110,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     if (empty($phone)) $errors['phone'] = 'Required';
     elseif (!preg_match('/^[0-9+\-\s]+$/', $phone)) $errors['phone'] = 'Valid phone number';
     if (empty($country)) $errors['country'] = 'Select country';
-    if ($birthday && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $birthday)) $errors['birthday'] = 'Invalid date';
+
+    // ========== 改进后的生日验证 ==========
+    if (!empty($birthday)) {
+        // 基本格式检查
+        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $birthday)) {
+            $errors['birthday'] = 'Invalid date format.';
+        } else {
+            $parts = explode('-', $birthday);
+            // 使用 checkdate 验证真实日期
+            if (!checkdate($parts[1], $parts[2], $parts[0])) {
+                $errors['birthday'] = 'Please enter a valid date.';
+            } elseif (strtotime($birthday) > strtotime('today')) {
+                $errors['birthday'] = 'Birthday cannot be in the future.';
+            }
+        }
+    }
 
     if (empty($errors)) {
         $updateStmt = $conn->prepare("UPDATE users SET first_name=?, last_name=?, phone=?, country=?, birthday=?, language=?, subscribe=?, updated_at=NOW() WHERE id=?");
@@ -96,13 +143,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
         } else $errors['general'] = 'Update failed.';
         $updateStmt->close();
     }
-    // 保持当前标签页为 account
     $active_tab = 'account';
 }
 
-// 修改密码（已更新规则，与注册页面一致：8-16字符，含大小写、数字或特殊字符）
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
-    $active_tab = 'security'; // 无论成功或失败，都停留在 Security 标签页
+    $active_tab = 'security';
     $current = $_POST['current_password'] ?? '';
     $new     = $_POST['new_password'] ?? '';
     $confirm = $_POST['confirm_password'] ?? '';
@@ -113,49 +158,54 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
     $pwdResult = $pwdStmt->get_result()->fetch_assoc();
     $pwdStmt->close();
 
-    if (!$pwdResult || !password_verify($current, $pwdResult['password']))
+    if (!$pwdResult || !password_verify($current, $pwdResult['password'])) {
         $errors['current_password'] = 'Current password is incorrect.';
-    elseif (strlen($new) < 8)
+    } 
+    elseif (password_verify($new, $pwdResult['password'])) {
+        $errors['new_password'] = 'New password cannot be the same as current password.';
+    }
+    elseif (strlen($new) < 8) {
         $errors['new_password'] = 'Password must be at least 8 characters.';
-    elseif (strlen($new) > 16)
+    }
+    elseif (strlen($new) > 16) {
         $errors['new_password'] = 'Password must not exceed 16 characters.';
-    elseif (!preg_match('/[A-Z]/', $new))
+    }
+    elseif (!preg_match('/[A-Z]/', $new)) {
         $errors['new_password'] = 'Password must contain at least one uppercase letter.';
-    elseif (!preg_match('/[a-z]/', $new))
+    }
+    elseif (!preg_match('/[a-z]/', $new)) {
         $errors['new_password'] = 'Password must contain at least one lowercase letter.';
-    elseif (!preg_match('/[0-9!@#$%^&*()_+\-=\[\]{};:\'"\\|,.<>\/?]/', $new))
+    }
+    elseif (!preg_match('/[0-9!@#$%^&*()_+\-=\[\]{};:\'"\\|,.<>\/?]/', $new)) {
         $errors['new_password'] = 'Password must contain at least one number or special character.';
-    elseif ($new !== $confirm)
+    }
+    elseif ($new !== $confirm) {
         $errors['confirm_password'] = 'Passwords do not match.';
+    }
     else {
         $hashed = password_hash($new, PASSWORD_DEFAULT);
         $update = $conn->prepare("UPDATE users SET password=?, updated_at=NOW() WHERE id=?");
         $update->bind_param("si", $hashed, $user_id);
         if ($update->execute()) {
-            // 修改成功，设置成功消息并准备跳转
             $success = 'Password changed successfully. You will be redirected to the login page in 3 seconds.';
-            // 可选：立即销毁会话，但保留消息显示
             session_destroy();
-            // 使用 JavaScript 延迟跳转
             echo '<script>
                     setTimeout(function() {
                         window.location.href = "login.php";
                     }, 3000);
                   </script>';
-            // 停止继续输出页面内容（可选，但为了显示消息，让页面继续渲染）
-            // 注意：不能在此 exit，否则消息不会显示
-        } else $errors['general'] = 'Failed to change password.';
+        } else {
+            $errors['general'] = 'Failed to change password.';
+        }
         $update->close();
     }
 }
 
-// 获取所有预订（房间+餐饮）用于表格 - 修复房间名称查询，并关联 payment 获取 points_earned
 $all_bookings = [];
 try {
-    // 房间预订：通过 JOIN rooms 获取 room name，LEFT JOIN payment 获取 points_earned
     $room_query = "SELECT 'Room' as type, r.name as name, 
                           b.check_in as start_date, b.check_out as end_date, b.guests, 
-                          b.status, p.points_earned, b.created_at, b.id as booking_id, b.room_id
+                          b.status, p.points_earned, b.created_at
                    FROM book b
                    JOIN rooms r ON b.room_id = r.id
                    LEFT JOIN payment p ON b.payment_id = p.id
@@ -167,9 +217,8 @@ try {
     $room_bookings = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
     
-    // 餐饮预订（没有积分赚取，直接显示 NULL）
     $dining_query = "SELECT 'Dining' as type, name, date as start_date, 
-                            NULL as end_date, guests, status, NULL as points_earned, created_at, id as booking_id, NULL as room_id
+                            NULL as end_date, guests, status, NULL as points_earned, created_at
                      FROM dining WHERE email = ? AND status != 'cancelled'
                      ORDER BY created_at DESC LIMIT 10";
     $stmt = $conn->prepare($dining_query);
@@ -185,18 +234,6 @@ try {
 } catch (mysqli_sql_exception $e) {
     error_log("Booking fetch error: " . $e->getMessage());
 }
-
-$countries = [
-    'Malaysia', 'Singapore', 'Thailand', 'Indonesia', 'Vietnam', 'Philippines',
-    'United States', 'United Kingdom', 'Australia', 'China', 'Japan', 'South Korea',
-    'India', 'Germany', 'France', 'Italy', 'Canada', 'Other'
-];
-$languages = [
-    'en' => 'English',
-    'zh' => '中文',
-    'ms' => 'Bahasa Malaysia',
-    'ja' => '日本語'
-];
 ?>
 
 <!DOCTYPE html>
@@ -212,7 +249,6 @@ $languages = [
     <link rel="stylesheet" href="/Hotel-Booking-Web-System/ChongEeLynn/css/review_popup.css">
     
     <style>
-        /* 所有样式限定在 .profile-container 内，避免影响 footer */
         .header {
             background: rgba(26, 26, 26, 0.95);
             padding: 0.8rem 0;
@@ -551,7 +587,6 @@ $languages = [
 <body>
 
 <div class="profile-container">
-    <!-- 顶部欢迎 + 统计 -->
     <div class="hero-section">
         <div class="hero-text">
             <h1>Hello, <?php echo htmlspecialchars($user['first_name']); ?>!</h1>
@@ -576,7 +611,7 @@ $languages = [
         <div class="alert-danger"><?php echo htmlspecialchars($errors['general']); ?></div>
     <?php endif; ?>
 
-    <!-- 四个标签页 -->
+    <!-- Four Tabs -->
     <div class="tabs">
         <button class="tab-btn <?php echo $active_tab === 'account' ? 'active' : ''; ?>" data-tab="account"><i class="fas fa-user-circle"></i> Account Details</button>
         <button class="tab-btn <?php echo $active_tab === 'security' ? 'active' : ''; ?>" data-tab="security"><i class="fas fa-lock"></i> Security</button>
@@ -618,6 +653,9 @@ $languages = [
                             <?php foreach ($countries as $c): ?>
                                 <option value="<?php echo $c; ?>" <?php echo $user['country'] === $c ? 'selected' : ''; ?>><?php echo $c; ?></option>
                             <?php endforeach; ?>
+                            <?php if (!empty($user['country']) && !in_array($user['country'], $countries)): ?>
+                                <option value="<?php echo htmlspecialchars($user['country']); ?>" selected><?php echo htmlspecialchars($user['country']); ?></option>
+                            <?php endif; ?>
                         </select>
                         <?php if (isset($errors['country'])): ?><div class="error-message"><?php echo $errors['country']; ?></div><?php endif; ?>
                     </div>
@@ -625,7 +663,8 @@ $languages = [
                 <div class="two-col">
                     <div class="form-group">
                         <label>Birthday (Optional)</label>
-                        <input type="date" name="birthday" value="<?php echo htmlspecialchars($user['birthday']); ?>">
+                        <!-- ✅ 关键修改：添加 max 属性禁止未来日期 -->
+                        <input type="date" name="birthday" value="<?php echo htmlspecialchars($user['birthday']); ?>" max="<?php echo date('Y-m-d'); ?>">
                         <?php if (isset($errors['birthday'])): ?><div class="error-message"><?php echo $errors['birthday']; ?></div><?php endif; ?>
                     </div>
                     <div class="form-group">
@@ -688,7 +727,7 @@ $languages = [
         </div>
     </div>
 
-    <!-- 4. Recent Bookings with Review Button -->
+    <!-- 4. Recent Bookings -->
     <div class="tab-content <?php echo $active_tab === 'bookings' ? 'active' : ''; ?>" id="bookings-tab">
         <div class="table-wrapper">
             <table class="bookings-table">
@@ -701,7 +740,7 @@ $languages = [
                         <th>Status</th>
                         <th>Points</th>
                         <th>Review</th>
-                    </thead>
+                </thead>
                 <tbody>
                     <?php if (!empty($all_bookings)): ?>
                         <?php foreach ($all_bookings as $b): ?>
@@ -732,11 +771,11 @@ $languages = [
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
-                            <td colspan="7" class="empty-state">No bookings yet. <a href="/Hotel-Booking-Web-System/ChongEeLynn/accommodation.php" style="color: #D4AF37;">Explore our rooms</a></td>
+                            <td colspan="6" class="empty-state">No bookings yet. <a href="../ChongEeLynn/accommodation.php" style="color: #D4AF37;">Explore our rooms</a></td>
                         </tr>
                     <?php endif; ?>
                 </tbody>
-             </table>
+            </table>
         </div>
     </div>
 </div>
@@ -938,19 +977,19 @@ function showToastMessage(message, type = 'success') {
 }
 
 // Load review statuses when bookings tab becomes active
-document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        const tabId = btn.dataset.tab;
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-        document.getElementById(`${tabId}-tab`).classList.add('active');
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tabId = btn.dataset.tab;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(`${tabId}-tab`).classList.add('active');
         
         if (tabId === 'bookings') {
             loadReviewStatuses();
         }
+        });
     });
-});
 
 if (document.getElementById('bookings-tab').classList.contains('active')) {
     loadReviewStatuses();
