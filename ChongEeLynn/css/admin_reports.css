@@ -113,6 +113,119 @@ body {
     align-items: center;
 }
 
+/* Excel Export Section Styles */
+.export-section {
+    background: linear-gradient(135deg, var(--bg-body) 0%, var(--bg-sidebar) 100%);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 30px;
+    border: 2px solid var(--gold);
+    box-shadow: var(--shadow-md);
+}
+
+.export-header {
+    margin-bottom: 15px;
+}
+
+.export-header h3 {
+    color: var(--gold);
+    font-size: 18px;
+    margin-bottom: 5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.export-subtitle {
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.export-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.export-form {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    width: 100%;
+}
+
+.export-btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-body);
+    color: var(--text-primary);
+    border: 1px solid var(--border-light);
+}
+
+.export-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.export-full {
+    background: var(--gold);
+    color: #1e1e1e;
+    border: none;
+}
+
+.export-full:hover {
+    background: var(--gold-hover);
+}
+
+.export-summary {
+    background: var(--success);
+    color: white;
+    border: none;
+}
+
+.export-summary:hover {
+    background: #219a52;
+}
+
+.export-daily {
+    background: var(--info);
+    color: white;
+    border: none;
+}
+
+.export-daily:hover {
+    background: #2980b9;
+}
+
+.export-rooms {
+    background: var(--warning);
+    color: #1e1e1e;
+    border: none;
+}
+
+.export-rooms:hover {
+    background: #e67e22;
+}
+
+.export-categories {
+    background: #9b59b6;
+    color: white;
+    border: none;
+}
+
+.export-categories:hover {
+    background: #8e44ad;
+}
+
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -283,5 +396,14 @@ body {
     
     .filter-form select, .filter-form input, .btn-apply {
         width: 100%;
+    }
+    
+    .export-buttons {
+        flex-direction: column;
+    }
+    
+    .export-btn {
+        width: 100%;
+        justify-content: center;
     }
 }

@@ -1,6 +1,9 @@
 <?php
 // admin_reports.php - Grand Hotel Melaka
-require_once __DIR__ . '/../ChangJingEn/admin_header.php';
+
+// ========== CHECK FOR EXPORT FIRST - BEFORE ANY OUTPUT ==========
+// Start output buffering to prevent any accidental output
+ob_start();
 
 // Set timezone to Malaysia
 date_default_timezone_set('Asia/Kuala_Lumpur');
@@ -27,6 +30,9 @@ if ($period === 'custom' && isset($_GET['start_date']) && isset($_GET['end_date'
     $end_date = date('Y-12-31');
 }
 
+// Now include the database connection (but NOT the full admin_header)
+require_once __DIR__ . '/../Shared/config.php';
+
 // Function to get revenue data from book table
 function getRevenueData($conn, $start_date, $end_date) {
     $sql = "SELECT 
@@ -40,23 +46,6 @@ function getRevenueData($conn, $start_date, $end_date) {
             AND created_at BETWEEN '$start_date' AND '$end_date 23:59:59'";
     $result = $conn->query($sql);
     return $result->fetch_assoc();
-}
-
-// Function to get booking status breakdown
-function getBookingStatus($conn, $start_date, $end_date) {
-    $sql = "SELECT 
-                status,
-                COUNT(*) as count,
-                SUM(grand_total) as revenue
-            FROM book 
-            WHERE created_at BETWEEN '$start_date' AND '$end_date 23:59:59'
-            GROUP BY status";
-    $result = $conn->query($sql);
-    $data = [];
-    while ($row = $result->fetch_assoc()) {
-        $data[$row['status']] = ['count' => $row['count'], 'revenue' => $row['revenue']];
-    }
-    return $data;
 }
 
 // Function to get room category performance
@@ -107,23 +96,6 @@ function getAverageRating($conn, $start_date, $end_date) {
     return $result->fetch_assoc();
 }
 
-// Function to get rating distribution
-function getRatingDistribution($conn, $start_date, $end_date) {
-    $sql = "SELECT 
-                r_rating,
-                COUNT(*) as count
-            FROM review 
-            WHERE created_at BETWEEN '$start_date' AND '$end_date 23:59:59'
-            GROUP BY r_rating
-            ORDER BY r_rating DESC";
-    $result = $conn->query($sql);
-    $data = [];
-    while ($row = $result->fetch_assoc()) {
-        $data[$row['r_rating'] . ' Star'] = $row['count'];
-    }
-    return $data;
-}
-
 // Function to get daily revenue for chart
 function getDailyRevenue($conn, $start_date, $end_date) {
     $sql = "SELECT 
@@ -165,45 +137,167 @@ function getTopRooms($conn, $start_date, $end_date) {
     return $data;
 }
 
-// Function to get offer usage
-function getOfferUsage($conn, $start_date, $end_date) {
-    // Note: Assuming offers are linked via booking_ref or similar
-    // Adjust this query based on how offers are tracked in your system
-    $sql = "SELECT 
-                COUNT(*) as total_offers_used,
-                AVG(discount_percentage) as avg_discount
-            FROM hotel_offers 
-            WHERE is_active = 1";
-    $result = $conn->query($sql);
-    return $result->fetch_assoc();
+// Calculate occupancy rate function
+function getOccupancyRate($conn, $start_date, $end_date, $total_rooms = 9) {
+    $booked_nights = 0;
+    $occupancy_sql = "SELECT COALESCE(SUM(DATEDIFF(check_out, check_in)), 0) as total_nights 
+                      FROM book 
+                      WHERE status != 'cancelled'
+                      AND check_in <= '$end_date' 
+                      AND check_out >= '$start_date'";
+    $occupancy_result = $conn->query($occupancy_sql);
+    if ($occupancy_result && $row = $occupancy_result->fetch_assoc()) {
+        $booked_nights = $row['total_nights'] ?? 0;
+    }
+    $total_days = max(1, (strtotime($end_date) - strtotime($start_date)) / 86400);
+    $total_possible_nights = $total_rooms * $total_days;
+    return $total_possible_nights > 0 ? ($booked_nights / $total_possible_nights) * 100 : 0;
 }
 
-// Fetch all data
+// ========== FETCH ALL DATA FIRST ==========
 $revenue_data = getRevenueData($conn, $start_date, $end_date);
-$booking_status = getBookingStatus($conn, $start_date, $end_date);
 $room_performance = getRoomCategoryPerformance($conn, $start_date, $end_date);
 $new_users = getNewUsersCount($conn, $start_date, $end_date);
 $total_users = getTotalUsers($conn);
 $rating_data = getAverageRating($conn, $start_date, $end_date);
-$rating_distribution = getRatingDistribution($conn, $start_date, $end_date);
 $daily_revenue = getDailyRevenue($conn, $start_date, $end_date);
 $top_rooms = getTopRooms($conn, $start_date, $end_date);
-$offer_stats = getOfferUsage($conn, $start_date, $end_date);
+$occupancy_rate = getOccupancyRate($conn, $start_date, $end_date);
 
-// Calculate occupancy rate (assuming total rooms = 20, adjust as needed)
-$total_rooms = 9;
-$booked_nights = 0;
-$occupancy_sql = "SELECT SUM(DATEDIFF(check_out, check_in)) as total_nights 
-                  FROM book 
-                  WHERE status != 'cancelled'
-                  AND check_in <= '$end_date' 
-                  AND check_out >= '$start_date'";
-$occupancy_result = $conn->query($occupancy_sql);
-if ($occupancy_result && $row = $occupancy_result->fetch_assoc()) {
-    $booked_nights = $row['total_nights'] ?? 0;
+// ========== EXCEL EXPORT HANDLER ==========
+if (isset($_GET['export_excel']) && $_GET['export_excel'] == '1') {
+    // Clear any output buffers
+    while (ob_get_level()) {
+        ob_end_clean();
+    }
+    
+    $export_type = $_GET['export_type'] ?? 'full';
+    
+    if ($export_type == 'summary') {
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment; filename="hotel_report_summary_' . date('Y-m-d') . '.xls"');
+        
+        echo "Metric\tValue\n";
+        echo "Period\t" . ucfirst($period) . " (" . date('d M Y', strtotime($start_date)) . " - " . date('d M Y', strtotime($end_date)) . ")\n";
+        echo "Total Revenue\tRM " . number_format($revenue_data['total_revenue'] ?? 0, 2) . "\n";
+        echo "Total Bookings\t" . ($revenue_data['total_bookings'] ?? 0) . "\n";
+        echo "Average Booking Value\tRM " . number_format($revenue_data['avg_booking_value'] ?? 0, 2) . "\n";
+        echo "Occupancy Rate\t" . number_format($occupancy_rate, 1) . "%\n";
+        echo "New Users\t" . ($new_users ?? 0) . "\n";
+        echo "Total Active Users\t" . ($total_users ?? 0) . "\n";
+        echo "Average Rating\t" . number_format($rating_data['avg_rating'] ?? 0, 1) . " / 5\n";
+        echo "Total Reviews\t" . ($rating_data['total_reviews'] ?? 0) . "\n";
+        exit();
+    } 
+    elseif ($export_type == 'daily') {
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment; filename="daily_breakdown_' . date('Y-m-d') . '.xls"');
+        
+        echo "Date\tBookings\tRevenue (RM)\tAverage Value (RM)\n";
+        foreach ($daily_revenue as $day) {
+            $avg = $day['bookings'] > 0 ? number_format($day['revenue'] / $day['bookings'], 2) : '0.00';
+            echo $day['date'] . "\t" . $day['bookings'] . "\t" . number_format($day['revenue'], 2) . "\t" . $avg . "\n";
+        }
+        exit();
+    }
+    elseif ($export_type == 'rooms') {
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment; filename="top_rooms_' . date('Y-m-d') . '.xls"');
+        
+        echo "Room Name\tCategory\tBookings\tRevenue (RM)\n";
+        foreach ($top_rooms as $room) {
+            echo $room['name'] . "\t" . ucfirst($room['category']) . "\t" . $room['bookings_count'] . "\t" . number_format($room['revenue'], 2) . "\n";
+        }
+        exit();
+    }
+    elseif ($export_type == 'categories') {
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment; filename="room_category_performance_' . date('Y-m-d') . '.xls"');
+        
+        echo "Category\tBookings\tRevenue (RM)\tAverage Per Booking (RM)\n";
+        foreach ($room_performance as $room) {
+            echo ucfirst($room['category']) . "\t" . $room['bookings_count'] . "\t" . number_format($room['revenue'], 2) . "\t" . number_format($room['avg_value'], 2) . "\n";
+        }
+        exit();
+    }
+    elseif ($export_type == 'full') {
+        header('Content-Type: application/vnd.ms-excel');
+        header('Content-Disposition: attachment; filename="full_hotel_report_' . date('Y-m-d') . '.xls"');
+        
+        echo "Grand Hotel Melaka - Full Report\n";
+        echo "Period: " . date('d M Y', strtotime($start_date)) . " - " . date('d M Y', strtotime($end_date)) . "\n\n";
+        
+        echo "SUMMARY\n";
+        echo "Metric\tValue\n";
+        echo "Total Revenue\tRM " . number_format($revenue_data['total_revenue'] ?? 0, 2) . "\n";
+        echo "Total Bookings\t" . ($revenue_data['total_bookings'] ?? 0) . "\n";
+        echo "Occupancy Rate\t" . number_format($occupancy_rate, 1) . "%\n";
+        echo "New Users\t" . ($new_users ?? 0) . "\n";
+        echo "Average Rating\t" . number_format($rating_data['avg_rating'] ?? 0, 1) . " / 5\n\n";
+        
+        echo "DAILY BREAKDOWN\n";
+        echo "Date\tBookings\tRevenue (RM)\tAverage Value (RM)\n";
+        foreach ($daily_revenue as $day) {
+            $avg = $day['bookings'] > 0 ? number_format($day['revenue'] / $day['bookings'], 2) : '0.00';
+            echo $day['date'] . "\t" . $day['bookings'] . "\t" . number_format($day['revenue'], 2) . "\t" . $avg . "\n";
+        }
+        echo "\n";
+        
+        echo "TOP PERFORMING ROOMS\n";
+        echo "Room Name\tCategory\tBookings\tRevenue (RM)\n";
+        foreach ($top_rooms as $room) {
+            echo $room['name'] . "\t" . ucfirst($room['category']) . "\t" . $room['bookings_count'] . "\t" . number_format($room['revenue'], 2) . "\n";
+        }
+        echo "\n";
+        
+        echo "ROOM CATEGORY PERFORMANCE\n";
+        echo "Category\tBookings\tRevenue (RM)\tAverage Per Booking (RM)\n";
+        foreach ($room_performance as $room) {
+            echo ucfirst($room['category']) . "\t" . $room['bookings_count'] . "\t" . number_format($room['revenue'], 2) . "\t" . number_format($room['avg_value'], 2) . "\n";
+        }
+        exit();
+    }
 }
-$total_possible_nights = $total_rooms * (strtotime($end_date) - strtotime($start_date)) / 86400;
-$occupancy_rate = $total_possible_nights > 0 ? ($booked_nights / $total_possible_nights) * 100 : 0;
+
+// ========== IF NOT EXPORTING, INCLUDE THE FULL HEADER AND DISPLAY PAGE ==========
+// Now include the full admin header for normal page display
+require_once __DIR__ . '/../ChangJingEn/admin_header.php';
+
+// Get booking status and rating distribution (additional data for charts)
+function getBookingStatus($conn, $start_date, $end_date) {
+    $sql = "SELECT 
+                status,
+                COUNT(*) as count,
+                SUM(grand_total) as revenue
+            FROM book 
+            WHERE created_at BETWEEN '$start_date' AND '$end_date 23:59:59'
+            GROUP BY status";
+    $result = $conn->query($sql);
+    $data = [];
+    while ($row = $result->fetch_assoc()) {
+        $data[$row['status']] = ['count' => $row['count'], 'revenue' => $row['revenue']];
+    }
+    return $data;
+}
+
+function getRatingDistribution($conn, $start_date, $end_date) {
+    $sql = "SELECT 
+                r_rating,
+                COUNT(*) as count
+            FROM review 
+            WHERE created_at BETWEEN '$start_date' AND '$end_date 23:59:59'
+            GROUP BY r_rating
+            ORDER BY r_rating DESC";
+    $result = $conn->query($sql);
+    $data = [];
+    while ($row = $result->fetch_assoc()) {
+        $data[$row['r_rating'] . ' Star'] = $row['count'];
+    }
+    return $data;
+}
+
+$booking_status = getBookingStatus($conn, $start_date, $end_date);
+$rating_distribution = getRatingDistribution($conn, $start_date, $end_date);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -240,6 +334,38 @@ $occupancy_rate = $total_possible_nights > 0 ? ($booked_nights / $total_possible
                     </div>
                 </form>
             </div>
+        </div>
+    </div>
+
+    <!-- Excel Export Section -->
+    <div class="export-section">
+        <div class="export-header">
+            <h3>📊 Export Report</h3>
+            <p class="export-subtitle">Download report data in Excel format</p>
+        </div>
+        <div class="export-buttons">
+            <form method="GET" action="" class="export-form">
+                <input type="hidden" name="export_excel" value="1">
+                <input type="hidden" name="period" value="<?= $period ?>">
+                <input type="hidden" name="start_date" value="<?= $start_date ?>">
+                <input type="hidden" name="end_date" value="<?= $end_date ?>">
+                
+                <button type="submit" name="export_type" value="full" class="export-btn export-full">
+                    📋 Full Report
+                </button>
+                <button type="submit" name="export_type" value="summary" class="export-btn export-summary">
+                    📊 Summary
+                </button>
+                <button type="submit" name="export_type" value="daily" class="export-btn export-daily">
+                    📅 Daily Breakdown
+                </button>
+                <button type="submit" name="export_type" value="rooms" class="export-btn export-rooms">
+                    🏨 Top Rooms
+                </button>
+                <button type="submit" name="export_type" value="categories" class="export-btn export-categories">
+                    📑 Room Categories
+                </button>
+            </form>
         </div>
     </div>
 
@@ -420,12 +546,7 @@ new Chart(revenueCtx, {
     },
     options: {
         responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                labels: { color: getComputedStyle(document.documentElement).getPropertyValue('--text-primary') }
-            }
-        }
+        maintainAspectRatio: false
     }
 });
 
@@ -464,12 +585,7 @@ new Chart(roomCtx, {
     },
     options: {
         responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                labels: { color: getComputedStyle(document.documentElement).getPropertyValue('--text-primary') }
-            }
-        }
+        maintainAspectRatio: false
     }
 });
 
@@ -490,11 +606,6 @@ new Chart(ratingCtx, {
     options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                labels: { color: getComputedStyle(document.documentElement).getPropertyValue('--text-primary') }
-            }
-        },
         scales: {
             y: {
                 beginAtZero: true,

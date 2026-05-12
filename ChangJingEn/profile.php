@@ -1,4 +1,6 @@
 <?php
+// profile.php - Four Tabs (Account, Security, Points Rewards, Recent Bookings)
+// 统一使用 subscribe 字段
 require_once '../Shared/header.php';
 
 if (!$is_logged_in || $user_role !== 'customer') {
@@ -8,9 +10,9 @@ if (!$is_logged_in || $user_role !== 'customer') {
 $user_id = $_SESSION['user_id'];
 $errors = [];
 $success = '';
-$active_tab = 'account'; 
+$active_tab = 'account'; // 默认显示 Account Details 标签页
 
-// Fetch user info
+// 获取用户基本信息（使用 subscribe 字段）
 $stmt = $conn->prepare("SELECT first_name, last_name, email, phone, country, points, created_at, 
                                birthday, language, subscribe FROM users WHERE id = ?");
 $stmt->bind_param("i", $user_id);
@@ -25,7 +27,7 @@ if (!isset($user['language'])) $user['language'] = 'en';
 if (!isset($user['subscribe'])) $user['subscribe'] = 1;
 $user['points'] = $user['points'] ?? 0;
 
-// Total bookings and points earned
+// 统计预订数量（房间+餐饮）
 $total_bookings = 0;
 $total_points_earned = 0;
 try {
@@ -44,6 +46,8 @@ try {
     $stmt->execute();
     $total_bookings += $stmt->get_result()->fetch_assoc()['count'];
     $stmt->close();
+    
+    // 从 payment 表获取生命周期总赚取积分
     $points_earned_query = "SELECT COALESCE(SUM(points_earned), 0) as total_earned 
                             FROM payment WHERE user_id = ?";
     $stmt = $conn->prepare($points_earned_query);
@@ -57,43 +61,7 @@ try {
 
 $join_date = date('F Y', strtotime($user['created_at'] ?? 'now'));
 
-// Country list for dropdown
-function getCountryList() {
-    $jsonFile = __DIR__ . '/countries.json';
-    if (file_exists($jsonFile)) {
-        $json = file_get_contents($jsonFile);
-        $data = json_decode($json, true);
-        if (is_array($data) && !empty($data)) {
-            $countries = [];
-            foreach ($data as $item) {
-                if (is_string($item)) $countries[] = $item;
-                elseif (isset($item['name']['common'])) $countries[] = $item['name']['common'];
-                elseif (isset($item['common'])) $countries[] = $item['common'];
-            }
-            if (!empty($countries)) {
-                sort($countries);
-                return $countries;
-            }
-        }
-    }
-    // 回退硬编码
-    return [
-        'Malaysia', 'Singapore', 'Thailand', 'Indonesia', 'Vietnam', 'Philippines',
-        'United States', 'United Kingdom', 'Australia', 'China', 'Japan', 'South Korea',
-        'India', 'Germany', 'France', 'Italy', 'Canada', 'Other'
-    ];
-}
-$countries = getCountryList();
-
-// Language options
-$languages = [
-    'en' => 'English',
-    'zh' => '中文',
-    'ms' => 'Bahasa Malaysia',
-    'ja' => '日本語'
-];
-
-// Update Profile
+// 处理个人信息更新（使用 subscribe）
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     $first_name = cleanInput($_POST['first_name'] ?? '');
     $last_name  = cleanInput($_POST['last_name'] ?? '');
@@ -110,6 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     if (empty($phone)) $errors['phone'] = 'Required';
     elseif (!preg_match('/^[0-9+\-\s]+$/', $phone)) $errors['phone'] = 'Valid phone number';
     if (empty($country)) $errors['country'] = 'Select country';
+<<<<<<< HEAD
 
     //  Birthday validation (optional)
     if (!empty($birthday)) {
@@ -127,6 +96,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
             }
         }
     }
+=======
+    if ($birthday && !preg_match('/^\d{4}-\d{2}-\d{2}$/', $birthday)) $errors['birthday'] = 'Invalid date';
+>>>>>>> fb831fd4839490ce911026d9b31557e6f2ca4e7a
 
     if (empty($errors)) {
         $updateStmt = $conn->prepare("UPDATE users SET first_name=?, last_name=?, phone=?, country=?, birthday=?, language=?, subscribe=?, updated_at=NOW() WHERE id=?");
@@ -144,11 +116,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
         } else $errors['general'] = 'Update failed.';
         $updateStmt->close();
     }
+    // 保持当前标签页为 account
     $active_tab = 'account';
 }
 
+// 修改密码（已更新规则，与注册页面一致：8-16字符，含大小写、数字或特殊字符）
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
-    $active_tab = 'security';
+    $active_tab = 'security'; // 无论成功或失败，都停留在 Security 标签页
     $current = $_POST['current_password'] ?? '';
     $new     = $_POST['new_password'] ?? '';
     $confirm = $_POST['confirm_password'] ?? '';
@@ -159,54 +133,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['change_password'])) {
     $pwdResult = $pwdStmt->get_result()->fetch_assoc();
     $pwdStmt->close();
 
-    if (!$pwdResult || !password_verify($current, $pwdResult['password'])) {
+    if (!$pwdResult || !password_verify($current, $pwdResult['password']))
         $errors['current_password'] = 'Current password is incorrect.';
-    } 
-    elseif (password_verify($new, $pwdResult['password'])) {
-        $errors['new_password'] = 'New password cannot be the same as current password.';
-    }
-    elseif (strlen($new) < 8) {
+    elseif (strlen($new) < 8)
         $errors['new_password'] = 'Password must be at least 8 characters.';
-    }
-    elseif (strlen($new) > 16) {
+    elseif (strlen($new) > 16)
         $errors['new_password'] = 'Password must not exceed 16 characters.';
-    }
-    elseif (!preg_match('/[A-Z]/', $new)) {
+    elseif (!preg_match('/[A-Z]/', $new))
         $errors['new_password'] = 'Password must contain at least one uppercase letter.';
-    }
-    elseif (!preg_match('/[a-z]/', $new)) {
+    elseif (!preg_match('/[a-z]/', $new))
         $errors['new_password'] = 'Password must contain at least one lowercase letter.';
-    }
-    elseif (!preg_match('/[0-9!@#$%^&*()_+\-=\[\]{};:\'"\\|,.<>\/?]/', $new)) {
+    elseif (!preg_match('/[0-9!@#$%^&*()_+\-=\[\]{};:\'"\\|,.<>\/?]/', $new))
         $errors['new_password'] = 'Password must contain at least one number or special character.';
-    }
-    elseif ($new !== $confirm) {
+    elseif ($new !== $confirm)
         $errors['confirm_password'] = 'Passwords do not match.';
-    }
     else {
         $hashed = password_hash($new, PASSWORD_DEFAULT);
         $update = $conn->prepare("UPDATE users SET password=?, updated_at=NOW() WHERE id=?");
         $update->bind_param("si", $hashed, $user_id);
         if ($update->execute()) {
+            // 修改成功，设置成功消息并准备跳转
             $success = 'Password changed successfully. You will be redirected to the login page in 3 seconds.';
+            // 可选：立即销毁会话，但保留消息显示
             session_destroy();
+            // 使用 JavaScript 延迟跳转
             echo '<script>
                     setTimeout(function() {
                         window.location.href = "login.php";
                     }, 3000);
                   </script>';
-        } else {
-            $errors['general'] = 'Failed to change password.';
-        }
+            // 停止继续输出页面内容（可选，但为了显示消息，让页面继续渲染）
+            // 注意：不能在此 exit，否则消息不会显示
+        } else $errors['general'] = 'Failed to change password.';
         $update->close();
     }
 }
 
+// 获取所有预订（房间+餐饮）用于表格 - 修复房间名称查询，并关联 payment 获取 points_earned
 $all_bookings = [];
 try {
+    // 房间预订：通过 JOIN rooms 获取 room name，LEFT JOIN payment 获取 points_earned
     $room_query = "SELECT 'Room' as type, r.name as name, 
                           b.check_in as start_date, b.check_out as end_date, b.guests, 
-                          b.status, p.points_earned, b.created_at
+                          b.status, p.points_earned, b.created_at, b.id as booking_id, b.room_id
                    FROM book b
                    JOIN rooms r ON b.room_id = r.id
                    LEFT JOIN payment p ON b.payment_id = p.id
@@ -218,8 +187,9 @@ try {
     $room_bookings = $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
     $stmt->close();
     
+    // 餐饮预订（没有积分赚取，直接显示 NULL）
     $dining_query = "SELECT 'Dining' as type, name, date as start_date, 
-                            NULL as end_date, guests, status, NULL as points_earned, created_at
+                            NULL as end_date, guests, status, NULL as points_earned, created_at, id as booking_id, NULL as room_id
                      FROM dining WHERE email = ? AND status != 'cancelled'
                      ORDER BY created_at DESC LIMIT 10";
     $stmt = $conn->prepare($dining_query);
@@ -235,6 +205,18 @@ try {
 } catch (mysqli_sql_exception $e) {
     error_log("Booking fetch error: " . $e->getMessage());
 }
+
+$countries = [
+    'Malaysia', 'Singapore', 'Thailand', 'Indonesia', 'Vietnam', 'Philippines',
+    'United States', 'United Kingdom', 'Australia', 'China', 'Japan', 'South Korea',
+    'India', 'Germany', 'France', 'Italy', 'Canada', 'Other'
+];
+$languages = [
+    'en' => 'English',
+    'zh' => '中文',
+    'ms' => 'Bahasa Malaysia',
+    'ja' => '日本語'
+];
 ?>
 
 <!DOCTYPE html>
@@ -247,9 +229,8 @@ try {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <!-- Review Popup CSS -->
-    <link rel="stylesheet" href="/Hotel-Booking-Web-System/ChongEeLynn/css/review_popup.css">
-    
     <style>
+        /* 所有样式限定在 .profile-container 内，避免影响 footer */
         .header {
             background: rgba(26, 26, 26, 0.95);
             padding: 0.8rem 0;
@@ -545,6 +526,270 @@ try {
             display: inline-block;
         }
         
+        /* Review Modal Styles */
+        .review-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 99999;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(3px);
+        }
+
+        .review-modal.show {
+            display: flex;
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        .review-modal-content {
+            background: white;
+            border-radius: 24px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            animation: modalSlideUp 0.3s ease;
+        }
+
+        .review-modal-header {
+            background: linear-gradient(135deg, #c5a059, #a07d3e);
+            padding: 20px 24px;
+            border-radius: 24px 24px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: white;
+        }
+
+        .review-modal-header h3 {
+            margin: 0;
+            font-size: 1.4rem;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .review-modal-header h3 i {
+            margin-right: 8px;
+        }
+
+        .review-close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.8rem;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+            opacity: 0.8;
+            transition: 0.2s;
+        }
+
+        .review-close-btn:hover {
+            opacity: 1;
+        }
+
+        .review-modal-body {
+            padding: 24px;
+        }
+
+        .review-hotel-name {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #c5a059;
+            margin: 0 0 8px 0;
+        }
+
+        .review-room-info {
+            font-size: 0.9rem;
+            color: #555;
+            margin: 0 0 5px 0;
+        }
+
+        .review-booking-ref {
+            font-size: 0.8rem;
+            color: #888;
+            margin: 0 0 20px 0;
+        }
+
+        .review-rating-section,
+        .review-comment-section {
+            margin-bottom: 20px;
+        }
+
+        .review-rating-section label,
+        .review-comment-section label {
+            display: block;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 0.9rem;
+        }
+
+        .star-rating {
+            display: flex;
+            gap: 12px;
+            cursor: pointer;
+        }
+
+        .star-rating .star {
+            font-size: 2rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            color: #ddd;
+        }
+
+        .star-rating .star:hover {
+            transform: scale(1.1);
+        }
+
+        .review-comment-section textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: 0.2s;
+        }
+
+        .review-comment-section textarea:focus {
+            outline: none;
+            border-color: #c5a059;
+            box-shadow: 0 0 0 3px rgba(197, 160, 89, 0.1);
+        }
+
+        .review-points-info {
+            background: #fef3c7;
+            padding: 12px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            color: #b45309;
+            text-align: center;
+        }
+
+        .review-points-info i {
+            margin-right: 8px;
+        }
+
+        .review-modal-footer {
+            padding: 16px 24px 24px;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            border-top: 1px solid #eee;
+        }
+
+        .review-later-btn,
+        .review-submit-btn {
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            border: none;
+        }
+
+        .review-later-btn {
+            background: transparent;
+            border: 1px solid #ddd;
+            color: #666;
+        }
+
+        .review-later-btn:hover {
+            background: #f5f5f5;
+        }
+
+        .review-submit-btn {
+            background: #c5a059;
+            color: white;
+        }
+
+        .review-submit-btn:hover {
+            background: #a07d3e;
+            transform: translateY(-1px);
+        }
+
+        .review-submit-btn:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .review-toast {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 100000;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            animation: toastSlideIn 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .review-toast-success {
+            background: #0b5e42;
+            color: white;
+        }
+
+        .review-toast-error {
+            background: #991b1b;
+            color: white;
+        }
+
+        .review-toast-info {
+            background: #2c3e66;
+            color: white;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes modalSlideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes toastSlideIn {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .review-modal-footer {
+                flex-direction: column;
+            }
+            
+            .review-later-btn,
+            .review-submit-btn {
+                width: 100%;
+            }
+        }
+        
         @media (max-width: 900px) {
             .profile-container .hero-section {
                 flex-direction: column;
@@ -588,6 +833,7 @@ try {
 <body>
 
 <div class="profile-container">
+    <!-- 顶部欢迎 + 统计 -->
     <div class="hero-section">
         <div class="hero-text">
             <h1>Hello, <?php echo htmlspecialchars($user['first_name']); ?>!</h1>
@@ -612,7 +858,7 @@ try {
         <div class="alert-danger"><?php echo htmlspecialchars($errors['general']); ?></div>
     <?php endif; ?>
 
-    <!-- Four Tabs -->
+    <!-- 四个标签页 -->
     <div class="tabs">
         <button class="tab-btn <?php echo $active_tab === 'account' ? 'active' : ''; ?>" data-tab="account"><i class="fas fa-user-circle"></i> Account Details</button>
         <button class="tab-btn <?php echo $active_tab === 'security' ? 'active' : ''; ?>" data-tab="security"><i class="fas fa-lock"></i> Security</button>
@@ -654,9 +900,6 @@ try {
                             <?php foreach ($countries as $c): ?>
                                 <option value="<?php echo $c; ?>" <?php echo $user['country'] === $c ? 'selected' : ''; ?>><?php echo $c; ?></option>
                             <?php endforeach; ?>
-                            <?php if (!empty($user['country']) && !in_array($user['country'], $countries)): ?>
-                                <option value="<?php echo htmlspecialchars($user['country']); ?>" selected><?php echo htmlspecialchars($user['country']); ?></option>
-                            <?php endif; ?>
                         </select>
                         <?php if (isset($errors['country'])): ?><div class="error-message"><?php echo $errors['country']; ?></div><?php endif; ?>
                     </div>
@@ -664,12 +907,17 @@ try {
                 <div class="two-col">
                     <div class="form-group">
                         <label>Birthday (Optional)</label>
+<<<<<<< HEAD
                         <!-- max 属性限制为 18 年前的今天 -->
                         <input type="date" name="birthday" value="<?php echo htmlspecialchars($user['birthday']); ?>" max="<?php echo date('Y-m-d', strtotime('-18 years')); ?>">
                         <div class="info-note">You must be at least 18 years old to be eligible for birthday offers.</div>
                         <?php if (isset($errors['birthday'])): ?>
                             <div class="error-message"><?php echo $errors['birthday']; ?></div>
                         <?php endif; ?>
+=======
+                        <input type="date" name="birthday" value="<?php echo htmlspecialchars($user['birthday']); ?>">
+                        <?php if (isset($errors['birthday'])): ?><div class="error-message"><?php echo $errors['birthday']; ?></div><?php endif; ?>
+>>>>>>> fb831fd4839490ce911026d9b31557e6f2ca4e7a
                     </div>
                     <div class="form-group">
                         <label>Preferred Language</label>
@@ -731,7 +979,7 @@ try {
         </div>
     </div>
 
-    <!-- 4. Recent Bookings -->
+    <!-- 4. Recent Bookings with Review Button -->
     <div class="tab-content <?php echo $active_tab === 'bookings' ? 'active' : ''; ?>" id="bookings-tab">
         <div class="table-wrapper">
             <table class="bookings-table">
@@ -769,14 +1017,18 @@ try {
                                     }
                                     ?>
                                 </td>
-                                <td id="review-cell-<?php echo $b['booking_id']; ?>" data-room-id="<?php echo $b['room_id']; ?>" data-room-name="<?php echo htmlspecialchars($b['name']); ?>">
+                                <td id="review-cell-<?php echo $b['booking_id']; ?>" data-room-id="<?php echo $b['room_id']; ?>" data-room-name="<?php echo htmlspecialchars($b['name']); ?>" data-booking-ref="<?php echo $b['booking_id']; ?>">
                                     <span class="review-loading">Loading...</span>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
                     <?php else: ?>
                         <tr>
+<<<<<<< HEAD
                             <td colspan="7" class="empty-state">No bookings yet. <a href="../ChongEeLynn/accommodation.php" style="color: #D4AF37;">Explore our rooms</a></td>
+=======
+                            <td colspan="7" class="empty-state">No bookings yet. <a href="/Hotel-Booking-Web-System/ChongEeLynn/accommodation.php" style="color: #D4AF37;">Explore our rooms</a></td>
+>>>>>>> fb831fd4839490ce911026d9b31557e6f2ca4e7a
                         </tr>
                     <?php endif; ?>
                 </tbody>
@@ -785,12 +1037,19 @@ try {
     </div>
 </div>
 
-<!-- Review Popup JavaScript -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/js/all.min.js"></script>
-<script src="/Hotel-Booking-Web-System/ChongEeLynn/review_popup.js"></script>
 
 <script>
+<<<<<<< HEAD
 // Function to check review status for each booking and show appropriate button
+=======
+// API Base URL
+const API_URL = '/Hotel-Booking-Web-System/ChongEeLynn/review_api.php';
+
+let reviewModal = null;
+
+// Function to check review status for each booking
+>>>>>>> fb831fd4839490ce911026d9b31557e6f2ca4e7a
 async function loadReviewStatuses() {
     const bookingRows = document.querySelectorAll('#bookings-tab .bookings-table tbody tr');
     
@@ -806,7 +1065,7 @@ async function loadReviewStatuses() {
         const statusCell = row.querySelector('.status-badge');
         const status = statusCell ? statusCell.innerText.trim().toLowerCase() : '';
         
-        if (status === 'completed' && roomId) {
+        if (status === 'completed' && roomId && roomId !== 'NULL' && roomId !== '') {
             try {
                 const response = await fetch(`${API_URL}?action=check_booking&booking_id=${bookingId}`);
                 const data = await response.json();
@@ -814,7 +1073,7 @@ async function loadReviewStatuses() {
                 if (data.reviewed) {
                     reviewCell.innerHTML = '<span class="reviewed-badge"><i class="fas fa-check-circle"></i> Reviewed</span>';
                 } else {
-                    reviewCell.innerHTML = `<button class="review-btn" onclick="openManualReviewPopup(${bookingId}, ${roomId}, '${encodeURIComponent(roomName)}')"><i class="fas fa-star"></i> Leave Review</button>`;
+                    reviewCell.innerHTML = `<button class="review-btn" onclick="showReviewPopupForBooking(${bookingId}, ${roomId}, '${encodeURIComponent(roomName)}', '${bookingId}')"><i class="fas fa-star"></i> Leave Review</button>`;
                 }
             } catch (error) {
                 console.error('Error checking review status:', error);
@@ -826,31 +1085,45 @@ async function loadReviewStatuses() {
     }
 }
 
-// Manual review popup trigger
-function openManualReviewPopup(bookingId, roomId, roomName) {
-    const modal = document.createElement('div');
-    modal.id = 'reviewModal';
-    modal.className = 'review-modal';
-    modal.style.display = 'flex';
-    modal.innerHTML = `
+function showReviewPopupForBooking(bookingId, roomId, roomName, bookingRef) {
+    const booking = {
+        booking_id: bookingId,
+        room_id: roomId,
+        room_name: decodeURIComponent(roomName),
+        booking_ref: bookingRef
+    };
+    showReviewPopup(booking);
+}
+
+function showReviewPopup(booking) {
+    // Remove existing modal if any
+    if (reviewModal) {
+        reviewModal.remove();
+    }
+    
+    // Create modal HTML
+    reviewModal = document.createElement('div');
+    reviewModal.id = 'reviewModal';
+    reviewModal.className = 'review-modal';
+    reviewModal.innerHTML = `
         <div class="review-modal-content">
             <div class="review-modal-header">
                 <h3><i class="fas fa-star"></i> Leave a Review</h3>
-                <button class="review-close-btn" onclick="this.closest('#reviewModal').remove()">&times;</button>
+                <button class="review-close-btn" onclick="closeReviewPopup()">&times;</button>
             </div>
             <div class="review-modal-body">
                 <p class="review-hotel-name">Grand Hotel Melaka</p>
-                <p class="review-room-info">Room: <strong>${decodeURIComponent(roomName)}</strong></p>
-                <p class="review-booking-ref">Booking: #${bookingId}</p>
+                <p class="review-room-info">Room: <strong>${escapeHtml(booking.room_name)}</strong></p>
+                <p class="review-booking-ref">Booking: #${escapeHtml(booking.booking_ref)}</p>
                 
                 <div class="review-rating-section">
                     <label>Your Rating:</label>
-                    <div class="star-rating">
-                        <i class="far fa-star" data-rating="1"></i>
-                        <i class="far fa-star" data-rating="2"></i>
-                        <i class="far fa-star" data-rating="3"></i>
-                        <i class="far fa-star" data-rating="4"></i>
-                        <i class="far fa-star" data-rating="5"></i>
+                    <div class="star-rating" id="starRatingContainer">
+                        <span class="star" data-rating="1">☆</span>
+                        <span class="star" data-rating="2">☆</span>
+                        <span class="star" data-rating="3">☆</span>
+                        <span class="star" data-rating="4">☆</span>
+                        <span class="star" data-rating="5">☆</span>
                     </div>
                     <input type="hidden" id="reviewRating" value="0">
                 </div>
@@ -865,30 +1138,83 @@ function openManualReviewPopup(bookingId, roomId, roomName) {
                 </div>
             </div>
             <div class="review-modal-footer">
-                <button class="review-later-btn" onclick="closeAndSkip(${bookingId})">Later</button>
-                <button class="review-submit-btn" onclick="submitManualReview(${bookingId}, ${roomId})">Submit Review & Earn Points</button>
+                <button class="review-later-btn" onclick="skipReview(${booking.booking_id})">Later</button>
+                <button class="review-submit-btn" onclick="submitReview(${booking.booking_id}, ${booking.room_id})">Submit Review & Earn Points</button>
             </div>
         </div>
     `;
-    document.body.appendChild(modal);
     
-    const stars = modal.querySelectorAll('.star-rating i');
+    document.body.appendChild(reviewModal);
+    
+    // Star rating functionality
+    const stars = reviewModal.querySelectorAll('.star');
+    const ratingInput = reviewModal.querySelector('#reviewRating');
+    
+    function updateStars(rating) {
+        stars.forEach((star, index) => {
+            if (index < rating) {
+                star.textContent = '★';
+                star.style.color = '#fbbf24';
+            } else {
+                star.textContent = '☆';
+                star.style.color = '#ddd';
+            }
+        });
+    }
+    
     stars.forEach(star => {
         star.addEventListener('click', function() {
             const rating = parseInt(this.dataset.rating);
-            document.getElementById('reviewRating').value = rating;
+            ratingInput.value = rating;
+            updateStars(rating);
+            console.log('Rating selected:', rating);
+        });
+        
+        star.addEventListener('mouseenter', function() {
+            const rating = parseInt(this.dataset.rating);
             stars.forEach((s, index) => {
-                s.className = index < rating ? 'fas fa-star' : 'far fa-star';
+                if (index < rating) {
+                    s.textContent = '★';
+                    s.style.color = '#fbbf24';
+                } else {
+                    s.textContent = '☆';
+                    s.style.color = '#ddd';
+                }
             });
         });
     });
     
-    modal.addEventListener('click', function(e) {
-        if (e.target === modal) modal.remove();
+    // Reset stars on mouse leave
+    const container = reviewModal.querySelector('#starRatingContainer');
+    container.addEventListener('mouseleave', function() {
+        const currentRating = parseInt(ratingInput.value);
+        updateStars(currentRating);
+    });
+    
+    // Show modal
+    setTimeout(() => {
+        reviewModal.classList.add('show');
+    }, 10);
+    
+    // Close on background click
+    reviewModal.addEventListener('click', function(e) {
+        if (e.target === reviewModal) {
+            closeReviewPopup();
+        }
     });
 }
 
-function closeAndSkip(bookingId) {
+function closeReviewPopup() {
+    if (reviewModal) {
+        reviewModal.classList.remove('show');
+        setTimeout(() => {
+            reviewModal.remove();
+            reviewModal = null;
+        }, 300);
+    }
+}
+
+function skipReview(bookingId) {
     fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -897,29 +1223,34 @@ function closeAndSkip(bookingId) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            const modal = document.getElementById('reviewModal');
-            if (modal) modal.remove();
-            showToastMessage('You can review later from your bookings page.', 'info');
+            closeReviewPopup();
+            showToast('You can review later from your bookings page.', 'info');
             loadReviewStatuses();
         }
     })
-    .catch(error => console.error('Error:', error));
+    .catch(error => {
+        console.error('Error:', error);
+        showToast('Network error. Please try again.', 'error');
+    });
 }
 
-function submitManualReview(bookingId, roomId) {
+function submitReview(bookingId, roomId) {
     const rating = document.getElementById('reviewRating').value;
     const comment = document.getElementById('reviewComment').value;
     
+    console.log('Rating:', rating, 'Comment:', comment);
+    
     if (rating == 0) {
-        showToastMessage('Please select a rating!', 'error');
+        showToast('Please select a rating!', 'error');
         return;
     }
     
     if (!comment.trim()) {
-        showToastMessage('Please write your review!', 'error');
+        showToast('Please write your review!', 'error');
         return;
     }
     
+    // Show loading state
     const submitBtn = document.querySelector('.review-submit-btn');
     const originalText = submitBtn.innerHTML;
     submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
@@ -939,10 +1270,10 @@ function submitManualReview(bookingId, roomId) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            showToastMessage(data.message, 'success');
-            const modal = document.getElementById('reviewModal');
-            if (modal) modal.remove();
+            showToast(data.message, 'success');
+            closeReviewPopup();
             
+            // Update points display
             const pointsElement = document.querySelector('.stat-number');
             if (pointsElement) {
                 fetch(`${API_URL}?action=get_points`)
@@ -955,20 +1286,24 @@ function submitManualReview(bookingId, roomId) {
             }
             loadReviewStatuses();
         } else {
-            showToastMessage(data.error, 'error');
+            showToast(data.error, 'error');
             submitBtn.innerHTML = originalText;
             submitBtn.disabled = false;
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        showToastMessage('Network error. Please try again.', 'error');
+        showToast('Network error. Please try again.', 'error');
         submitBtn.innerHTML = originalText;
         submitBtn.disabled = false;
     });
 }
 
-function showToastMessage(message, type = 'success') {
+function showToast(message, type = 'success') {
+    // Remove existing toast
+    const existingToast = document.querySelector('.review-toast');
+    if (existingToast) existingToast.remove();
+    
     const toast = document.createElement('div');
     toast.className = `review-toast review-toast-${type}`;
     toast.innerHTML = `<i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${message}`;
@@ -978,6 +1313,40 @@ function showToastMessage(message, type = 'success') {
         toast.style.opacity = '0';
         setTimeout(() => toast.remove(), 300);
     }, 3000);
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
+}
+
+// Check for pending review on page load
+function checkForPendingReview() {
+    console.log('Checking for pending review...');
+    fetch(`${API_URL}?action=check_pending`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('API Response:', data);
+            if (data.success && data.has_review) {
+                console.log('Pending review found! Showing popup...');
+                showReviewPopup(data.booking);
+            } else {
+                console.log('No pending review found');
+            }
+        })
+        .catch(error => {
+            console.error('Error checking review status:', error);
+        });
 }
 
 // Load review statuses when bookings tab becomes active
@@ -995,9 +1364,15 @@ document.querySelectorAll('.tab-btn').forEach(btn => {
     });
 });
 
+// Initial load if bookings tab is active on page load
 if (document.getElementById('bookings-tab').classList.contains('active')) {
     loadReviewStatuses();
 }
+
+// Auto-check for pending review when page loads
+document.addEventListener('DOMContentLoaded', function() {
+    setTimeout(checkForPendingReview, 500);
+});
 </script>
 
 <?php include '../Shared/footer.php'; ?>
