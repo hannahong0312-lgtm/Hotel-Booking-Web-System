@@ -99,9 +99,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     $last_name  = cleanInput($_POST['last_name'] ?? '');
     $phone      = cleanInput($_POST['phone'] ?? '');
     $country    = cleanInput($_POST['country'] ?? '');
-    $birthday   = cleanInput($_POST['birthday'] ?? '');
     $language   = cleanInput($_POST['language'] ?? 'en');
     $subscribe  = isset($_POST['subscribe']) ? 1 : 0;
+
+    // birthday validation
+    $birthday_raw = trim($_POST['birthday'] ?? '');
+    $birthday = '';
+    if (!empty($birthday_raw)) {
+        // validate date format and logical correctness
+        $date_parts = explode('-', $birthday_raw);
+        if (count($date_parts) === 3 && checkdate((int)$date_parts[1], (int)$date_parts[2], (int)$date_parts[0])) {
+            $birthday = $birthday_raw;
+            if (strtotime($birthday) > strtotime('today')) {
+                $errors['birthday'] = 'Birthday cannot be in the future.';
+            } elseif (strtotime($birthday) > strtotime('-18 years')) {
+                $errors['birthday'] = 'You must be at least 18 years old.';
+            }
+        } else {
+            $errors['birthday'] = 'Invalid date.';
+        }
+    } else {
+        $birthday = '';
+    }
 
     if (empty($first_name)) $errors['first_name'] = 'Required';
     elseif (strlen($first_name) < 2) $errors['first_name'] = 'Min 2 characters';
@@ -110,22 +129,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['update_profile'])) {
     if (empty($phone)) $errors['phone'] = 'Required';
     elseif (!preg_match('/^[0-9+\-\s]+$/', $phone)) $errors['phone'] = 'Valid phone number';
     if (empty($country)) $errors['country'] = 'Select country';
-
-    // ========== 改进后的生日验证 ==========
-    if (!empty($birthday)) {
-        // 基本格式检查
-        if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $birthday)) {
-            $errors['birthday'] = 'Invalid date format.';
-        } else {
-            $parts = explode('-', $birthday);
-            // 使用 checkdate 验证真实日期
-            if (!checkdate($parts[1], $parts[2], $parts[0])) {
-                $errors['birthday'] = 'Please enter a valid date.';
-            } elseif (strtotime($birthday) > strtotime('today')) {
-                $errors['birthday'] = 'Birthday cannot be in the future.';
-            }
-        }
-    }
 
     if (empty($errors)) {
         $updateStmt = $conn->prepare("UPDATE users SET first_name=?, last_name=?, phone=?, country=?, birthday=?, language=?, subscribe=?, updated_at=NOW() WHERE id=?");
@@ -514,6 +517,21 @@ try {
             gap: 24px;
         }
         
+        .profile-container .form-group input[type="date"] {
+            width: 100%;
+            padding: 10px 0;
+            border: none;
+            border-bottom: 1px solid #E0DCD6;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+            background: transparent;
+            transition: border-color 0.2s;
+        }
+        .profile-container .form-group input[type="date"]:focus {
+            outline: none;
+            border-bottom-color: #D4AF37;
+        }
+        
         /* Review button in bookings table */
         .profile-container .review-btn {
             background: #D4AF37;
@@ -542,7 +560,7 @@ try {
             display: inline-block;
         }
         
-        /* Review Modal Styles */
+        /* Review Modal Styles – 与原文件完全相同 */
         .review-modal {
             display: none;
             position: fixed;
@@ -925,8 +943,15 @@ try {
                 <div class="two-col">
                     <div class="form-group">
                         <label>Birthday (Optional)</label>
-                        <input type="date" name="birthday" value="<?php echo htmlspecialchars($user['birthday']); ?>" max="<?php echo date('Y-m-d'); ?>">
-                        <?php if (isset($errors['birthday'])): ?><div class="error-message"><?php echo $errors['birthday']; ?></div><?php endif; ?>
+                        <input type="date" name="birthday" 
+                               value="<?php echo htmlspecialchars($user['birthday']); ?>"
+                               max="<?php echo date('Y-m-d', strtotime('-18 years')); ?>">
+                        <div class="info-note">
+                            <i class="fas fa-info-circle"></i> You must be at least 18 years old. 
+                        </div>
+                        <?php if (isset($errors['birthday'])): ?>
+                            <div class="error-message"><?php echo $errors['birthday']; ?></div>
+                        <?php endif; ?>
                     </div>
                     <div class="form-group">
                         <label>Preferred Language</label>
@@ -1286,7 +1311,7 @@ function submitReview(bookingId, roomId) {
                         if (pointsData.points) {
                             pointsElement.textContent = pointsData.points.toLocaleString();
                         }
-                    });
+                });
             }
             loadReviewStatuses();
         } else {
