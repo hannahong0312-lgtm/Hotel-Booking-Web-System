@@ -19,8 +19,8 @@ if (!$booking_id) {
 }
 
 if ($action === 'checkin') {
-    // Check if check-in date is valid (not before booked check_in)
-    $stmt = $conn->prepare("SELECT check_in, status, checked_in_at FROM book WHERE id = ?");
+    // Get booking details
+    $stmt = $conn->prepare("SELECT check_in, check_out, status, checked_in_at, checked_out_at FROM book WHERE id = ?");
     $stmt->bind_param("i", $booking_id);
     $stmt->execute();
     $booking = $stmt->get_result()->fetch_assoc();
@@ -30,37 +30,53 @@ if ($action === 'checkin') {
         exit;
     }
     
+    // Check if already checked in
     if ($booking['checked_in_at']) {
-        echo json_encode(['success' => false, 'error' => 'Guest already checked in']);
+        echo json_encode(['success' => false, 'error' => 'Guest already checked in on ' . date('d M Y H:i', strtotime($booking['checked_in_at']))]);
         exit;
     }
     
-    $today = date('Y-m-d');
-    $check_in_date = $booking['check_in'];
-    
-    if ($today < $check_in_date) {
-        echo json_encode(['success' => false, 'error' => 'Cannot check in before ' . $check_in_date]);
+    // Check if already checked out
+    if ($booking['checked_out_at']) {
+        echo json_encode(['success' => false, 'error' => 'Guest already checked out on ' . date('d M Y H:i', strtotime($booking['checked_out_at']))]);
         exit;
     }
     
+    // Check if booking is confirmed
     if ($booking['status'] !== 'confirmed') {
         echo json_encode(['success' => false, 'error' => 'Only confirmed bookings can be checked in']);
         exit;
     }
     
-    // Update check-in
+    $today = date('Y-m-d');
+    $check_in_date = $booking['check_in'];
+    $check_out_date = $booking['check_out'];
+    
+    // Check if trying to check in before check-in date
+    if ($today < $check_in_date) {
+        echo json_encode(['success' => false, 'error' => 'Cannot check in before ' . date('d M Y', strtotime($check_in_date)) . '. Check-in starts on this date.']);
+        exit;
+    }
+    
+    // Check if trying to check in after check-out date (booking period has ended)
+    if ($today > $check_out_date) {
+        echo json_encode(['success' => false, 'error' => 'Cannot check in. The booking period ended on ' . date('d M Y', strtotime($check_out_date)) . '. Please mark as completed.']);
+        exit;
+    }
+    
+    // All validations passed - proceed with check-in
     $stmt = $conn->prepare("UPDATE book SET checked_in_at = NOW() WHERE id = ?");
     $stmt->bind_param("i", $booking_id);
     
     if ($stmt->execute()) {
-        echo json_encode(['success' => true]);
+        echo json_encode(['success' => true, 'message' => 'Guest checked in successfully!']);
     } else {
         echo json_encode(['success' => false, 'error' => 'Database error']);
     }
     
 } elseif ($action === 'checkout') {
     // Get booking details for late checkout penalty
-    $stmt = $conn->prepare("SELECT user_id, check_out, status, checked_in_at, checked_out_at FROM book WHERE id = ?");
+    $stmt = $conn->prepare("SELECT user_id, check_in, check_out, status, checked_in_at, checked_out_at FROM book WHERE id = ?");
     $stmt->bind_param("i", $booking_id);
     $stmt->execute();
     $booking = $stmt->get_result()->fetch_assoc();
@@ -70,13 +86,15 @@ if ($action === 'checkin') {
         exit;
     }
     
+    // Check if already checked out
     if ($booking['checked_out_at']) {
-        echo json_encode(['success' => false, 'error' => 'Guest already checked out']);
+        echo json_encode(['success' => false, 'error' => 'Guest already checked out on ' . date('d M Y H:i', strtotime($booking['checked_out_at']))]);
         exit;
     }
     
+    // Check if checked in first
     if (!$booking['checked_in_at']) {
-        echo json_encode(['success' => false, 'error' => 'Guest must be checked in first']);
+        echo json_encode(['success' => false, 'error' => 'Guest must be checked in first before checking out']);
         exit;
     }
     
@@ -84,6 +102,7 @@ if ($action === 'checkin') {
     $today = new DateTime();
     $check_out_date = new DateTime($booking['check_out']);
     $late_penalty = 0;
+    $late_hours = 0;
     
     if ($today > $check_out_date) {
         $diff = $today->diff($check_out_date);
@@ -112,7 +131,12 @@ if ($action === 'checkin') {
         $stmt->execute();
         
         $conn->commit();
-        echo json_encode(['success' => true, 'late_penalty' => $late_penalty]);
+        
+        $response = ['success' => true, 'late_penalty' => $late_penalty];
+        if ($late_penalty > 0) {
+            $response['message'] = "Checked out! {$late_penalty} points deducted for late checkout ({$late_hours} hours late).";
+        }
+        echo json_encode($response);
         
     } catch (Exception $e) {
         $conn->rollback();
@@ -122,3 +146,4 @@ if ($action === 'checkin') {
 } else {
     echo json_encode(['success' => false, 'error' => 'Invalid action']);
 }
+?>
