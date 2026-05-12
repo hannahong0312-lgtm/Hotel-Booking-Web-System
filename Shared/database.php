@@ -189,7 +189,8 @@ INSERT INTO `admins` (`id`, `email`, `username`, `password`, `role`, `status`, `
 (1, 'superadmin@grandhotel.com', 'superadmin', '$2y$10$fCMrYYUPnogML0cG3KdYRehhq01AGYPnywXcBNTjvKIPmcwDSAOzW', 1, 'active', '2026-04-12 20:50:26', NULL, '2026-04-12 12:44:44', '2026-04-12 12:50:26');
 //superadmin role = 1, normal admin role = 0 
 //email:superadmin@grandhotel.com 
-//username: superAdmin
+//username: Bella
+//role: superadmin
 //password: Admin123!
 
 CREATE TABLE `birthday_discount_codes` (
@@ -202,4 +203,25 @@ CREATE TABLE `birthday_discount_codes` (
   `created_at` datetime NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+CREATE TABLE `facilities` (
+  `id` int(11) NOT NULL,
+  `category` varchar(100) NOT NULL,
+  `description` text NOT NULL,
+  `image_path` varchar(500) DEFAULT NULL,
+  `hours` varchar(100) DEFAULT NULL,
+  `feature1` varchar(255) DEFAULT NULL,
+  `feature2` varchar(255) DEFAULT NULL,
+  `display_order` int(11) DEFAULT 0,
+  `reverse_layout` tinyint(1) DEFAULT 0,
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+INSERT INTO `facilities` (`id`, `category`, `description`, `image_path`, `hours`, `feature1`, `feature2`, `display_order`, `reverse_layout`, `is_active`, `created_at`, `updated_at`) VALUES
+(1, 'Sky Fitness', 'Maintain your peak performance with panoramic city views, premium cardio machines, free weights, and personal training sessions available upon request.', 'images/sky-fitness.jpeg', '24 hours, daily', 'Equipment: State-of-the-art machines & free weights', 'Complimentary: Towels and water provided. Yoga studio access included.', 1, 0, 1, '2026-05-12 17:49:18', '2026-05-12 19:42:00'),
+(2, 'Rooftop Infinity Pool', 'Take a dip above the city skyline. Our heated infinity pool offers breathtaking sunset views, sun loungers, and refreshing cocktails delivered to your side.', 'images/rooftop-infinity-pool.jpeg', '7:00 AM – 10:00 PM, daily', 'Poolside Bar: Signature cocktails & light bites', 'Guest Perks: Towel service included. Private cabanas available.', 2, 1, 1, '2026-05-12 17:49:18', '2026-05-12 17:49:18'),
+(3, 'The Spa', 'Escape into pure relaxation with aromatherapy massages, organic facials, and traditional Malay therapies. Our expert therapists will tailor each experience.', 'images/spa.jpeg', '10:00 AM – 8:00 PM, daily', 'Signature Treatments: Aromatherapy • Hot stone • Malay massage', 'Complimentary Access: Steam room, sauna, and herbal tea lounge.', 3, 0, 1, '2026-05-12 17:49:18', '2026-05-12 17:49:18'),
+(4, 'Grand Hotel Retail Shop', 'Take home the little touches that make Grand Hotel unique. Discover a curated collection of local handicrafts, resort apparel, signature spa amenities, and exclusive merchandise.', 'images/hotel-gift-shop.jpg', '10:00 AM – 7:00 PM, daily', 'Products: Souvenirs • Apparel • Spa products', NULL, 4, 1, 1, '2026-05-12 17:49:18', '2026-05-12 17:49:18'),
+(5, 'Rangers Club', 'A safe, supervised space where little ones can play, create, and explore. Packed with games, arts & crafts, and movie screenings.', 'images/rangers-club.jpeg', '2:00 PM – 5:00 PM, daily', 'Age Group: Ages 4–12', 'Included: Healthy snacks. Parental supervision required.', 5, 0, 1, '2026-05-12 17:49:18', '2026-05-12 17:49:18'),
+(6, 'EV Charging Station', 'As part of our commitment to eco-friendly hospitality, we offer EV charging facilities for in‑house guests. Two stations available in basement B1, accessible with your room key.', 'images/ev-charging.png', '24/7, self-service', 'Access: 24/7 with room key', 'Power: 22kW AC (Type 2 & CCS)', 6, 1, 1, '2026-05-12 17:49:18', '2026-05-12 17:49:18');
