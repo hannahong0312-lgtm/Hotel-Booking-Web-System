@@ -63,11 +63,13 @@ CREATE TABLE dining (
 //Gmail: grandhotelreservation67@gmail.com  Password: Grandhotel67
 
 CREATE TABLE `dummy_credit_cards` (
-  `id` int(11) NOT NULL,
+  `id` int(11) NOT NULL AUTO_INCREMENT,
   `card_number` varchar(16) NOT NULL,
   `expiry_date` varchar(5) NOT NULL,
   `cvv` varchar(4) NOT NULL,
-  `is_valid` tinyint(1) DEFAULT 1
+  `cardholder_name` varchar(100) NOT NULL,
+  `is_valid` tinyint(1) DEFAULT 1,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 INSERT INTO `dummy_credit_cards` (`id`, `card_number`, `expiry_date`, `cvv`, `is_valid`) VALUES

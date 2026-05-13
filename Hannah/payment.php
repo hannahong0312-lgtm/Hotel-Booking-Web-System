@@ -177,6 +177,16 @@ if (isset($_GET['action']) && $_GET['action'] == 'calculate_points' && isset($_G
     exit();
 }
 
+// 显示后端支付错误
+if (isset($_SESSION['payment_error'])) {
+    echo '<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        showPaymentError("' . addslashes($_SESSION['payment_error']) . '");
+    });
+    </script>';
+    unset($_SESSION['payment_error']);
+}
+
 include '../Shared/header.php';
 
 // --- Login check ---
@@ -219,6 +229,10 @@ $points_earned_display = floor($subtotal * 10);
     <link rel="stylesheet" href="css/payment.css">
 </head>
 <body>
+
+    <!-- Payment Error Prompt (Uses your existing CSS) -->
+    <div id="paymentError"></div>
+
 <main>
 <div class="booking-container">
     <div class="booking-header">
@@ -329,8 +343,12 @@ $points_earned_display = floor($subtotal * 10);
                         </div>
 
                         <div class="form-group" id="card_details" style="display: block;">
-                            <label>Card Number</label>
+                            <label>Cardholder Name</label>
+                            <input type="text" class="form-control" id="cardholder_name" name="cardholder_name" placeholder="Enter cardholder full name">
+                            
+                            <label style="margin-top:15px">Card Number</label>
                             <input type="text" class="form-control" id="card_number" name="card_number" placeholder="1234 5678 9012 3456">
+                            
                             <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-top:15px">
                                 <div><label>Expiry Date</label><input type="text" class="form-control" id="expiry_date" name="expiry_date" placeholder="MM/YY"></div>
                                 <div><label>CVV</label><input type="text" class="form-control" id="cvv" name="cvv" placeholder="123"></div>
@@ -445,12 +463,21 @@ function checkIcAndRecalc() {
 function toggleCreditCardFields() {
     let selected = document.querySelector('input[name="payment_method"]:checked').value;
     let cardDiv = document.getElementById('card_details');
+    const cardFields = ['cardholder_name','card_number','expiry_date','cvv'];
+    
     if (selected === 'credit_card') {
         cardDiv.style.display = 'block';
-        ['card_number','expiry_date','cvv'].forEach(id => document.getElementById(id).setAttribute('required','required'));
+        cardFields.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.setAttribute('required','required');
+        });
     } else {
         cardDiv.style.display = 'none';
-        ['card_number','expiry_date','cvv'].forEach(id => document.getElementById(id).removeAttribute('required'));
+        cardFields.forEach(id => {
+            const el = document.getElementById(id);
+            if(el) el.removeAttribute('required');
+            if(el) el.value = '';
+        });
     }
 }
 
@@ -459,19 +486,75 @@ function restrictCardNumber() {
     if(cardInput) cardInput.addEventListener('input',function(e){this.value=this.value.replace(/\D/g,'').slice(0,16);});
 }
 
+// Show error using YOUR existing CSS #paymentError
+function showPaymentError(message) {
+    const err = document.getElementById('paymentError');
+    err.innerText = message;
+    err.classList.add('show');
+    window.scrollTo(0,0);
+    setTimeout(() => err.classList.remove('show'), 5000);
+}
+
+// Validation with expiry check ≥ current date
 function validatePaymentForm() {
-    let selected = document.querySelector('input[name="payment_method"]:checked').value;
-    if(selected==='credit_card'){
-        let cardNum=document.getElementById('card_number').value.trim();
-        let expiry=document.getElementById('expiry_date').value.trim();
-        let cvv=document.getElementById('cvv').value.trim();
-        if(!cardNum||!/^\d{16}$/.test(cardNum)){alert('Valid 16-digit card number');return false;}
-        if(!expiry||!/^(0[1-9]|1[0-2])\/\d{2}$/.test(expiry)){alert('Expiry MM/YY');return false;}
-        if(!cvv||!/^\d{3,4}$/.test(cvv)){alert('CVV 3-4 digits');return false;}
+    try {
+        let selected = document.querySelector('input[name="payment_method"]:checked').value;
+        
+        if(selected === 'credit_card'){
+            let cardHolder = document.getElementById('cardholder_name').value.trim();
+            let cardNum = document.getElementById('card_number').value.trim();
+            let expiry = document.getElementById('expiry_date').value.trim();
+            let cvv = document.getElementById('cvv').value.trim();
+
+            if(!cardHolder){
+                showPaymentError('Cardholder name is required');
+                return false;
+            }
+            if(!cardNum || !/^\d{16}$/.test(cardNum)){
+                showPaymentError('Valid 16-digit card number required');
+                return false;
+            }
+            if(!expiry || !/^(0[1-9]|1[0-2])\/\d{2}$/.test(expiry)){
+                showPaymentError('Expiry date must be in MM/YY format');
+                return false;
+            }
+            if(!cvv || !/^\d{3,4}$/.test(cvv)){
+                showPaymentError('CVV must be 3-4 digits');
+                return false;
+            }
+
+            // Dynamic expiry check
+            let now = new Date();
+            let currentMonth = now.getMonth() + 1;
+            let currentYear = now.getFullYear() % 100;
+
+            let [expMonth, expYear] = expiry.split('/');
+            expMonth = parseInt(expMonth, 10);
+            expYear = parseInt(expYear, 10);
+
+            if (expYear < currentYear || (expYear === currentYear && expMonth < currentMonth)) {
+                showPaymentError('Credit card expired! Please use a valid card.');
+                return false;
+            }
+        }
+
+        const phone = document.querySelector('input[name="phone"]').value.trim();
+        const ic = document.getElementById('ic_no').value.trim();
+        
+        if(!phone){
+            showPaymentError('Phone number is required');
+            return false;
+        }
+        if(!ic){
+            showPaymentError('IC/Passport number is required');
+            return false;
+        }
+
+        return true;
+    } catch (e) {
+        console.error('Validation error:', e);
+        return true;
     }
-    if(!document.querySelector('input[name="phone"]').value.trim()){alert('Phone required');return false;}
-    if(!document.getElementById('ic_no').value.trim()){alert('IC/Passport required');return false;}
-    return true;
 }
 
 document.addEventListener('DOMContentLoaded',function(){
