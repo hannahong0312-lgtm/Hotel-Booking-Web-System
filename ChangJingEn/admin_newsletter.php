@@ -34,7 +34,7 @@ $config = &$_SESSION['newsletter_config'];
 // Statistics for dashboard cards
 
 $total_subscribers = $conn->query("SELECT COUNT(*) as cnt FROM users WHERE subscribe = 1 AND email_verified = 1")->fetch_assoc()['cnt'];
-$today_birthdays   = $conn->query("SELECT COUNT(*) as cnt FROM users WHERE DATE(birthday) = CURDATE() AND subscribe = 1 AND email_verified = 1")->fetch_assoc()['cnt'];
+$today_birthdays = $conn->query("SELECT COUNT(*) as cnt FROM users WHERE birthday IS NOT NULL AND MONTH(birthday) = MONTH(CURDATE()) AND DAY(birthday) = DAY(CURDATE()) AND subscribe = 1 AND email_verified = 1")->fetch_assoc()['cnt'];
 $active_offers     = $conn->query("SELECT COUNT(*) as cnt FROM hotel_offers WHERE is_active = 1 AND valid_to >= CURDATE()")->fetch_assoc()['cnt'];
 
 $message      = '';
@@ -157,7 +157,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if (empty($subject)) {
             $error = '❌ Birthday subject cannot be empty.';
         } else {
-            $result = $conn->query("SELECT id, email, first_name FROM users WHERE DATE(birthday) = CURDATE() AND subscribe = 1 AND email_verified = 1");
+            $result = $conn->query("SELECT id, email, first_name FROM users WHERE birthday IS NOT NULL AND MONTH(birthday) = MONTH(CURDATE()) AND DAY(birthday) = DAY(CURDATE()) AND subscribe = 1 AND email_verified = 1");
             $sent = 0; $failed = 0;
             while ($user = $result->fetch_assoc()) {
                 // Generate a unique 5‑character random code prefixed with BDAY
